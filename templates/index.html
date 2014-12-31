@@ -1,0 +1,41 @@
+<h1>KVM Management Interface</h1>
+
+<h3>Running VMs</h3>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Actions</th>
+    </tr>
+    {% for dom in running_domains %}
+    <tr>
+        <td>{{ dom.id }}</td>
+        <td>{{ dom.name() }}</td>
+        <td><a href="/shutdown/{{ dom.name() }}">Shutdown</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Other VMs</h3>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Actions</th>
+    </tr>
+    {% for dom in other_domains %}
+    <tr>
+        <th></th>
+        <th>{{ dom }}</td>
+        <td><a href="/start/{{ dom }}">Start</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Make a New VM</h3>
+<form action="/create" method="post">
+    <input type="text" name="name" placeholder="name"/>
+    <input type="text" name="ram" placeholder="ram in mb"/>
+    <input type="text" name="disk_size" placeholder="disk size in gb"/>
+    <input type="submit" value="Make it"/>
+</form>
