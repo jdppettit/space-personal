@@ -94,10 +94,10 @@ def create():
     disk_size = request.form['disk_size']
     image = request.form['image']
     image_obj = Image.query.filter_by(id=image).first()
-    new_vm = Server(name, disk_size, "", ram, 1, image_obj.name)
     db.session.add(new_vm)
     db.session.commit()
     db.session.refresh(new_vm)
+    new_vm = Server(new_vm.id, disk_size, "", ram, 1, image_obj.name)
     new_event = Event(1, new_vm.id, datetime.datetime.now())
     db.session.add(new_event)
     db.session.commit()

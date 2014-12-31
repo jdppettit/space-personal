@@ -1,5 +1,6 @@
 import libvirt
 import datetime
+import os
 
 def connect():
     conn=libvirt.open("qemu:///system")
@@ -35,4 +36,9 @@ def create_vm(name, ram, disk_size, image_path):
     print "[%s] Created new VM with name %s %sMB/%sGB image %s.img." % (str(datetime.datetime.now()), str(name), str(ram), str(disk_size), str(name))
     print output
 
-
+def delete_vm(name, image_path):
+    conn = connect()
+    vm = conn.lookupByName(name)
+    conn.undefine(vm)
+    os.remote(image_path)
+    print "[%s] Deleted VM with name %s, image removed at %s." % (str(datetime.datetime.now()), str(image_path))
