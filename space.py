@@ -37,6 +37,19 @@ class Server(db.Model):
         self.ram = ram
         self.state = state
 
+class Image(db.Model):
+    __tablename__ = "image"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    path = db.Column(db.String(100))
+    size = db.Column(db.Integer)
+
+    def __init__(self, name, path, size):
+        self.name = name
+        self.path = path
+        self.size = size
+
 db.create_all()
 db.session.commit()
 
@@ -89,7 +102,7 @@ def create():
     db.session.add(new_vm)
     db.session.commit()
     create_vm(name, ram, disk_size)
-    return "Success"
+    return redirect('/')
 
 @app.route('/shutdown/<vmname>')
 def shutdown(vmname):
@@ -100,6 +113,17 @@ def shutdown(vmname):
 def start(vmname):
     start_vm(vmname)
     return redirect('/')
+
+@app.route('/images', methods=['POST','GET'])
+def images():
+    if request.method == "GET":
+        images = Image.query.all()
+        return render_template("images.html", images=images)
+    else:
+        new_image = Image(request.form['name'], request.form['path'], request.form['size'])
+        db.session.add(new_image)
+        db.session.commit()
+        return redirect('/images')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10050, debug=True)

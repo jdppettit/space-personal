@@ -1,0 +1,24 @@
+{% include 'navigation.html' %}
+<h3>Existing Images</h3>
+<table>
+    <tr>
+        <th>Image Name</th>
+        <th>Path</th>
+        <th>Size</th>
+    </tr>
+    {% for image in images %}
+        <tr>
+            <td>{{ image.name }}</td>
+            <td>{{ image.path }}</td>
+            <td>{{ image.size }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h3>Add New Images</h3>
+<form action="/images" method="post">
+    <input type="text" name="name" placeholder="Name"/>
+    <input type="text" name="path" placeholder="Path"/>
+    <input type="text" name="size" placeholder="Size"/>
+    <input type="submit" value="Add"/>
+</form>
