@@ -1,32 +1,24 @@
 {% include 'navigation.html' %}
-<h3>Running VMs</h3>
+<h3>VMs</h3>
 <table>
     <tr>
         <th>ID</th>
         <th>Name</th>
+        <th>RAM</th>
+        <th>Disk Size</th>
+        <th>Image</th>
+        <th>State</th>
         <th>Actions</th>
     </tr>
-    {% for dom in running_domains %}
+    {% for server in servers %}
     <tr>
-        <td>{{ dom.id }}</td>
-        <td>{{ dom.name() }}</td>
-        <td><a href="/shutdown/{{ dom.name() }}">Shutdown</a></td>
-    </tr>
-    {% endfor %}
-</table>
-
-<h3>Other VMs</h3>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Actions</th>
-    </tr>
-    {% for dom in other_domains %}
-    <tr>
-        <th></th>
-        <th>{{ dom }}</td>
-        <td><a href="/start/{{ dom }}">Start</a></td>
+        <td>{{ server.id }}</td>
+        <td><a href="/edit/{{ server.id }}">{{ server.name }}</a></td>
+        <td>{{ server.ram }}</td>
+        <td>{{ server.disk_size }}</td>
+        <td>{{ server.image }}</td>
+        <td>{% if server.state == 1 %}Running{% else %}Off{% endif %}</td>
+        <td><a href="/shutdown/{{ server.id }}">Shutdown</a>&nbsp;<a href="/start/{{ server.id }}">Start</a></td>
     </tr>
     {% endfor %}
 </table>
@@ -36,5 +28,10 @@
     <input type="text" name="name" placeholder="name"/>
     <input type="text" name="ram" placeholder="ram in mb"/>
     <input type="text" name="disk_size" placeholder="disk size in gb"/>
+    <select name="image">
+        {% for image in images %}
+        <option value="{{ image.id }}">{{ image.name }}</option>
+        {% endfor %}
+    </select>
     <input type="submit" value="Make it"/>
 </form>

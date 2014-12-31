@@ -1,0 +1,11 @@
+{% include 'navigation.html' %}
+<h3>Edit - {{ server.name }}</h3>
+<p>This just updates the DB for now.</p>
+<form action="/edit/{{ server.id }}" method="post">
+    <input type="text" name="name" value="{{ server.name }}"/><br/>
+    <input type="text" name="ram" value="{{ server.ram }}"/><br/>
+    <input type="text" name="disk_size" value="{{ server.disk_size }}"/><br/>
+    <input type="text" name="image" value="{{ server.image }}"/><br/>
+    <input type="text" name="state" value="{{ server.state }}"/><br/>
+    <input type="submit" value="Edit"/>
+</form>

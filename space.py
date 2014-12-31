@@ -29,13 +29,15 @@ class Server(db.Model):
     disk_path = db.Column(db.String(100))
     ram = db.Column(db.Integer)
     state = db.Column(db.Integer)
+    image = db.Column(db.String(100))
 
-    def __init__(self, name, disk_size, disk_path, ram, state):
+    def __init__(self, name, disk_size, disk_path, ram, state, image):
         self.name = name
         self.disk_size = disk_size
         self.disk_path = disk_path
         self.ram = ram
         self.state = state
+        self.image = image
 
 class Image(db.Model):
     __tablename__ = "image"
@@ -81,38 +83,67 @@ def start_vm(name):
     vm = conn.lookupByName(name)
     vm.create()
 
-def create_vm(name, ram, disk_size):
-    string = "virt-install --name %s --ram %s --disk path=/var/disks/%s.img,size=%s --vnc --cdrom /var/images/ubuntu-14.04.1-server-amd64.iso" % (str(name), str(ram), str(name), str(disk_size))
+def create_vm(name, ram, disk_size, image_path):
+    string = "virt-install --name %s --ram %s --disk path=/var/disks/%s.img,size=%s --vnc --cdrom %s" % (str(name), str(ram), str(name), str(disk_size), str(image_path))
     process = subprocess.Popen(string.split(), stdout=subprocess.PIPE)
     output = process.communicate()[0]
     print "[%s] Created new VM with name %s %sMB/%sGB image %s.img." % (str(datetime.datetime.now()), str(name), str(ram), str(disk_size), str(name))
     print output
 
+
+def get_images():
+    images = Image.query.all()
+    return images
+
 @app.route('/')
 def index():
-    running_domains, other_domains = list_vms()
-    return render_template("index.html", running_domains = running_domains, other_domains = other_domains)
+    servers = Server.query.all()
+    images = get_images()
+    return render_template("index.html", servers = servers, images=images)
 
 @app.route('/create', methods=['POST'])
 def create():
     name = request.form['name']
     ram = request.form['ram']
     disk_size = request.form['disk_size']
-    new_vm = Server(name, disk_size, "", ram, 0)
+    image = request.form['image']
+    image_obj = Image.query.filter_by(id=image).first()
+    new_vm = Server(name, disk_size, "", ram, 1, image_obj.name)
     db.session.add(new_vm)
     db.session.commit()
-    create_vm(name, ram, disk_size)
+    create_vm(name, ram, disk_size, image_obj.path)
     return redirect('/')
 
-@app.route('/shutdown/<vmname>')
-def shutdown(vmname):
-    shutdown_vm(vmname)
+@app.route('/shutdown/<vmid>')
+def shutdown(vmid):
+    vm = Server.query.filter_by(id=vmid).first()
+    vm.state = 0
+    db.session.commit()
+    shutdown_vm(vm.name)
     return redirect('/')
 
-@app.route('/start/<vmname>')
-def start(vmname):
-    start_vm(vmname)
+@app.route('/start/<vmid>')
+def start(vmid):
+    vm = Server.query.filter_by(id=vmid).first()
+    vm.state = 1
+    db.session.commit()
+    start_vm(vm.name)
     return redirect('/')
+
+@app.route('/edit/<vmid>', methods=['POST','GET'])
+def edit(vmid):
+    if request.method == "GET":
+        server = Server.query.filter_by(id=vmid).first()
+        return render_template("edit.html", server=server)
+    else:
+        vm = Server.query.filter_by(id=vmid).first()
+        vm.name = request.form['name']
+        vm.ram = request.form['ram']
+        vm.disk_size = request.form['disk_size']
+        vm.image = request.form['image']
+        vm.state = request.form['state']
+        db.session.commit()
+        return redirect('/edit/%s' % str(vmid))
 
 @app.route('/images', methods=['POST','GET'])
 def images():
