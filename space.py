@@ -3,6 +3,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.basicauth import BasicAuth
 
 from config import *
+from domfunctions import *
 
 import libvirt
 import subprocess
@@ -52,44 +53,29 @@ class Image(db.Model):
         self.path = path
         self.size = size
 
+class Event(db.Model):
+    __tablename__ = "event"
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime)
+    type = db.Column(db.Integer)
+    server_id = db.Column(db.Integer)
+
+    def __init__(self, type, server_id, date):
+        self.type = type
+        self.server_id = server_id
+        self.date = date
+
+'''
+Event Types
+1 = Create
+2 = Destroy
+3 = Boot
+4 = Shutdown
+'''
+
 db.create_all()
 db.session.commit()
-
-
-def connect():
-    conn=libvirt.open("qemu:///system")
-    print "[%s] Connection established with server." % str(datetime.datetime.now())    
-    return conn
-
-def list_vms():
-    conn = connect()
-    other_domains = conn.listDefinedDomains()
-    running_domains = conn.listDomainsID()
-    print "[%s] Got a list of domains." % str(datetime.datetime.now())
-    data = []
-    for id in running_domains:
-        data.append(conn.lookupByID(id))
-    return data, other_domains
-
-def shutdown_vm(name):
-    conn = connect()
-    print "[%s] Sent shutdown to VM %s." % (str(datetime.datetime.now()), str(name))
-    vm = conn.lookupByName(name)
-    vm.destroy()
-
-def start_vm(name):
-    conn = connect()
-    print "[%s] Sent startup to VM %s." % (str(datetime.datetime.now()), str(name))
-    vm = conn.lookupByName(name)
-    vm.create()
-
-def create_vm(name, ram, disk_size, image_path):
-    string = "virt-install --name %s --ram %s --disk path=/var/disks/%s.img,size=%s --vnc --cdrom %s" % (str(name), str(ram), str(name), str(disk_size), str(image_path))
-    process = subprocess.Popen(string.split(), stdout=subprocess.PIPE)
-    output = process.communicate()[0]
-    print "[%s] Created new VM with name %s %sMB/%sGB image %s.img." % (str(datetime.datetime.now()), str(name), str(ram), str(disk_size), str(name))
-    print output
-
 
 def get_images():
     images = Image.query.all()
@@ -111,6 +97,10 @@ def create():
     new_vm = Server(name, disk_size, "", ram, 1, image_obj.name)
     db.session.add(new_vm)
     db.session.commit()
+    db.session.refresh(new_vm)
+    new_event = Event(1, new_vm.id, datetime.datetime.now())
+    db.session.add(new_event)
+    db.session.commit()
     create_vm(name, ram, disk_size, image_obj.path)
     return redirect('/')
 
@@ -118,6 +108,8 @@ def create():
 def shutdown(vmid):
     vm = Server.query.filter_by(id=vmid).first()
     vm.state = 0
+    new_event = Event(4, vm.id, datetime.datetime.now())
+    db.session.add(new_event)
     db.session.commit()
     shutdown_vm(vm.name)
     return redirect('/')
@@ -126,6 +118,8 @@ def shutdown(vmid):
 def start(vmid):
     vm = Server.query.filter_by(id=vmid).first()
     vm.state = 1
+    new_event = Event(3, vm.id, datetime.datetime.now())
+    db.session.add(new_event)
     db.session.commit()
     start_vm(vm.name)
     return redirect('/')
@@ -134,7 +128,8 @@ def start(vmid):
 def edit(vmid):
     if request.method == "GET":
         server = Server.query.filter_by(id=vmid).first()
-        return render_template("edit.html", server=server)
+        events = Event.query.filter_by(server_id=server.id).all()
+        return render_template("edit.html", server=server, events=events)
     else:
         vm = Server.query.filter_by(id=vmid).first()
         vm.name = request.form['name']
@@ -155,6 +150,22 @@ def images():
         db.session.add(new_image)
         db.session.commit()
         return redirect('/images')
+
+@app.route('/image/edit/<imageid>', methods=['POST','GET'])
+def edit_image(imageid):
+    if request.method == "GET":
+        image = Image.query.filter_by(id=imageid).first()
+        return render_template("edit_image.html", image=image)
+    else:
+        image = Image.query.filter_by(id=imageid).first()
+        name = request.form['name']
+        size = request.form['size']
+        path = request.form['path']
+        image.name = name
+        image.size = size
+        image.path = path
+        db.session.commit()
+        return redirect('/image/edit/%s' % str(imageid))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10050, debug=True)

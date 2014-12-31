@@ -8,7 +8,7 @@
     </tr>
     {% for image in images %}
         <tr>
-            <td>{{ image.name }}</td>
+            <td><a href="/image/edit/{{ image.id }}">{{ image.name }}</a></td>
             <td>{{ image.path }}</td>
             <td>{{ image.size }}</td>
         </tr>

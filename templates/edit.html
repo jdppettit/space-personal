@@ -9,3 +9,19 @@
     <input type="text" name="state" value="{{ server.state }}"/><br/>
     <input type="submit" value="Edit"/>
 </form>
+
+<h3>Events</h3>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Date</th>
+    </tr>
+    {% for event in events %}
+    <tr>
+        <td>{{ event.id }}</td>
+        <td>{% if event.type == 1 %}Create{% elif event.type == 2 %}Destroy{% elif event.type == 3 %}Boot{% else %}Shutdown{% endif %}</td>
+        <td>{{ event.date }}</td>
+    </tr>
+    {% endfor %}
+</table>
