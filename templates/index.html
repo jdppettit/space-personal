@@ -18,7 +18,8 @@
         <td>{{ server.disk_size }}</td>
         <td>{{ server.image }}</td>
         <td>{% if server.state == 1 %}Running{% else %}Off{% endif %}</td>
-        <td><a href="/shutdown/{{ server.id }}">Shutdown</a>&nbsp;<a href="/start/{{ server.id }}">Start</a></td>
+        <td><a href="/shutdown/{{ server.id }}">Shutdown</a>&nbsp;<a href="/start/{{ server.id }}">Start</a>&nbsp;<a
+        href="/destroy/{{ server.id }}">Destroy</a></td>
     </tr>
     {% endfor %}
 </table>

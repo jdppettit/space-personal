@@ -1,6 +1,7 @@
 import libvirt
 import datetime
 import os
+import subprocess
 
 def connect():
     conn=libvirt.open("qemu:///system")
@@ -20,17 +21,17 @@ def list_vms():
 def shutdown_vm(name):
     conn = connect()
     print "[%s] Sent shutdown to VM %s." % (str(datetime.datetime.now()), str(name))
-    vm = conn.lookupByName(name)
+    vm = conn.lookupByName("vm%s" % str(name))
     vm.destroy()
 
 def start_vm(name):
     conn = connect()
     print "[%s] Sent startup to VM %s." % (str(datetime.datetime.now()), str(name))
-    vm = conn.lookupByName(name)
+    vm = conn.lookupByName("vm%s" % str(name))
     vm.create()
 
 def create_vm(name, ram, disk_size, image_path):
-    string = "virt-install --name %s --ram %s --disk path=/var/disks/%s.img,size=%s --vnc --cdrom %s" % (str(name), str(ram), str(name), str(disk_size), str(image_path))
+    string = "virt-install --name vm%s --ram %s --disk path=/var/disks/vm%s.img,size=%s --vnc --cdrom %s" % (str(name), str(ram), str(name), str(disk_size), str(image_path))
     process = subprocess.Popen(string.split(), stdout=subprocess.PIPE)
     output = process.communicate()[0]
     print "[%s] Created new VM with name %s %sMB/%sGB image %s.img." % (str(datetime.datetime.now()), str(name), str(ram), str(disk_size), str(name))
@@ -38,7 +39,10 @@ def create_vm(name, ram, disk_size, image_path):
 
 def delete_vm(name, image_path):
     conn = connect()
-    vm = conn.lookupByName(name)
-    conn.undefine(vm)
-    os.remote(image_path)
-    print "[%s] Deleted VM with name %s, image removed at %s." % (str(datetime.datetime.now()), str(image_path))
+    vm = conn.lookupByName("vm%s" % str(name))
+    try:
+        vm.destroy()
+    except:
+        vm.undefine()
+    os.remove(image_path)
+    print "[%s] Deleted VM with name vm%s, image removed at %s." % (str(datetime.datetime.now()), str(name), str(image_path))

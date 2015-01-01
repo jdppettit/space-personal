@@ -83,7 +83,7 @@ def get_images():
 
 @app.route('/')
 def index():
-    servers = Server.query.all()
+    servers = Server.query.filter(Server.state != 3).all()
     images = get_images()
     return render_template("index.html", servers = servers, images=images)
 
@@ -94,15 +94,30 @@ def create():
     disk_size = request.form['disk_size']
     image = request.form['image']
     image_obj = Image.query.filter_by(id=image).first()
+    new_vm = Server(name, disk_size, "", ram, 1, image_obj.name)
     db.session.add(new_vm)
     db.session.commit()
     db.session.refresh(new_vm)
-    new_vm = Server(new_vm.id, disk_size, "", ram, 1, image_obj.name)
+    disk_path = "/var/disks/vm%s.img" % str(new_vm.id)
+    new_vm.disk_path = disk_path
     new_event = Event(1, new_vm.id, datetime.datetime.now())
+    boot_event = Event(3, new_vm.id, datetime.datetime.now())
+    db.session.add(new_event)
+    db.session.add(boot_event)
+    db.session.commit()
+    create_vm(new_vm.id, ram, disk_size, image_obj.path)
+    return redirect('/')
+
+@app.route('/destroy/<vmid>')
+def destroy(vmid):
+    vm = Server.query.filter_by(id=vmid).first()
+    vm.state = 3
+    new_event = Event(2, vm.id, datetime.datetime.now())
     db.session.add(new_event)
     db.session.commit()
-    create_vm(name, ram, disk_size, image_obj.path)
+    delete_vm(vm.id, vm.disk_path)
     return redirect('/')
+
 
 @app.route('/shutdown/<vmid>')
 def shutdown(vmid):
@@ -111,7 +126,7 @@ def shutdown(vmid):
     new_event = Event(4, vm.id, datetime.datetime.now())
     db.session.add(new_event)
     db.session.commit()
-    shutdown_vm(vm.name)
+    shutdown_vm(vm.id)
     return redirect('/')
 
 @app.route('/start/<vmid>')
@@ -121,7 +136,7 @@ def start(vmid):
     new_event = Event(3, vm.id, datetime.datetime.now())
     db.session.add(new_event)
     db.session.commit()
-    start_vm(vm.name)
+    start_vm(vm.id)
     return redirect('/')
 
 @app.route('/edit/<vmid>', methods=['POST','GET'])
