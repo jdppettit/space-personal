@@ -1,4 +1,6 @@
-{% include 'navigation.html' %}
+{% extends 'grid.html' %}
+{% block title %}Space - Images{% endblock %}
+{% block content %}
 <h3>Existing Images</h3>
 <table>
     <tr>
@@ -22,3 +24,4 @@
     <input type="text" name="size" placeholder="Size"/>
     <input type="submit" value="Add"/>
 </form>
+{% endblock %}

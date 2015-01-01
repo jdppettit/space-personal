@@ -1,4 +1,6 @@
-{% include 'navigation.html' %}
+{% extends 'grid.html' %}
+{% block title %}Space - Edit {{ image.name }}{% endblock %}
+{% block content %}
 <h3>Edit Image ({{ image.name }})</h3>
 <form action="/image/edit/{{ image.id }}" method="post">
     Image Name: <input type="text" name="name" value="{{ image.name }}"/><br/>
@@ -6,3 +8,4 @@
     Image Size: <input type="text" name="size" value="{{ image.size }}"/><br/>
     <input type="submit" value="Edit"/>
 </form>
+{% endblock %}

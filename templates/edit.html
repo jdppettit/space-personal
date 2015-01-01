@@ -1,4 +1,6 @@
-{% include 'navigation.html' %}
+{% extends 'grid.html' %}
+{% block title %}Space - Edit {{ server.name }}{% endblock %}
+{% block content %}
 <h3>Edit - {{ server.name }}</h3>
 <p>This just updates the DB for now.</p>
 <form action="/edit/{{ server.id }}" method="post">
@@ -25,3 +27,4 @@
     </tr>
     {% endfor %}
 </table>
+{% endblock %}

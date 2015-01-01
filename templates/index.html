@@ -1,6 +1,8 @@
-{% include 'navigation.html' %}
+{% extends 'grid.html' %}
+{% block title %}Space{% endblock %}
+{% block content %}
 <h3>VMs</h3>
-<table>
+<table class="table">
     <tr>
         <th>ID</th>
         <th>Name</th>
@@ -17,9 +19,10 @@
         <td>{{ server.ram }}</td>
         <td>{{ server.disk_size }}</td>
         <td>{{ server.image }}</td>
-        <td>{% if server.state == 1 %}Running{% else %}Off{% endif %}</td>
-        <td><a href="/shutdown/{{ server.id }}">Shutdown</a>&nbsp;<a href="/start/{{ server.id }}">Start</a>&nbsp;<a
-        href="/destroy/{{ server.id }}">Destroy</a></td>
+        <td>{% if server.state == 1 %}<p><span class="label label-success">Running</span></p>{% else %}<p><span
+        class="label label-danger">Shutdown</span></p>{% endif %}</td>
+        <td>{% if server.state == 1 %}<a class="btn btn-warning btn-xs" href="/shutdown/{{ server.id }}">Shutdown</a>&nbsp;{% elif server.state == 0 %}<a class="btn btn-success btn-xs" href="/start/{{ server.id }}">Start</a>&nbsp;{% endif %}<a
+        class="btn btn-danger btn-xs" href="/destroy/{{ server.id }}">Destroy</a></td>
     </tr>
     {% endfor %}
 </table>
@@ -36,3 +39,4 @@
     </select>
     <input type="submit" value="Make it"/>
 </form>
+{% endblock %}
