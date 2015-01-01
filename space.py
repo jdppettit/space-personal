@@ -139,6 +139,11 @@ def start(vmid):
     start_vm(vm.id)
     return redirect('/')
 
+@app.route('/viewall')
+def view_all():
+    domains = Server.query.filter_by(state=3).all()
+    return render_template("view_deleted.html", domains=domains)
+
 @app.route('/edit/<vmid>', methods=['POST','GET'])
 def edit(vmid):
     if request.method == "GET":
