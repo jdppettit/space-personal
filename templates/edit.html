@@ -3,17 +3,18 @@
 {% block content %}
 <h3>Edit - {{ server.name }}</h3>
 <p>This just updates the DB for now.</p>
+<p>States: 0 = off, 1 = running, 3 = destroyed</p>
 <form action="/edit/{{ server.id }}" method="post">
-    <input type="text" name="name" value="{{ server.name }}"/><br/>
-    <input type="text" name="ram" value="{{ server.ram }}"/><br/>
-    <input type="text" name="disk_size" value="{{ server.disk_size }}"/><br/>
-    <input type="text" name="image" value="{{ server.image }}"/><br/>
-    <input type="text" name="state" value="{{ server.state }}"/><br/>
+    Name: <input type="text" name="name" value="{{ server.name }}"/><br/>
+    RAM: <input type="text" name="ram" value="{{ server.ram }}"/><br/>
+    Disk Size: <input type="text" name="disk_size" value="{{ server.disk_size }}"/><br/>
+    Image: <input type="text" name="image" value="{{ server.image }}"/><br/>
+    State: <input type="text" name="state" value="{{ server.state }}"/><br/>
     <input type="submit" value="Edit"/>
 </form>
 
 <h3>Events</h3>
-<table>
+<table class="table">
     <tr>
         <th>ID</th>
         <th>Type</th>
