@@ -5,10 +5,10 @@ def make_config(name, disk_path, ram, vcpu):
     domain = et.Element("domain")
 
     namexml = et.SubElement(domain, "name")
-    name.text = name
+    namexml.text = name
 
     uuidxml = et.SubElement(domain, "uuid")
-    uuidxml.text = uuid.uuid1()
+    uuidxml.text = str(uuid.uuid1())
 
     memoryxml = et.SubElement(domain, "memory")
     memoryxml.set("unit", "MB")
@@ -25,4 +25,28 @@ def make_config(name, disk_path, ram, vcpu):
     osxml = et.SubElement(domain, "os")
     
     typexml = et.SubElement(osxml, "type")
-    typexml.set("arch", "x86_64")
+    typexml.text = "hvm"
+
+    bootdev1xml = et.SubElement(osxml, "boot")
+    bootdev1xml.set("dev", "hd")
+
+    featurexml = et.SubElement(domain, "features")
+    acpixml = et.SubElement(featurexml, "acpi")
+    apicxml = et.SubElement(featurexml, "apic")
+    paexml = et.SubElement(featurexml, "pae")
+
+    clockxml = et.SubElement(domain, "clock")
+    clockxml.set("offset", "utc")
+
+    onpoweroffxml = et.SubElement(domain, "on_poweroff")
+    onpoweroffxml.text = "destroy"
+
+    onrebootxml = et.SubElement(domain, "on_reboot")
+    onrebootxml.text = "restart"
+
+    oncrashxml = et.SubElement(domain, "on_crash")
+    oncrashxml.text = "restart"
+
+    tree = et.ElementTree(domain)
+    path = "/var/configs/vm%s.xml" % str(name)
+    tree.write(path)
