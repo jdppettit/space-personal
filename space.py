@@ -66,6 +66,36 @@ class Event(db.Model):
         self.server_id = server_id
         self.date = date
 
+class Log(db.Model):
+    __tablename__ = "log"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime)
+    message = db.Column(db.DateTime)
+    level = db.Column(db.Integer)
+
+    def __init__(self, date, message, level):
+        self.date = date
+        self.message = message
+        self.level = level
+
+class IPAddress(db.Model):
+    __tablename__ = "ipaddress"
+
+    id = db.Column(db.Integer, primary_key=True)
+    ip = db.Column(db.String(12))
+    netmask = db.Column(db.Integer)
+    status = db.Column(db.Integer)
+    server_id = db.Column(db.Integer)
+    gateway = db.Column(db.Integer)
+
+    def __init__(self, ip, netmask, status, server_id, gateway):
+        self.ip = ip
+        self.netmask = netmask
+        self.status = status
+        self.server_id = server_id
+        self.gateway = gateway
+
 '''
 Event Types
 1 = Create
@@ -85,7 +115,8 @@ def get_images():
 def index():
     servers = Server.query.filter(Server.state != 3).all()
     images = get_images()
-    return render_template("index.html", servers = servers, images=images)
+    log = Log.query.all()
+    return render_template("index.html", servers = servers, images=images, log=log)
 
 @app.route('/create', methods=['POST'])
 def create():

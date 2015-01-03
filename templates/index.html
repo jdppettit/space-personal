@@ -39,4 +39,20 @@
     </select>
     <input type="submit" value="Make it"/>
 </form>
+
+<h3>Server Events</h3>
+<table class="table">
+    <tr>
+        <th>Date</th>
+        <th>Level</th>
+        <th>Message</th>
+    </tr>
+    {% for event in log %}
+    <tr>
+        <td>{{ event.date }}</td>
+        <td>{{ event.level }}</td>
+        <td>{{ event.message }}</td>
+    </tr>
+    {% endfor %}
+</table>
 {% endblock %}
