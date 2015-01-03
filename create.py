@@ -1,8 +1,10 @@
 import xml.etree.cElementTree as et
 import uuid
+import subprocess
 
-def make_config(name, disk_path, ram, vcpu):
+def make_config(name, disk_path, ram, vcpu, image):
     domain = et.Element("domain")
+    domain.set("type","qemu")
 
     namexml = et.SubElement(domain, "name")
     namexml.text = name
@@ -50,7 +52,7 @@ def make_config(name, disk_path, ram, vcpu):
     devicesxml = et.SubElement(domain, "devices")
 
     emulatorxml = et.SubElement(devicesxml, "emulator")
-    emulator.text = "/usr/libexec/qemu-kvm"
+    emulatorxml.text = "/usr/libexec/qemu-kvm"
 
     disk1xml = et.SubElement(devicesxml, "disk")
     disk1xml.set("type", "file")
@@ -62,7 +64,7 @@ def make_config(name, disk_path, ram, vcpu):
     disk1driverxml.set("cache", "none")
 
     disk1sourcexml = et.SubElement(disk1xml, "source")
-    disk1sourcexml.set("file", "/var/disks/vm%s" % str(name))
+    disk1sourcexml.set("file", "/var/disks/vm%s.img" % str(name))
     
     disk1targetxml = et.SubElement(disk1xml, "target")
     disk1targetxml.set("dev","hda")
@@ -78,6 +80,9 @@ def make_config(name, disk_path, ram, vcpu):
     disk2xml = et.SubElement(devicesxml, "disk")
     disk2xml.set("type", "block")
     disk2xml.set("device", "cdrom")
+
+    disk2sourcexml = et.SubElement(disk2xml, "source")
+    disk2sourcexml.set("file", "/var/images/%s.iso" % str(image))
 
     disk2driverxml = et.SubElement(disk2xml, "driver")
     disk2driverxml.set("name", "qemu")
@@ -95,7 +100,22 @@ def make_config(name, disk_path, ram, vcpu):
     disk2addressxml.set("bus", "1")
     disk2addressxml.set("target", "0")
     disk2addressxml.set("unit", "0")
+    
+    networkxml = et.SubElement(devicesxml, "interface")
+    networkxml.set("type","network")
+
+    networksourcexml = et.SubElement(networkxml, "source")
+    networksourcexml.set("network", "default")
+
+    graphicsxml = et.SubElement(devicesxml, "graphics")
+    graphicsxml.set("type","vnc")
+    graphicsxml.set("port","-1")
 
     tree = et.ElementTree(domain)
     path = "/var/configs/vm%s.xml" % str(name)
     tree.write(path)
+
+def make_image(name, disk_size):
+    command = "qemu-img create /var/disks/vm%s.img %sG" % (str(name), str(disk_size))
+    subprocess.Popen(command.split())
+
