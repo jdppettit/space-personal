@@ -7,7 +7,7 @@ def make_config(name, disk_path, ram, vcpu, image):
     domain.set("type","qemu")
 
     namexml = et.SubElement(domain, "name")
-    namexml.text = name
+    namexml.text = "vm%s" % str(name)
 
     uuidxml = et.SubElement(domain, "uuid")
     uuidxml.text = str(uuid.uuid1())

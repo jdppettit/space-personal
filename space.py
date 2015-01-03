@@ -140,19 +140,18 @@ def create():
     ram = request.form['ram']
     disk_size = request.form['disk_size']
     image = request.form['image']
+    vcpu = request.form['vcpu']
     image_obj = Image.query.filter_by(id=image).first()
     new_vm = Server(name, disk_size, "", ram, 1, image_obj.name)
     db.session.add(new_vm)
     db.session.commit()
     db.session.refresh(new_vm)
-    disk_path = "/var/disks/vm%s.img" % str(new_vm.id)
-    new_vm.disk_path = disk_path
     new_event = Event(1, new_vm.id, datetime.datetime.now())
     boot_event = Event(3, new_vm.id, datetime.datetime.now())
     db.session.add(new_event)
     db.session.add(boot_event)
     db.session.commit()
-    create_vm(new_vm.id, ram, disk_size, image_obj.path)
+    create_vm(new_vm.id, ram, disk_size, image_obj.name, vcpu)
     return redirect('/')
 
 @app.route('/destroy/<vmid>')

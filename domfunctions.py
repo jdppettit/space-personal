@@ -2,6 +2,7 @@ import libvirt
 import datetime
 import os
 import subprocess
+import create
 
 from space import db, Log
 
@@ -43,15 +44,42 @@ def start_vm(name):
     vm = conn.lookupByName("vm%s" % str(name))
     vm.create()
 
-def create_vm(name, ram, disk_size, image_path):
-    string = "virt-install --name vm%s --ram %s --disk path=/var/disks/vm%s.img,size=%s --vnc --cdrom %s" % (str(name), str(ram), str(name), str(disk_size), str(image_path))
-    process = subprocess.Popen(string.split(), stdout=subprocess.PIPE)
-    output = process.communicate()[0]
-    message = "Created new VM with name %s %sMB/%sGB image %s.img." % (str(name), str(ram), str(disk_size), str(name))
-    logm = Log(str(datetime.datetime.now()), message, 1)
-    db.session.add(logm)
+def create_vm(name, ram, disk_size, image, vcpu):
+    create.make_config(name, "", ram, vcpu, image)
+    message = "Created new configuration for vm%s at /var/config/vm%s.xml" % (str(name), str(name))
+    
+    logm1 = Log(datetime.datetime.now(), message, 1)
+    db.session.add(logm1)
+
+    create.make_image(name, disk_size)
+    message2 = "Created new disk image /var/disks/vm%s.img of size %sGB." % (str(name), str(disk_size))
+
+    logm2 = Log(datetime.datetime.now(), message2, 1)
+    db.session.add(logm2)
+
+    conn = connect()
+    xmlpath = "/var/configs/vm%s.xml" % str(name)
+    
+    xml = ""
+
+    with open(xmlpath, "r") as file:
+        xml = file.read()
+
+    conn.defineXML(xml)
+
+    message3 = "Defined new domain vm%s." % str(name)
+    logm3 = Log(datetime.datetime.now(), message3, 1)
+    db.session.add(logm3)
+
+    newdom = conn.lookupByName("vm%s" % str(name))
+    newdom.create()
+
+    message4 = "Sent startup to vm%s." % str(name)
+    logm4 = Log(datetime.datetime.now(), message4, 1)
+    db.session.add(logm4)
+
     db.session.commit()
-    print output
+
 
 def delete_vm(name, image_path):
     conn = connect()

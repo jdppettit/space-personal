@@ -32,6 +32,7 @@
     <input type="text" name="name" placeholder="name"/>
     <input type="text" name="ram" placeholder="ram in mb"/>
     <input type="text" name="disk_size" placeholder="disk size in gb"/>
+    <input type="text" name="vcpu" placeholder="VCPUs"/>
     <select name="image">
         {% for image in images %}
         <option value="{{ image.id }}">{{ image.name }}</option>
