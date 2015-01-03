@@ -1,0 +1,28 @@
+{% extends 'grid.html' %}
+{% block title %}Space - IPs{% endblock %}
+{% block content %}
+<h3>Existing IPs</h3>
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>IP</th>
+        <th>Netmask</th>
+        <th>Server</th>
+    </tr>
+    {% for ip in ips %}
+        <tr>
+            <td>{{ ip.id }}</td>
+            <td>{{ ip.ip }}</td>
+            <td>{{ ip.netmask }}</td>
+            <td><a href="/edit/{{ ip.server_id }}">{{ ip.server_id }}</a></td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h3>Add New IP</h3>
+<form action="/ip" method="post">
+    <input type="text" name="address" placeholder="Address"/>
+    <input type="text" name="netmask" placeholder="Netmask"/>
+    <input type="submit" value="Add"/>
+</form>
+{% endblock %}

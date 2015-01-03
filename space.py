@@ -71,7 +71,7 @@ class Log(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime)
-    message = db.Column(db.DateTime)
+    message = db.Column(db.String(100))
     level = db.Column(db.Integer)
 
     def __init__(self, date, message, level):
@@ -83,7 +83,7 @@ class IPAddress(db.Model):
     __tablename__ = "ipaddress"
 
     id = db.Column(db.Integer, primary_key=True)
-    ip = db.Column(db.String(12))
+    ip = db.Column(db.String(20))
     netmask = db.Column(db.Integer)
     status = db.Column(db.Integer)
     server_id = db.Column(db.Integer)
@@ -110,6 +110,22 @@ db.session.commit()
 def get_images():
     images = Image.query.all()
     return images
+
+@app.route('/ip', methods=['POST','GET'])
+def ips():
+    if request.method == "GET":
+        ips = IPAddress.query.all()
+        return render_template("ips.html", ips=ips)
+    else:
+        address = request.form['address']
+        netmask = request.form['netmask']
+        new_ip = IPAddress(address, netmask, 0, 0, "0")
+        message = "Added new IP %s/%s" % (str(address), str(netmask))
+        logm = Log(datetime.datetime.now(), message, 1)
+        db.session.add(new_ip)
+        db.session.add(logm)
+        db.session.commit()
+        return redirect('/ip')
 
 @app.route('/')
 def index():
@@ -198,6 +214,9 @@ def images():
         return render_template("images.html", images=images)
     else:
         new_image = Image(request.form['name'], request.form['path'], request.form['size'])
+        message = "Created new image %s of size %s at %s" % (str(new_image.name), str(new_image.size), str(new_image.path))
+        logm = Log(str(datetime.datetime.now()), message, 1)
+        db.session.add(logm)
         db.session.add(new_image)
         db.session.commit()
         return redirect('/images')
