@@ -113,6 +113,13 @@ def get_images():
     images = Image.query.all()
     return images
 
+@app.route('/console/<vmid>')
+def console(vmid):
+    vm = Server.query.filter_by(id=vmid).first()
+    vncport = make_console(str(vm.id))    
+    vncurl = "http://pluto.pettitservers.com/vnc_auto.html?host=pluto.pettitservers.com&port=%s" % str(vncport)
+    return redirect(vncurl.split("\n")[0], code=302)
+
 @app.route('/ip', methods=['POST','GET'])
 def ips():
     if request.method == "GET":

@@ -94,3 +94,43 @@ def delete_vm(name, image_path):
     db.session.add(logm)
     db.session.commit()
 
+def make_console(name):
+    port, endport = get_vnc_port(name)
+    novncport = start_novnc(port, endport)
+    return novncport
+
+def get_vnc_port(name):
+    conn = connect()
+    vm = conn.lookupByName("vm%s" % str(name))
+    command = "virsh vncdisplay vm%s" % str(name)
+    p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    output = p.communicate()[0]
+    endport = output.split(":")[1]
+    if int(endport) < 10:
+        port = "590%s" % str(endport)
+        eport = "0%s" % str(endport)
+    else:
+        port = "59%s" % str(endport)
+        eport = endport
+    message = "Got VNC port %s, output returned: %s" % (str(port), str(output))
+    logm = Log(datetime.datetime.now(), message, 1)
+    db.session.add(logm)
+    db.session.commit()
+    return port, eport
+
+def start_novnc(port, last):
+    command = "python /srv/noVNC/utils/websockify --web /srv/noVNC 61%s localhost:%s -D" % (str(last), str(port))
+    command = command.replace('\n', '')
+    print command
+#    command = "/srv/noVNC/utils/websockify 127.0.0.1:60%s --vnc 127.0.0.1:%s --web /srv/noVNC/utils -D" % (str(last), str(port))
+    p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    output = p.communicate()[0]
+    message = "Opened noVNC on port 60%s" % str(last)
+    logm = Log(datetime.datetime.now(), message, 1)
+    db.session.add(logm)
+    db.session.commit()
+    port = "61%s" % str(last)
+    return port
+
+
+

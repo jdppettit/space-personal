@@ -78,7 +78,7 @@ def make_config(name, disk_path, ram, vcpu, image):
     disk1addressxml.set("unit", "0")
 
     disk2xml = et.SubElement(devicesxml, "disk")
-    disk2xml.set("type", "block")
+    disk2xml.set("type", "file")
     disk2xml.set("device", "cdrom")
 
     disk2sourcexml = et.SubElement(disk2xml, "source")

@@ -23,8 +23,10 @@
         <td>{{ server.image }}</td>
         <td>{% if server.state == 1 %}<p><span class="label label-success">Running</span></p>{% else %}<p><span
         class="label label-danger">Shutdown</span></p>{% endif %}</td>
-        <td>{% if server.state == 1 %}<a class="btn btn-warning btn-xs" href="/shutdown/{{ server.id }}">Shutdown</a>&nbsp;{% elif server.state == 0 %}<a class="btn btn-success btn-xs" href="/start/{{ server.id }}">Start</a>&nbsp;{% endif %}<a
-        class="btn btn-danger btn-xs" href="/destroy/{{ server.id }}">Destroy</a></td>
+        <td>{% if server.state == 1 %}<a class="btn btn-warning btn-xs" href="/shutdown/{{ server.id
+        }}">Shutdown</a>&nbsp;{% elif server.state == 0 %}<a class="btn btn-success btn-xs" href="/start/{{ server.id
+        }}">Start</a>&nbsp;{% endif %}<a class="btn btn-primary btn-xs" href="/console/{{ server.id
+        }}">Console</a>&nbsp;<a class="btn btn-danger btn-xs" href="/destroy/{{ server.id }}">Destroy</a></td>
     </tr>
     {% endfor %}
 </table>
