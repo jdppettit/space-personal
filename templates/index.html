@@ -7,6 +7,7 @@
         <th>ID</th>
         <th>Name</th>
         <th>RAM</th>
+        <th>VCPU</th>
         <th>Disk Size</th>
         <th>Image</th>
         <th>State</th>
@@ -16,6 +17,7 @@
     <tr>
         <td>{{ server.id }}</td>
         <td><a href="/edit/{{ server.id }}">{{ server.name }}</a></td>
+        <td>{{ server.vcpu }}</td>
         <td>{{ server.ram }}</td>
         <td>{{ server.disk_size }}</td>
         <td>{{ server.image }}</td>
@@ -29,16 +31,16 @@
 
 <h3>Make a New VM</h3>
 <form action="/create" method="post">
-    <input type="text" name="name" placeholder="name"/>
-    <input type="text" name="ram" placeholder="ram in mb"/>
-    <input type="text" name="disk_size" placeholder="disk size in gb"/>
-    <input type="text" name="vcpu" placeholder="VCPUs"/>
-    <select name="image">
+    <input class="form-control" type="text" name="name" placeholder="VM Name"/><br/>
+    <input class="form-control" type="text" name="ram" placeholder="RAM in MB"/><br/>
+    <input class="form-control" type="text" name="disk_size" placeholder="Disk Size in GB"/><br/>
+    <input class="form-control" type="text" name="vcpu" placeholder="Number of VCPUs"/><br/>
+    <select class="form-control" name="image">
         {% for image in images %}
         <option value="{{ image.id }}">{{ image.name }}</option>
         {% endfor %}
-    </select>
-    <input type="submit" value="Make it"/>
+    </select><br/>
+    <input class="btn btn-success" type="submit" value="Make it"/>
 </form>
 
 <h3>Server Events</h3>

@@ -28,17 +28,19 @@ class Server(db.Model):
     name = db.Column(db.String(100))
     disk_size = db.Column(db.Integer)
     disk_path = db.Column(db.String(100))
+    vcpu = db.Column(db.Integer)
     ram = db.Column(db.Integer)
     state = db.Column(db.Integer)
     image = db.Column(db.String(100))
 
-    def __init__(self, name, disk_size, disk_path, ram, state, image):
+    def __init__(self, name, disk_size, disk_path, ram, state, image, vcpu):
         self.name = name
         self.disk_size = disk_size
         self.disk_path = disk_path
         self.ram = ram
         self.state = state
         self.image = image
+        self.vcpu = vcpu
 
 class Image(db.Model):
     __tablename__ = "image"
@@ -142,7 +144,7 @@ def create():
     image = request.form['image']
     vcpu = request.form['vcpu']
     image_obj = Image.query.filter_by(id=image).first()
-    new_vm = Server(name, disk_size, "", ram, 1, image_obj.name)
+    new_vm = Server(name, disk_size, "", ram, 1, image_obj.name, vcpu)
     db.session.add(new_vm)
     db.session.commit()
     db.session.refresh(new_vm)
