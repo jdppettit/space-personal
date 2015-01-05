@@ -1,0 +1,13 @@
+{% extends 'grid.html' %}
+{% block title %}Space - Host Configuration{% endblock %}
+{% block content %}
+<h3>Host Configuration</h3>
+<p>This page will show you the limitations and statistics for the host (the physical machine) your VM's are running
+on.</p>
+<form action="/host" method="post">
+    Hostname: <input type="text" name="hostname" class="form-control" value="{{ host.name }}"/><br/>
+    RAM Total: <input type="text" name="ram_total" class="form-control" value="{{ host.total_ram }}"/><br/>
+    Estimated Remaining RAM: <input type="text" name="estimated_ram" class="form-control" value=""/><br/>
+    <input type="submit"/>
+</form>
+{% endblock %}

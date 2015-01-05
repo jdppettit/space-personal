@@ -98,6 +98,17 @@ class IPAddress(db.Model):
         self.server_id = server_id
         self.gateway = gateway
 
+class Host(db.Model):
+    __tablename__ = "host"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    ram = db.Column(db.Integer)
+
+    def __init__(self, name, ram):
+        self.name = name
+        self.ram = ram
+
 '''
 Event Types
 1 = Create
@@ -199,6 +210,13 @@ def start(vmid):
 def view_all():
     domains = Server.query.filter_by(state=3).all()
     return render_template("view_deleted.html", domains=domains)
+
+@app.route('/host', methods=['POST','GET'])
+def host():
+    if request.method == "GET":
+        return render_template("host.html")
+    else:
+        print "foo"
 
 @app.route('/edit/<vmid>', methods=['POST','GET'])
 def edit(vmid):
