@@ -95,9 +95,17 @@ def delete_vm(name, image_path):
     db.session.commit()
 
 def make_console(name):
-    port, endport = get_vnc_port(name)
-    novncport = start_novnc(port, endport)
-    return novncport
+    try:
+        port, endport = get_vnc_port(name)
+        novncport = start_novnc(port, endport)
+        return novncport
+    except Exception as e:
+        message = "Failed to create VNC console. Got message: %s" % str(e)
+        logm = Log(datetime.datetime.now(), message, 3)
+        db.session.add(logm)
+        db.session.commit()
+        return "error" 
+
 
 def get_vnc_port(name):
     conn = connect()

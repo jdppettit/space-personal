@@ -4,10 +4,16 @@ import subprocess
 
 def make_config(name, disk_path, ram, vcpu, image):
     domain = et.Element("domain")
-    domain.set("type","qemu")
+    domain.set("type","kvm")
 
     namexml = et.SubElement(domain, "name")
     namexml.text = "vm%s" % str(name)
+    
+    cpuxml = et.SubElement(domain, "cpu")
+    cputopologyxml = et.SubElement(cpuxml, "topology")
+    cputopologyxml.set("sockets", "1")
+    cputopologyxml.set("cores", "4")
+    cputopologyxml.set("threads", "4")
 
     uuidxml = et.SubElement(domain, "uuid")
     uuidxml.text = str(uuid.uuid1())
@@ -68,7 +74,6 @@ def make_config(name, disk_path, ram, vcpu, image):
     
     disk1targetxml = et.SubElement(disk1xml, "target")
     disk1targetxml.set("dev","hda")
-    disk1targetxml.set("bus","ide")
 
     disk1addressxml = et.SubElement(disk1xml, "address")
     disk1addressxml.set("type", "drive")

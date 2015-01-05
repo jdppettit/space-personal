@@ -5,12 +5,13 @@
 <p>This just updates the DB for now.</p>
 <p>States: 0 = off, 1 = running, 3 = destroyed</p>
 <form action="/edit/{{ server.id }}" method="post">
-    Name: <input type="text" name="name" value="{{ server.name }}"/><br/>
-    RAM: <input type="text" name="ram" value="{{ server.ram }}"/><br/>
-    Disk Size: <input type="text" name="disk_size" value="{{ server.disk_size }}"/><br/>
-    Image: <input type="text" name="image" value="{{ server.image }}"/><br/>
-    State: <input type="text" name="state" value="{{ server.state }}"/><br/>
-    <input type="submit" value="Edit"/>
+    <input class="form-control" type="text" name="name" value="{{ server.name }}"/><br/>
+    <input class="form-control" type="text" name="ram" value="{{ server.ram }}"/><br/>
+    <input class="form-control" type="text" name="vcpu" value="{{ server.vcpu }}"/><br/>
+    <input class="form-control" type="text" name="disk_size" value="{{ server.disk_size }}"/><br/>
+    <input class="form-control" type="text" name="image" value="{{ server.image }}"/><br/>
+    <input class="form-control" type="text" name="state" value="{{ server.state }}"/><br/>
+    <input class="btn btn-success" type="submit" value="Edit"/>
 </form>
 
 <h3>Events</h3>
