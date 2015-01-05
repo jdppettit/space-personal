@@ -5,12 +5,13 @@
 <p>This just updates the DB for now.</p>
 <p>States: 0 = off, 1 = running, 3 = destroyed</p>
 <form action="/edit/{{ server.id }}" method="post">
-    <input class="form-control" type="text" name="name" value="{{ server.name }}"/><br/>
-    <input class="form-control" type="text" name="ram" value="{{ server.ram }}"/><br/>
-    <input class="form-control" type="text" name="vcpu" value="{{ server.vcpu }}"/><br/>
-    <input class="form-control" type="text" name="disk_size" value="{{ server.disk_size }}"/><br/>
-    <input class="form-control" type="text" name="image" value="{{ server.image }}"/><br/>
-    <input class="form-control" type="text" name="state" value="{{ server.state }}"/><br/>
+    Name: <input class="form-control" type="text" name="name" value="{{ server.name }}"/><br/>
+    RAM: <input class="form-control" type="text" name="ram" value="{{ server.ram }}"/><br/>
+    VCPU: <input class="form-control" type="text" name="vcpu" value="{{ server.vcpu }}"/><br/>
+    Disk Size: <input class="form-control" type="text" name="disk_size" value="{{ server.disk_size }}"/><br/>
+    Image: <input class="form-control" type="text" name="image" value="{{ server.image }}"/><br/>
+    State: <input class="form-control" type="text" name="state" value="{{ server.state }}"/><br/>
+    <div class="checkbox"><label><input type="checkbox" name="push" value="1">Push to VM (this will restart the VM)</label></div>
     <input class="btn btn-success" type="submit" value="Edit"/>
 </form>
 

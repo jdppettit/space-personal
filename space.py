@@ -113,10 +113,6 @@ def get_images():
     images = Image.query.all()
     return images
 
-@app.route('/console/<vmid>/vnc/')
-def console_vnc(vmid):
-    return render_template("vnc.html")
-
 @app.route('/console/<vmid>')
 def console(vmid):
     vm = Server.query.filter_by(id=vmid).first()
@@ -218,6 +214,13 @@ def edit(vmid):
         vm.image = request.form['image']
         vm.state = request.form['state']
         db.session.commit()
+
+        if "push" in request.form:
+            # We're going to actually update the config
+            update_config(vm) 
+            shutdown_vm(vm.id)
+            redefine(vm.id)
+            start_vm(vm.id) 
         return redirect('/edit/%s' % str(vmid))
 
 @app.route('/images', methods=['POST','GET'])
