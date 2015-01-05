@@ -1,0 +1,29 @@
+{% extends 'grid.html' %}
+{% block title %}Space{% endblock %}
+{% block content %}
+<h3>Host Events</h3>
+<table class="table sortable">
+    <thead>
+    <tr>
+        <th>Date</th>
+        <th>Level</th>
+        <th>Message</th>
+    </tr>
+    </thead>
+    {% for event in log %}
+    <tr>
+        <td>{{ event.date }}</td>
+        <td>
+        {% if event.level == 1 %}
+        <p><span class="label label-primary">Debug</span></p>
+        {% elif event.level == 2 %}
+        <p><span class="label label-warning">Warning</span></p>
+        {% else %}
+        <p><span class="label label-danger">Error</span></p>
+        {% endif %}
+        </td>
+        <td>{{ event.message }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

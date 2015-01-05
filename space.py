@@ -148,11 +148,16 @@ def ips():
         db.session.commit()
         return redirect('/ip')
 
+@app.route('/events')
+def events():
+    log = Log.query.all()
+    return render_template("events.html", log=log)
+
 @app.route('/')
 def index():
     servers = Server.query.filter(Server.state != 3).all()
     images = get_images()
-    log = Log.query.all()
+    log = Log.query.filter(Log.level >= 2).all()
     return render_template("index.html", servers = servers, images=images, log=log)
 
 @app.route('/create', methods=['POST'])
