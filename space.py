@@ -218,9 +218,13 @@ def edit(vmid):
         if "push" in request.form:
             # We're going to actually update the config
             update_config(vm) 
-            shutdown_vm(vm.id)
-            redefine(vm.id)
-            start_vm(vm.id) 
+            try:
+                shutdown_vm(vm.id)
+            except:
+                pass
+            redefine_vm(vm)
+            if vm.state == 1:
+                start_vm(vm.id)
         return redirect('/edit/%s' % str(vmid))
 
 @app.route('/images', methods=['POST','GET'])

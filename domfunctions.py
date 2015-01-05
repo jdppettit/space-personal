@@ -81,6 +81,47 @@ def create_vm(name, ram, disk_size, image, vcpu):
     db.session.commit()
 
 
+def update_config(vm):
+    os.remove('/var/configs/vm%s.xml' % str(vm.id))
+    
+    message1 = "Deleted config for vm%s at /var/configs/vm%s.xml" % (str(vm.id), str(vm.id))
+    logm1 = Log(datetime.datetime.now(), message1, 1)
+    db.session.add(logm1)
+    
+    create.make_config(vm.id, "", str(vm.ram), str(vm.vcpu), vm.image)
+
+    message = "Created new configuration for vm%s at /var/config/vm%s.xml" % (str(vm.id), str(vm.id))
+
+    logm2 = Log(datetime.datetime.now(), message, 1)
+    db.session.add(logm2)
+
+    db.session.commit()
+
+def redefine_vm(vm):
+    conn = connect()
+    dom = conn.lookupByName("vm%s" % str(vm.id))
+    try:
+        dom.destroy()
+    except:
+        dom.undefine()
+
+    xmlpath = "/var/configs/vm%s.xml" % str(vm.id)
+
+    xml = ""
+
+    with open(xmlpath, "r") as file:
+            xml = file.read()
+
+    conn.defineXML(xml)
+
+    message3 = "Redefined domain vm%s." % str(vm.id)
+    logm3 = Log(datetime.datetime.now(), message3, 1)
+    db.session.add(logm3)
+
+    db.session.commit()
+
+
+
 def delete_vm(name, image_path):
     conn = connect()
     vm = conn.lookupByName("vm%s" % str(name))
