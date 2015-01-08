@@ -1,0 +1,33 @@
+{% extends 'grid.html' %}
+{% block title %}Space - 
+{% if type == "deleted" %}Deleted VMs
+{% elif type == "active" %}Active VMs
+{% elif type == "all" %}All VMs
+{% endif %}{% endblock %}
+{% block content %}
+{% if type == "all" %}
+<h3>All VMs</h3>
+{% elif type == "deleted" %}
+<h3>Deleted VMs</h3>
+{% elif type == "active" %}
+<h3>Active VMs</h3>
+{% endif %}
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>RAM</th>
+        <th>Disk Size</th>
+        <th>Image</th>
+    </tr>
+    {% for dom in domains %}
+    <tr>
+        <td>{{ dom.id }}</td>
+        <td><a href="/edit/{{ dom.id }}">{{ dom.name }}</a></td>
+        <td>{{ dom.ram }}</td>
+        <td>{{ dom.disk_size }}</td>
+        <td>{{ dom.image }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -32,9 +32,9 @@ class Server(db.Model):
     ram = db.Column(db.Integer)
     state = db.Column(db.Integer)
     image = db.Column(db.String(100))
-    #inconsistent = db.Column(db.Integer)
+    inconsistent = db.Column(db.Integer)
 
-    def __init__(self, name, disk_size, disk_path, ram, state, image, vcpu):
+    def __init__(self, name, disk_size, disk_path, ram, state, image, vcpu, inconsistent=0):
         self.name = name
         self.disk_size = disk_size
         self.disk_path = disk_path
@@ -116,6 +116,7 @@ Event Types
 2 = Destroy
 3 = Boot
 4 = Shutdown
+5 = Inconsistency
 '''
 
 db.create_all()
@@ -142,23 +143,29 @@ def sync_status():
             message = "Checked %s, DB says it should not be running, but it is running." % real_id
             logm = Log(datetime.datetime.now(), message, 2)
             db.session.add(logm)
+
+            new_event = Event(5, server.id, datetime.datetime.now())
+            db.session.add(new_event)
+
             server.inconsistent = 1
+            db.session.add(server)
             db.session.commit()
         elif server.state == 1 and real_id in real_status:
             message = "Checked %s, DB says it should be running, but is is not running." % real_id
             logm = Log(datetime.datetime.now(), message, 2)
             db.session.add(logm)
+
+            new_event = Event(5, server.id, datetime.datetime.now())
+            db.session.add(new_event)
+
             server.inconsistent = 1
+            db.session.add(server)
             db.session.commit()
 
 @app.route('/utils/sync_status')
 def syncstatus():
    sync_status()
    return redirect('/')
-
-@app.route('/novnc')
-def novnc():
-    return render_template("vnc_auto.html")
 
 @app.route('/console/<vmid>')
 def console(vmid):
@@ -213,6 +220,12 @@ def create():
     db.session.add(boot_event)
     db.session.commit()
     create_vm(new_vm.id, ram, disk_size, image_obj.name, vcpu)
+
+    message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm.id), str(name), str(ram), str(disk_size))
+    logm = Log(datetime.datetime.now(), message, 1)
+    db.session.add(logm)
+    db.session.commit()
+
     return redirect('/')
 
 @app.route('/destroy/<vmid>')
@@ -223,6 +236,12 @@ def destroy(vmid):
     db.session.add(new_event)
     db.session.commit()
     delete_vm(vm.id, vm.disk_path)
+
+    message = "Deleted vm%s." % str(vmid)
+    logm = Log(datetime.datetime.now(), message, 1)
+    db.session.add(logm)
+    db.session.commit()
+
     return redirect('/')
 
 
@@ -246,10 +265,20 @@ def start(vmid):
     start_vm(vm.id)
     return redirect('/')
 
-@app.route('/viewall')
+@app.route('/vms/all')
 def view_all():
+    domains = Server.query.all()
+    return render_template("view.html", domains=domains, type="all")
+
+@app.route('/vms/active')
+def view_active():
+    domains = Server.query.filter(Server.state != 3).all()
+    return render_template("view.html", domains=domains, type="active")
+
+@app.route('/vms/deleted')
+def view_deleted():
     domains = Server.query.filter_by(state=3).all()
-    return render_template("view_deleted.html", domains=domains)
+    return render_template("view.html", domains=domains, type="deleted")
 
 @app.route('/host', methods=['POST','GET'])
 def host():
@@ -277,12 +306,18 @@ def edit(vmid):
             # We're going to actually update the config
             update_config(vm) 
             try:
+                new_event = Event(4, vmid, datetime.datetime.now())
+                db.session.add(new_event)
+                db.session.commit()
                 shutdown_vm(vm.id)
             except:
                 pass
             redefine_vm(vm)
             if vm.state == 1:
                 start_vm(vm.id)
+                new_event = Event(3, vmid, datetime.datetime.now())
+                db.session.add(new_event)
+                db.session.commit()
         return redirect('/edit/%s' % str(vmid))
 
 @app.route('/images', methods=['POST','GET'])

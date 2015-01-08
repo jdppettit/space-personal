@@ -12,6 +12,7 @@
         <th>Disk Size</th>
         <th>Image</th>
         <th>State</th>
+        <th>Flags</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -28,6 +29,11 @@
         <p><span class="label label-success">Running</span></p>
         {% else %}
         <p><span class="label label-danger">Shutdown</span></p>
+        {% endif %}
+        </td>
+        <td>
+        {% if server.inconsistent == 1 %}
+        <span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" data-placement="right" title="Server is in an inconsistent state"></span>
         {% endif %}
         </td>
         <td>

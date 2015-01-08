@@ -25,7 +25,8 @@
     {% for event in events %}
     <tr>
         <td>{{ event.id }}</td>
-        <td>{% if event.type == 1 %}Create{% elif event.type == 2 %}Destroy{% elif event.type == 3 %}Boot{% else %}Shutdown{% endif %}</td>
+        <td>{% if event.type == 1 %}Create{% elif event.type == 2 %}Destroy{% elif event.type == 3 %}Boot{% elif
+        event.type == 4 %}Shutdown{% elif event.type == 5 %}VM is inconsistent{% endif %}</td>
         <td>{{ event.date }}</td>
     </tr>
     {% endfor %}
