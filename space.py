@@ -32,6 +32,7 @@ class Server(db.Model):
     ram = db.Column(db.Integer)
     state = db.Column(db.Integer)
     image = db.Column(db.String(100))
+    #inconsistent = db.Column(db.Integer)
 
     def __init__(self, name, disk_size, disk_path, ram, state, image, vcpu):
         self.name = name
@@ -124,13 +125,47 @@ def get_images():
     images = Image.query.all()
     return images
 
+def sync_status():
+    conn = connect()
+    real_status = conn.listDefinedDomains()
+
+    servers = Server.query.all()
+
+    message_sync = "Syncing real state with database states."
+    logm_sync = Log(datetime.datetime.now(), message_sync, 1)
+    db.session.add(logm_sync)
+    db.session.commit()
+
+    for server in servers:
+        real_id = "vm%s" % str(server.id)
+        if server.state == 0 and real_id not in real_status:
+            message = "Checked %s, DB says it should not be running, but it is running." % real_id
+            logm = Log(datetime.datetime.now(), message, 2)
+            db.session.add(logm)
+            server.inconsistent = 1
+            db.session.commit()
+        elif server.state == 1 and real_id in real_status:
+            message = "Checked %s, DB says it should be running, but is is not running." % real_id
+            logm = Log(datetime.datetime.now(), message, 2)
+            db.session.add(logm)
+            server.inconsistent = 1
+            db.session.commit()
+
+@app.route('/utils/sync_status')
+def syncstatus():
+   sync_status()
+   return redirect('/')
+
+@app.route('/novnc')
+def novnc():
+    return render_template("vnc_auto.html")
+
 @app.route('/console/<vmid>')
 def console(vmid):
     vm = Server.query.filter_by(id=vmid).first()
     vncport = make_console(str(vm.id))    
     vncurl = "http://pluto.pettitservers.com/vnc_auto.html?host=pluto.pettitservers.com&port=%s" % str(vncport)
-    return render_template("console.html", url=vncurl.split("\n")[0], name=vm.name)
-    return redirect(vncurl.split("\n")[0], code=302)
+    return render_template("vnc_auto.html", port=vncport, server_name=vm.name)
 
 @app.route('/ip', methods=['POST','GET'])
 def ips():
