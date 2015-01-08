@@ -249,6 +249,7 @@ def destroy(vmid):
 def shutdown(vmid):
     vm = Server.query.filter_by(id=vmid).first()
     vm.state = 0
+    vm.inconsistent = 0
     new_event = Event(4, vm.id, datetime.datetime.now())
     db.session.add(new_event)
     db.session.commit()
@@ -259,6 +260,7 @@ def shutdown(vmid):
 def start(vmid):
     vm = Server.query.filter_by(id=vmid).first()
     vm.state = 1
+    vm.inconsistent = 0
     new_event = Event(3, vm.id, datetime.datetime.now())
     db.session.add(new_event)
     db.session.commit()
