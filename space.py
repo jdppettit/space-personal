@@ -129,6 +129,25 @@ def destroy(vmid):
 
     return redirect('/')
 
+@app.route('/reboot/<vmid>')
+def reboot(vmid):
+    vm = Server.query.filter_by(id=vmid).first()
+    vm.state = 0
+    vm.inconsistent = 0
+
+    db.session.commit()
+
+    shutdown_event(vm.id)
+    shutdown_vm(vm.id)
+    
+    vm.state = 1
+
+    db.session.commit()
+
+    startup_event(vm.id)
+    start_vm(vm.id)
+
+    return redirect('/')
 
 @app.route('/shutdown/<vmid>')
 def shutdown(vmid):

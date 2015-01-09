@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 {% extends 'grid.html' %}
-{% block title %}Space - VNC Console{% endblock %}
+{% block title %}Space - VNC Console ({{ server_name }}){% endblock %}
 {% block head_content %}
     <!-- Apple iOS Safari settings -->
     <link rel="stylesheet" href="/static/noVNC/include/base.css" title="plain">
@@ -128,7 +128,7 @@
             $D('xvpResetButton').onclick = xvpReset;
 
             WebUtil.init_logging(WebUtil.getQueryVar('logging', 'warn'));
-            document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
+            // document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
             // By default, use the host and port of server that served this file
             host = "pluto.pettitservers.com"
             // WebUtil.getQueryVar('host', window.location.hostname);

@@ -43,6 +43,7 @@
         <td>
         {% if server.state == 1 %}
         <a class="btn btn-warning btn-xs" href="/shutdown/{{ server.id }}">Shutdown</a>&nbsp;
+        <a class="btn btn-default btn-xs" href="/reboot/{{ server.id }}">Reboot</a>&nbsp;
         <a class="btn btn-primary btn-xs" href="/console/{{ server.id }}">Console</a>&nbsp;
         {% elif server.state == 0 %}
         <a class="btn btn-success btn-xs" href="/start/{{ server.id }}">Start</a>&nbsp;
