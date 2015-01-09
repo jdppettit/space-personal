@@ -14,8 +14,9 @@ class Server(db.Model):
     state = db.Column(db.Integer)
     image = db.Column(db.String(100))
     inconsistent = db.Column(db.Integer)
+    mac_address = db.Column(db.String(20))
 
-    def __init__(self, name, disk_size, disk_path, ram, state, image, vcpu, inconsistent=0):
+    def __init__(self, name, disk_size, disk_path, ram, state, image, vcpu):
         self.name = name
         self.disk_size = disk_size
         self.disk_path = disk_path

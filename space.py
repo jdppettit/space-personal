@@ -40,6 +40,10 @@ with app.app_context():
     db.create_all()
     db.session.commit()
 
+@app.route('/tests/mac')
+def tests_mac():
+    print get_guest_mac(7)
+
 @app.route('/utils/sync_status')
 def syncstatus():
    sync_status()
@@ -76,6 +80,7 @@ def events():
 def index():
     servers = Server.query.filter(Server.state != 3).all()
     log = Log.query.filter(Log.level >= 2).all()
+    images = Image.query.all()
     return render_template("index.html", servers = servers, images=images, log=log)
 
 @app.route('/create', methods=['POST'])
@@ -93,11 +98,15 @@ def create():
     db.session.add(new_vm)
     db.session.commit()
     db.session.refresh(new_vm)
-    
+
     new_vm.disk_path = "/var/disks/vm%s.img" % str(new_vm.id)
+
     create_event(new_vm.id)
     startup_event(new_vm.id)
     create_vm(new_vm.id, ram, disk_size, image_obj.name, vcpu)
+    
+    mac_address = get_guest_mac(new_vm.id)
+    new_vm.mac_address = mac_address
 
     message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm.id), str(name), str(ram), str(disk_size))
     create_log(message, 1)

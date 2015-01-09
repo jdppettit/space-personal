@@ -3,6 +3,7 @@ import datetime
 import os
 import subprocess
 import create
+import xml.etree.ElementTree as et
 
 from models import db, Log
 
@@ -181,5 +182,22 @@ def start_novnc(port, last):
     port = "61%s" % str(last)
     return port
 
+def get_guest_mac(name):
+    conn = connect()
+    vm = conn.lookupByName("vm%s" % str(name))
+    vm_xml = vm.XMLDesc(0)
+    tree = et.fromstring(vm_xml)
+    mac_address = ""
 
+    for child in tree:
+        print child
+        if child.tag == "devices":
+            for sub in child:
+                print sub
+                if sub.tag == "interface":
+                    for ssub in sub:
+                        print ssub
+                        if ssub.tag == "mac":
+                            mac_address = ssub.attrib
 
+    return mac_address['address']

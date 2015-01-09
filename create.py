@@ -115,6 +115,14 @@ def make_config(name, disk_path, ram, vcpu, image):
     graphicsxml = et.SubElement(devicesxml, "graphics")
     graphicsxml.set("type","vnc")
     graphicsxml.set("port","-1")
+    
+    interfacexml = et.SubElement(domain, "interface")
+    
+    interfacesourcexml = et.SubElement(interfacexml, "source")
+    interfacesourcexml.set("bridge", "virbr0")
+    
+    interfacemodelxml = et.SubElement(interfacexml, "model")
+    interfacemodelxml.set("type", "virtio")
 
     tree = et.ElementTree(domain)
     path = "/var/configs/vm%s.xml" % str(name)

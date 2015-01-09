@@ -11,6 +11,8 @@
         <th>VCPU</th>
         <th>Disk Size</th>
         <th>Image</th>
+        <th>MAC</th>
+        <th>IP</th>
         <th>State</th>
         <th>Flags</th>
         <th>Actions</th>
@@ -24,6 +26,8 @@
         <td>{{ server.ram }}</td>
         <td>{{ server.disk_size }}</td>
         <td>{{ server.image }}</td>
+        <td>{{ server.mac_address }}</td>
+        <td>0.0.0.0/24</td>
         <td>
         {% if server.state == 1 %}
         <p><span class="label label-success">Running</span></p>
