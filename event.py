@@ -11,7 +11,7 @@ Event Types
 5 = Inconsistency
 '''
 
-def add_and_commit(obj)
+def add_and_commit(obj):
     db.session.add(obj)
     db.session.commit()
 
