@@ -182,6 +182,23 @@ def start_novnc(port, last):
     port = "61%s" % str(last)
     return port
 
+def assign_ip(vmid):
+    available_ips = IPAddress.query.filter(IPAddress.server_id == 0).first()
+    if not available_ips:
+        create_log("Attempted to assign an IP address, but no IP addresses remained.", 2)
+        return 0
+    available_ips.server_id = vmid
+    db.session.commit()
+    return available_ips.ip
+
+def append_dhcp_config(mac_address, ip, vmid):
+    with open("/etc/dhcp/dhcpd.conf", "a") as config:
+        config.write("host vm%s {\n hardware ethernet %s;\n fixed-address %s;\n}" % (str(vmid), str(mac_address), str(ip))
+        config.close()
+    command = "service dhcpd restart"
+    p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    create_log("Restarted DHCPD.", 1)
+
 def get_guest_mac(name):
     conn = connect()
     vm = conn.lookupByName("vm%s" % str(name))

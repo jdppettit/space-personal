@@ -1,6 +1,7 @@
 from models import db, Server, Log, Event
 from event import *
 from log import *
+from domfunctions import connect 
 
 import libvirt
 import datetime
