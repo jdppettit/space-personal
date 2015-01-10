@@ -71,6 +71,26 @@ def ips():
         db.session.commit()
         return redirect('/ip')
 
+@app.route('/ip/edit/<ipid>', methods=['POST','GET'])
+def ip_edit(ipid):
+    if request.method == "GET":
+        ip = IPAddress.query.filter_by(id=ipid).first()
+        return render_template("edit_ip.html", ip=ip)
+    elif request.method == "POST":
+        ip = IPAddress.query.filter_by(id=ipid).first()
+        ip.address = request.form['address']
+        ip.netmask = request.form['netmask']
+        db.session.commit()
+        return redirect('/ip/edit/%s' % str(ipid))
+
+@app.route('/ip/unassign/<ipid>', methods=['GET'])
+def ip_unassign(ipid):
+    ip = IPAddress.query.filter_by(id=ipid).first()
+    ip.server_id = 0
+    db.session.commit()
+    rebuild_dhcp_config()
+    return redirect('/ip')
+
 @app.route('/events')
 def events():
     log = Log.query.all()
@@ -100,13 +120,20 @@ def create():
     db.session.refresh(new_vm)
 
     new_vm.disk_path = "/var/disks/vm%s.img" % str(new_vm.id)
+    
+    result = assign_ip(new_vm.id)
 
+    if result == 0:
+        return "Failed."
+    
     create_event(new_vm.id)
     startup_event(new_vm.id)
     create_vm(new_vm.id, ram, disk_size, image_obj.name, vcpu)
     
     mac_address = get_guest_mac(new_vm.id)
     new_vm.mac_address = mac_address
+
+    append_dhcp_config(mac_address, result, new_vm.id)
 
     message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm.id), str(name), str(ram), str(disk_size))
     create_log(message, 1)

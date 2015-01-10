@@ -2,12 +2,13 @@
 {% block title %}Space - IPs{% endblock %}
 {% block content %}
 <h3>Existing IPs</h3>
-<table class="table">
+<table class="table sortable">
     <tr>
         <th>ID</th>
         <th>IP</th>
         <th>Netmask</th>
         <th>Server</th>
+        <th>Actions</th>
     </tr>
     {% for ip in ips %}
         <tr>
@@ -15,6 +16,8 @@
             <td>{{ ip.ip }}</td>
             <td>{{ ip.netmask }}</td>
             <td><a href="/edit/{{ ip.server_id }}">{{ ip.server_id }}</a></td>
+            <td>{% if ip.server_id != 0 %}<a href="/ip/unassign/{{ ip.id }}" class="btn btn-danger
+            btn-xs">Unassign</a>{% endif %}</td>
         </tr>
     {% endfor %}
 </table>
