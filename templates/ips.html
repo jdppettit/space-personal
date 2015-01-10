@@ -13,19 +13,19 @@
     {% for ip in ips %}
         <tr>
             <td>{{ ip.id }}</td>
-            <td>{{ ip.ip }}</td>
+            <td><a href="/ip/edit/{{ ip.id }}">{{ ip.ip }}</a></td>
             <td>{{ ip.netmask }}</td>
             <td><a href="/edit/{{ ip.server_id }}">{{ ip.server_id }}</a></td>
             <td>{% if ip.server_id != 0 %}<a href="/ip/unassign/{{ ip.id }}" class="btn btn-danger
-            btn-xs">Unassign</a>{% endif %}</td>
+            btn-xs">Unassign</a>&nbsp;{% endif %}<a href="/ip/delete/{{ ip.id }}" class="btn btn-danger btn-xs">Delete</a></td>
         </tr>
     {% endfor %}
 </table>
 
 <h3>Add New IP</h3>
 <form action="/ip" method="post">
-    <input type="text" name="address" placeholder="Address"/>
-    <input type="text" name="netmask" placeholder="Netmask"/>
-    <input type="submit" value="Add"/>
+    <input class="form-control" type="text" name="address" placeholder="Address"/><br/>
+    <input class="form-control" type="text" name="netmask" placeholder="Netmask"/><br/>
+    <input type="submit" value="Add" class="btn btn-success"/>
 </form>
 {% endblock %}

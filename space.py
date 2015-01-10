@@ -91,6 +91,13 @@ def ip_unassign(ipid):
     rebuild_dhcp_config()
     return redirect('/ip')
 
+@app.route('/ip/delete/<ipid>', methods=['GET'])
+def ip_delete(ipid):
+    ip = IPAddress.query.filter_by(id=ipid).first()
+    db.session.delete(ip)
+    db.session.commit()
+    redirect('/ip')
+
 @app.route('/events')
 def events():
     log = Log.query.all()
@@ -145,6 +152,13 @@ def create():
 @app.route('/destroy/<vmid>')
 def destroy(vmid):
     vm = Server.query.filter_by(id=vmid).first()
+    ip = IPAddress.query.filter_by(server_id=vm.id).first()
+    if ip:
+        ip.server_id = 0
+        db.session.commit()
+
+    rebuild_dhcp_config()
+
     vm.state = 3
     destroy_event(vm.id)
     delete_vm(vm.id, vm.disk_path)
