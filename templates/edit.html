@@ -6,6 +6,7 @@
 <p>States: 0 = off, 1 = running, 3 = destroyed</p>
 <form action="/edit/{{ server.id }}" method="post">
     Name: <input class="form-control" type="text" name="name" value="{{ server.name }}"/><br/>
+    MAC: <input class="form-control" type="text" name="mac_address" value="{{ server.mac_address }}"/><br/>
     RAM: <input class="form-control" type="text" name="ram" value="{{ server.ram }}"/><br/>
     VCPU: <input class="form-control" type="text" name="vcpu" value="{{ server.vcpu }}"/><br/>
     Disk Size: <input class="form-control" type="text" name="disk_size" value="{{ server.disk_size }}"/><br/>
@@ -13,6 +14,32 @@
     State: <input class="form-control" type="text" name="state" value="{{ server.state }}"/><br/>
     <div class="checkbox"><label><input type="checkbox" name="push" value="1">Push to VM (this will restart the VM)</label></div>
     <input class="btn btn-success" type="submit" value="Edit"/>
+</form>
+
+<h3>IP Address</h3>
+{% if not my_ip %}
+This VM does not have an IP.
+{% else %}
+<table class="table">
+    <tr>
+        <th>IP Address</th>
+        <th>Actions</th>
+    </tr>
+    <tr>
+        <td>{{ my_ip.ip }}</td>
+        <td><a href="/ip/unassign/{{ my_ip.id }}" class="btn btn-warning">Unassign</a></td>
+    </tr>
+</table>
+{% endif %}
+
+<h3>Assign IP Address</h3>
+<form action="/ip/assign/{{ server.id }}" method="post">
+    <select name="ip" class="form-control">
+        {% for ip in ips %}
+        <option value="{{ ip.id }}">{{ ip.ip }}</option>
+        {% endfor %}
+    </select><br/>
+    <input type="submit" value="Assign" class="btn btn-success"/>
 </form>
 
 <h3>Events</h3>

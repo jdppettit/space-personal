@@ -91,6 +91,15 @@ def ip_unassign(ipid):
     rebuild_dhcp_config()
     return redirect('/ip')
 
+@app.route('/ip/assign/<vmid>', methods=['POST'])
+def ip_assign(vmid):
+    ip_id = request.form['ip']
+    ip = IPAddress.query.filter_by(id=ip_id).first()
+    ip.server_id = vmid
+    db.session.commit()
+    rebuild_dhcp_config()
+    return redirect('/edit/%s' % str(vmid))
+
 @app.route('/ip/delete/<ipid>', methods=['GET'])
 def ip_delete(ipid):
     ip = IPAddress.query.filter_by(id=ipid).first()
@@ -243,16 +252,19 @@ def edit(vmid):
     if request.method == "GET":
         server = Server.query.filter_by(id=vmid).first()
         events = Event.query.filter_by(server_id=server.id).all()
-        return render_template("edit.html", server=server, events=events)
-    else:
+        my_ip = IPAddress.query.filter_by(server_id=server.id).first()
+        ips = IPAddress.query.filter(IPAddress.server_id == 0).all()
+        return render_template("edit.html", server=server, events=events, my_ip=my_ip, ips=ips)
+    elif request.method == "POST":
         vm = Server.query.filter_by(id=vmid).first()
         vm.name = request.form['name']
         vm.ram = request.form['ram']
         vm.disk_size = request.form['disk_size']
         vm.image = request.form['image']
         vm.state = request.form['state']
+        vm.mac_address = request.form['mac_address']
         db.session.commit()
-
+        
         if "push" in request.form:
             # We're going to actually update the config
             update_config(vm) 
@@ -297,4 +309,4 @@ def edit_image(imageid):
         return redirect('/image/edit/%s' % str(imageid))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10051, debug=True)
+    app.run(host='0.0.0.0', port=10050, debug=True)
