@@ -92,7 +92,7 @@ def create_vm(name, ram, disk_size, image, vcpu):
 
 
 def update_config(vm):
-    os.remove('%s/vm%s.xml' % (str(config_path), str(vm.id))
+    os.remove('%s/vm%s.xml') % (str(config_path), str(vm.id))
     
     message1 = "Deleted config for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path), str(vm.id))
     logm1 = Log(datetime.datetime.now(), message1, 1)

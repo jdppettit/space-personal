@@ -243,9 +243,24 @@ def view_deleted():
 @app.route('/host', methods=['POST','GET'])
 def host():
     if request.method == "GET":
-        return render_template("host.html")
-    else:
-        print "foo"
+        host = Host.query.first()
+        if not host:
+            new_host = Host("",0)
+            db.session.add(new_host)
+            db.session.commit()
+            db.session.refresh(new_host)
+            host = new_host
+        return render_template("host.html", host=host)
+    elif request.method == "POST":
+        host = Host.query.first()
+        print host.name
+        host.name = request.form['hostname']
+        host.ram = request.form['ram_total']
+        db.session.merge(host)
+        db.session.commit()
+        db.session.refresh(host)
+        print host.name
+        return redirect('/host')
 
 @app.route('/edit/<vmid>', methods=['POST','GET'])
 def edit(vmid):
