@@ -135,7 +135,7 @@ def create():
     db.session.commit()
     db.session.refresh(new_vm)
 
-    new_vm.disk_path = "/var/disks/vm%s.img" % str(new_vm.id)
+    new_vm.disk_path = "%s/vm%s.img" % (str(config_path), str(new_vm.id))
     
     result = assign_ip(new_vm.id)
 

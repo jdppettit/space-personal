@@ -7,7 +7,7 @@ import xml.etree.ElementTree as et
 
 from log import *
 from event import *
-
+from config import *
 from models import db, Log, IPAddress, Server
 
 def restart_dhcpd():
@@ -17,7 +17,7 @@ def restart_dhcpd():
 
 
 def connect():
-    conn=libvirt.open("qemu:///system")
+    conn=libvirt.open("%s:///system" % system_type)
     message = "Connection established with server."
     logm = Log(str(datetime.datetime.now()), message, 1)
     db.session.add(logm)
@@ -56,19 +56,19 @@ def start_vm(name):
 
 def create_vm(name, ram, disk_size, image, vcpu):
     create.make_config(name, "", ram, vcpu, image)
-    message = "Created new configuration for vm%s at /var/config/vm%s.xml" % (str(name), str(name))
+    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(name), str(config_path), str(name))
     
     logm1 = Log(datetime.datetime.now(), message, 1)
     db.session.add(logm1)
 
     create.make_image(name, disk_size)
-    message2 = "Created new disk image /var/disks/vm%s.img of size %sGB." % (str(name), str(disk_size))
+    message2 = "Created new disk image %s/vm%s.img of size %sGB." % (str(name), str(disk_path) str(disk_size))
 
     logm2 = Log(datetime.datetime.now(), message2, 1)
     db.session.add(logm2)
 
     conn = connect()
-    xmlpath = "/var/configs/vm%s.xml" % str(name)
+    xmlpath = "%s/vm%s.xml" % (str(config_path), str(name))
     
     xml = ""
 
@@ -92,15 +92,15 @@ def create_vm(name, ram, disk_size, image, vcpu):
 
 
 def update_config(vm):
-    os.remove('/var/configs/vm%s.xml' % str(vm.id))
+    os.remove('%s/vm%s.xml' % (str(config_path), str(vm.id))
     
-    message1 = "Deleted config for vm%s at /var/configs/vm%s.xml" % (str(vm.id), str(vm.id))
+    message1 = "Deleted config for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path) str(vm.id))
     logm1 = Log(datetime.datetime.now(), message1, 1)
     db.session.add(logm1)
     
     create.make_config(vm.id, "", str(vm.ram), str(vm.vcpu), vm.image)
 
-    message = "Created new configuration for vm%s at /var/config/vm%s.xml" % (str(vm.id), str(vm.id))
+    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path) str(vm.id))
 
     logm2 = Log(datetime.datetime.now(), message, 1)
     db.session.add(logm2)
@@ -115,7 +115,7 @@ def redefine_vm(vm):
     except:
         dom.undefine()
 
-    xmlpath = "/var/configs/vm%s.xml" % str(vm.id)
+    xmlpath = "%s/vm%s.xml" % (str(config_path), str(vm.id))
 
     xml = ""
 

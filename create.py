@@ -2,6 +2,8 @@ import xml.etree.cElementTree as et
 import uuid
 import subprocess
 
+from config import *
+
 def make_config(name, disk_path, ram, vcpu, image):
     domain = et.Element("domain")
     domain.set("type","kvm")
@@ -125,10 +127,10 @@ def make_config(name, disk_path, ram, vcpu, image):
     interfacemodelxml.set("type", "virtio")
 
     tree = et.ElementTree(domain)
-    path = "/var/configs/vm%s.xml" % str(name)
+    path = "%s/vm%s.xml" % (str(config_path), str(name))
     tree.write(path)
 
 def make_image(name, disk_size):
-    command = "qemu-img create /var/disks/vm%s.img %sG" % (str(name), str(disk_size))
+    command = "qemu-img create %s/vm%s.img %sG" % (str(disk_path), str(name), str(disk_size))
     subprocess.Popen(command.split())
 
