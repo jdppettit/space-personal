@@ -62,7 +62,7 @@ def create_vm(name, ram, disk_size, image, vcpu):
     db.session.add(logm1)
 
     create.make_image(name, disk_size)
-    message2 = "Created new disk image %s/vm%s.img of size %sGB." % (str(name), str(disk_path) str(disk_size))
+    message2 = "Created new disk image %s/vm%s.img of size %sGB." % (str(name), str(disk_path), str(disk_size))
 
     logm2 = Log(datetime.datetime.now(), message2, 1)
     db.session.add(logm2)
@@ -94,13 +94,13 @@ def create_vm(name, ram, disk_size, image, vcpu):
 def update_config(vm):
     os.remove('%s/vm%s.xml' % (str(config_path), str(vm.id))
     
-    message1 = "Deleted config for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path) str(vm.id))
+    message1 = "Deleted config for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path), str(vm.id))
     logm1 = Log(datetime.datetime.now(), message1, 1)
     db.session.add(logm1)
     
     create.make_config(vm.id, "", str(vm.ram), str(vm.vcpu), vm.image)
 
-    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path) str(vm.id))
+    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path), str(vm.id))
 
     logm2 = Log(datetime.datetime.now(), message, 1)
     db.session.add(logm2)
