@@ -86,8 +86,12 @@ class Host(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    ram = db.Column(db.Integer)
+    ram_used = db.Column(db.String(50))
+    ram_total = db.Column(db.String(50))
+    cpu_used = db.Column(db.String(50))
+    cpu_total = db.Column(db.String(50))
+    io_wait = db.Column(db.String(50))
+    ip_address = db.Column(db.String(50))
 
-    def __init__(self, name, ram):
+    def __init__(self, name):
         self.name = name
-        self.ram = ram

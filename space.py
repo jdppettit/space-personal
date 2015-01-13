@@ -245,7 +245,7 @@ def host():
     if request.method == "GET":
         host = Host.query.first()
         if not host:
-            new_host = Host("",0)
+            new_host = Host("")
             db.session.add(new_host)
             db.session.commit()
             db.session.refresh(new_host)
@@ -253,13 +253,10 @@ def host():
         return render_template("host.html", host=host)
     elif request.method == "POST":
         host = Host.query.first()
-        print host.name
         host.name = request.form['hostname']
-        host.ram = request.form['ram_total']
+        host.ram = int(request.form['ram_total'])
         db.session.merge(host)
         db.session.commit()
-        db.session.refresh(host)
-        print host.name
         return redirect('/host')
 
 @app.route('/edit/<vmid>', methods=['POST','GET'])
@@ -278,6 +275,7 @@ def edit(vmid):
         vm.image = request.form['image']
         vm.state = request.form['state']
         vm.mac_address = request.form['mac_address']
+        db.session.merge(vm)
         db.session.commit()
         
         if "push" in request.form:
