@@ -192,13 +192,12 @@ def start_novnc(port, last):
     return port
 
 def assign_ip(vmid):
-    available_ips = IPAddress.query.filter(IPAddress.server_id == 0).first()
+    available_ips = data.get_ipaddress_free()
     if not available_ips:
         create_log("Attempted to assign an IP address, but no IP addresses remained.", 2)
         return 0
-    available_ips.server_id = vmid
-    db.session.commit()
-    return available_ips.ip
+    data.set_ipaddress_serverid(id, vmid)
+    return available_ips[0]['ip']
 
 def append_dhcp_config(mac_address, ip, vmid):
     with open("/etc/dhcp/dhcpd.conf", "a") as config:

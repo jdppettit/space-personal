@@ -10,9 +10,9 @@
     </tr>
     {% for image in images %}
         <tr>
-            <td><a href="/image/edit/{{ image.id }}">{{ image.name }}</a></td>
-            <td>{{ image.path }}</td>
-            <td>{{ image.size }}</td>
+            <td><a href="/image/edit/{{ image['_id'] }}">{{ image['name'] }}</a></td>
+            <td>{{ image['path'] }}</td>
+            <td>{{ image['size'] }}</td>
         </tr>
     {% endfor %}
 </table>

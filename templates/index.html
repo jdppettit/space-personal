@@ -18,33 +18,33 @@
     </thead>
     {% for server in servers %}
     <tr>
-        <td>{{ server.id }}</td>
-        <td><a href="/edit/{{ server.id }}">{{ server.name }}</a></td>
-        <td>{{ server.ram }}</td>
-        <td>{{ server.vcpu }}</td>
-        <td>{{ server.disk_size }}</td>
-        <td>{{ server.image }}</td>
+        <td>{{ server['_id'] }}</td>
+        <td><a href="/edit/{{ server['_id'] }}">{{ server['name'] }}</a></td>
+        <td>{{ server['ram'] }}</td>
+        <td>{{ server['vcpu'] }}</td>
+        <td>{{ server['disk_size'] }}</td>
+        <td>{{ server['disk_image'] }}</td>
         <td>
-        {% if server.state == 1 %}
+        {% if server['state'] == 1 %}
         <p><span class="label label-success">Running</span></p>
         {% else %}
         <p><span class="label label-danger">Shutdown</span></p>
         {% endif %}
         </td>
         <td>
-        {% if server.inconsistent == 1 %}
+        {% if server['inconsistent'] == 1 %}
         <span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" data-placement="right" title="Server is in an inconsistent state"></span>
         {% endif %}
         </td>
         <td>
-        {% if server.state == 1 %}
-        <a class="btn btn-warning btn-xs" href="/shutdown/{{ server.id }}">Shutdown</a>&nbsp;
-        <a class="btn btn-warning btn-xs" href="/reboot/{{ server.id }}">Reboot</a>&nbsp;
-        <a class="btn btn-primary btn-xs" href="/console/{{ server.id }}">Console</a>&nbsp;
-        {% elif server.state == 0 %}
-        <a class="btn btn-success btn-xs" href="/start/{{ server.id }}">Start</a>&nbsp;
+        {% if server['state'] == 1 %}
+        <a class="btn btn-warning btn-xs" href="/shutdown/{{ server['_id'] }}">Shutdown</a>&nbsp;
+        <a class="btn btn-warning btn-xs" href="/reboot/{{ server['_id'] }}">Reboot</a>&nbsp;
+        <a class="btn btn-primary btn-xs" href="/console/{{ server['_id'] }}">Console</a>&nbsp;
+        {% elif server['state'] == 0 %}
+        <a class="btn btn-success btn-xs" href="/start/{{ server['_id'] }}">Start</a>&nbsp;
         {% endif %}
-        <a class="btn btn-danger btn-xs" href="/destroy/{{ server.id }}">Destroy</a></td>
+        <a class="btn btn-danger btn-xs" href="/destroy/{{ server['_id'] }}">Destroy</a></td>
     </tr>
     {% endfor %}
 </table>
@@ -58,7 +58,7 @@
     <input class="form-control" type="text" name="vcpu" placeholder="Number of VCPUs"/><br/>
     <select class="form-control" name="image">
         {% for image in images %}
-        <option value="{{ image.id }}">{{ image.name }}</option>
+        <option value="{{ image['_id'] }}">{{ image['name'] }}</option>
         {% endfor %}
     </select><br/>
     <input class="btn btn-success" type="submit" value="Make it"/>
@@ -78,15 +78,15 @@
     <tr>
         <td>{{ event.date }}</td>
         <td>
-        {% if event.level == 1 %}
+        {% if event['level'] == 1 %}
         <p><span class="label label-primary">Debug</span></p>
-        {% elif event.level == 2 %}
+        {% elif event['level'] == 2 %}
         <p><span class="label label-warning">Warning</span></p>
         {% else %}
         <p><span class="label label-danger">Error</span></p>
         {% endif %}
         </td>
-        <td>{{ event.message }}</td>
+        <td>{{ event['message'] }}</td>
     </tr>
     {% endfor %}
 </table>

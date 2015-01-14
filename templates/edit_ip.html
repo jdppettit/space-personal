@@ -1,11 +1,11 @@
 {% extends 'grid.html' %}
 {% block title %}Space - Edit IP ({{ ip.ip }}){% endblock %}
 {% block content %}
-<h3>Edit IP {{ ip.ip }}</h3>
-<form action="/ip/edit/{{ ip.id }}" method="post">
-    Address: <input class="form-control" type="text" name="address" placeholder="Address" value="{{ ip.ip }}"/><br/>
-    Netmask: <input class="form-control" type="text" name="netmask" placeholder="Netmask" value="{{ ip.netmask }}"/><br/>
-    Server: <input class="form-control" type="text" name="server_id" placeholder="Server ID" value="{{ ip.server_id }}"/><br/>
+<h3>Edit IP {{ ip[0]['ip'] }}</h3>
+<form action="/ip/edit/{{ ip[0]['_id'] }}" method="post">
+    Address: <input class="form-control" type="text" name="address" placeholder="Address" value="{{ ip[0]['ip'] }}"/><br/>
+    Netmask: <input class="form-control" type="text" name="netmask" placeholder="Netmask" value="{{ ip[0]['netmask'] }}"/><br/>
+    Server: <input class="form-control" type="text" name="server_id" placeholder="Server ID" value="{{ ip[0]['server_id'] }}"/><br/>
     <input type="submit" value="Edit" class="btn btn-success btn-xs"/>
 </form>
 {% endblock %}

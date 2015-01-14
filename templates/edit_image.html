@@ -1,11 +1,11 @@
 {% extends 'grid.html' %}
 {% block title %}Space - Edit {{ image.name }}{% endblock %}
 {% block content %}
-<h3>Edit Image ({{ image.name }})</h3>
-<form action="/image/edit/{{ image.id }}" method="post">
-    Image Name: <input class="form-control" type="text" name="name" value="{{ image.name }}"/><br/>
-    Image Path: <input class="form-control" type="text" name="path" value="{{ image.path }}"/><br/>
-    Image Size: <input class="form-control" type="text" name="size" value="{{ image.size }}"/><br/>
+<h3>Edit Image ({{ image[0]['name'] }})</h3>
+<form action="/image/edit/{{ image[0]['_id'] }}" method="post">
+    Image Name: <input class="form-control" type="text" name="name" value="{{ image[0]['name'] }}"/><br/>
+    Image Path: <input class="form-control" type="text" name="path" value="{{ image[0]['path'] }}"/><br/>
+    Image Size: <input class="form-control" type="text" name="size" value="{{ image[0]['size'] }}"/><br/>
     <input class="btn btn-success" type="submit" value="Edit"/>
 </form>
 {% endblock %}

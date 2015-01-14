@@ -8,6 +8,7 @@ from models import *
 from event import *
 from cron import *
 from log import *
+from data import *
 
 import libvirt
 import subprocess
@@ -57,23 +58,19 @@ def console(vmid):
 @app.route('/ip', methods=['POST','GET'])
 def ips():
     if request.method == "GET":
-        ips = IPAddress.query.all()
+        ips = get_all_ipaddress() 
         return render_template("ips.html", ips=ips)
     else:
         address = request.form['address']
         netmask = request.form['netmask']
-        new_ip = IPAddress(address, netmask, 0, 0, "0")
+        new_ip = make_ipaddress(address, netmask, 0)
         message = "Added new IP %s/%s" % (str(address), str(netmask))
-        logm = Log(datetime.datetime.now(), message, 1)
-        db.session.add(new_ip)
-        db.session.add(logm)
-        db.session.commit()
         return redirect('/ip')
 
 @app.route('/ip/edit/<ipid>', methods=['POST','GET'])
 def ip_edit(ipid):
     if request.method == "GET":
-        ip = IPAddress.query.filter_by(id=ipid).first()
+        ip = get_ipaddress(ipid)
         return render_template("edit_ip.html", ip=ip)
     elif request.method == "POST":
         ip = IPAddress.query.filter_by(id=ipid).first()
@@ -113,9 +110,9 @@ def events():
 
 @app.route('/')
 def index():
-    servers = Server.query.filter(Server.state != 3).all()
-    log = Log.query.filter(Log.level >= 2).all()
-    images = Image.query.all()
+    servers = get_all_servers(not_state = 3)
+    log = get_all_logs(min_level = 2)
+    images = get_all_images()
     return render_template("index.html", servers = servers, images=images, log=log)
 
 @app.route('/create', methods=['POST'])
@@ -128,30 +125,24 @@ def create():
 
     image_obj = get_image_id(image) 
     
-    new_vm = make_server(name)
-    new_vm = Server(name, disk_size, "", ram, 1, image_obj.name, vcpu)
+    new_vm = make_server(name, disk_size, image_obj['name'], ram, vcpu)
     
-    db.session.add(new_vm)
-    db.session.commit()
-    db.session.refresh(new_vm)
-
-    new_vm.disk_path = "%s/vm%s.img" % (str(config_path), str(new_vm.id))
-    
-    result = assign_ip(new_vm.id)
+    result = assign_ip(new_vm)
 
     if result == 0:
         return "Failed."
     
-    create_event(new_vm.id)
-    startup_event(new_vm.id)
-    create_vm(new_vm.id, ram, disk_size, image_obj.name, vcpu)
+    create_event(new_vm)
+    startup_event(new_vm)
+    create_vm(new_vm, ram, disk_size, image_obj['name'], vcpu)
     
-    mac_address = get_guest_mac(new_vm.id)
-    new_vm.mac_address = mac_address
+    mac_address = get_guest_mac(new_vm)
 
-    append_dhcp_config(mac_address, result, new_vm.id)
+    set_server_mac(new_vm, mac_address)
 
-    message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm.id), str(name), str(ram), str(disk_size))
+    append_dhcp_config(mac_address, result, new_vm)
+
+    message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm), str(name), str(ram), str(disk_size))
     create_log(message, 1)
 
     db.session.commit()
@@ -295,31 +286,26 @@ def edit(vmid):
 @app.route('/images', methods=['POST','GET'])
 def images():
     if request.method == "GET":
-        images = Image.query.all()
+        images = get_all_images()
         return render_template("images.html", images=images)
     else:
-        new_image = Image(request.form['name'], request.form['path'], request.form['size'])
-        message = "Created new image %s of size %s at %s" % (str(new_image.name), str(new_image.size), str(new_image.path))
+        new_image = make_image(request.form['name'], request.form['path'], request.form['size'])
+        message = "Created new image %s" % str(new_image)
         create_log(message, 1)
-        db.session.add(new_image)
-        db.session.commit()
         return redirect('/images')
 
 @app.route('/image/edit/<imageid>', methods=['POST','GET'])
 def edit_image(imageid):
     if request.method == "GET":
-        image = Image.query.filter_by(id=imageid).first()
+        image = get_image(imageid)
         return render_template("edit_image.html", image=image)
     else:
         image = Image.query.filter_by(id=imageid).first()
         name = request.form['name']
         size = request.form['size']
         path = request.form['path']
-        image.name = name
-        image.size = size
-        image.path = path
-        db.session.commit()
+        set_image_all(imageid, name, path, size)
         return redirect('/image/edit/%s' % str(imageid))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10050, debug=True)
+    app.run(host='0.0.0.0', port=10051, debug=True)

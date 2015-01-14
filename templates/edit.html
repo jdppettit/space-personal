@@ -1,18 +1,18 @@
 {% extends 'grid.html' %}
 {% block title %}Space - Edit {{ server.name }}{% endblock %}
 {% block content %}
-<h3>Edit - {{ server.name }}</h3>
+<h3>Edit - {{ server[0]['name'] }}</h3>
 <p>This just updates the DB for now.</p>
 <p>States: 0 = off, 1 = running, 3 = destroyed</p>
-<form action="/edit/{{ server.id }}" method="post">
-    Name: <input class="form-control" type="text" name="name" value="{{ server.name }}"/><br/>
-    MAC: <input class="form-control" type="text" name="mac_address" value="{{ server.mac_address }}"/><br/>
-    RAM: <input class="form-control" type="text" name="ram" value="{{ server.ram }}"/><br/>
-    VCPU: <input class="form-control" type="text" name="vcpu" value="{{ server.vcpu }}"/><br/>
-    Disk Size: <input class="form-control" type="text" name="disk_size" value="{{ server.disk_size }}"/><br/>
-    Disk Path: <input class="form-control" type="text" name="disk_path" value="{{ server.disk_path }}"/><br/>
-    Image: <input class="form-control" type="text" name="image" value="{{ server.image }}"/><br/>
-    State: <input class="form-control" type="text" name="state" value="{{ server.state }}"/><br/>
+<form action="/edit/{{ server[0]['_id'] }}" method="post">
+    Name: <input class="form-control" type="text" name="name" value="{{ server[0]['name'] }}"/><br/>
+    MAC: <input class="form-control" type="text" name="mac_address" value="{{ server[0]['mac_address'] }}"/><br/>
+    RAM: <input class="form-control" type="text" name="ram" value="{{ server[0]['ram'] }}"/><br/>
+    VCPU: <input class="form-control" type="text" name="vcpu" value="{{ server[0]['vcpu'] }}"/><br/>
+    Disk Size: <input class="form-control" type="text" name="disk_size" value="{{ server[0]['disk_size'] }}"/><br/>
+    Disk Path: <input class="form-control" type="text" name="disk_path" value="{{ server[0]['disk_path'] }}"/><br/>
+    Image: <input class="form-control" type="text" name="image" value="{{ server[0]['disk_image'] }}"/><br/>
+    State: <input class="form-control" type="text" name="state" value="{{ server[0]['state'] }}"/><br/>
     <div class="checkbox"><label><input type="checkbox" name="push" value="1">Push to VM (this will restart the VM)</label></div>
     <input class="btn btn-success" type="submit" value="Edit"/>
 </form>
@@ -27,17 +27,17 @@ This VM does not have an IP.
         <th>Actions</th>
     </tr>
     <tr>
-        <td>{{ my_ip.ip }}</td>
-        <td><a href="/ip/unassign/{{ my_ip.id }}" class="btn btn-warning">Unassign</a></td>
+        <td>{{ my_ip[0]['ip'] }}</td>
+        <td><a href="/ip/unassign/{{ my_ip[0]['_id'] }}" class="btn btn-warning">Unassign</a></td>
     </tr>
 </table>
 {% endif %}
 
 <h3>Assign IP Address</h3>
-<form action="/ip/assign/{{ server.id }}" method="post">
+<form action="/ip/assign/{{ server['_id'] }}" method="post">
     <select name="ip" class="form-control">
         {% for ip in ips %}
-        <option value="{{ ip.id }}">{{ ip.ip }}</option>
+        <option value="{{ ip['_id'] }}">{{ ip['ip'] }}</option>
         {% endfor %}
     </select><br/>
     <input type="submit" value="Assign" class="btn btn-success"/>
