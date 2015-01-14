@@ -125,9 +125,10 @@ def create():
     disk_size = request.form['disk_size']
     image = request.form['image']
     vcpu = request.form['vcpu']
+
+    image_obj = get_image_id(image) 
     
-    image_obj = Image.query.filter_by(id=image).first()
-    
+    new_vm = make_server(name)
     new_vm = Server(name, disk_size, "", ram, 1, image_obj.name, vcpu)
     
     db.session.add(new_vm)
