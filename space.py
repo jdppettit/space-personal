@@ -36,9 +36,8 @@ Event Types
 5 = Inconsistency
 '''
 
-with app.app_context():
-    db.create_all()
-    db.session.commit()
+db.create_all()
+db.session.commit()
 
 @app.route('/tests/mac')
 def tests_mac():

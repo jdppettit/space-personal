@@ -92,6 +92,9 @@ class Host(db.Model):
     cpu_total = db.Column(db.String(50))
     io_wait = db.Column(db.String(50))
     ip_address = db.Column(db.String(50))
+    dhcpd_status = db.Column(db.Integer)
+    libvirt_status = db.Column(db.Integer)
+    hypervisor = db.Column(db.String(50))
 
     def __init__(self, name):
         self.name = name
