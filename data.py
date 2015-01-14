@@ -55,6 +55,11 @@ def make_host(name):
     new_host = ({"name":name})
     host_cursor.insert(new_host)
 
+def set_server_all(id, name, disk_size, disk_path, ram, state, disk_image, vcpu, inconsistent = 0):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(id)}, {"name":name, "disk_size":disk_size, "disk_path":disk_path, "ram":ram, "state":state, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":inconsistent})
+
 def get_server_id(id):
     db = get_connect()
     server_cursor = db.server
