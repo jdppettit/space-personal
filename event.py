@@ -1,6 +1,5 @@
-from models import db, Event
-
 import datetime
+import data
 
 '''
 Event Types
@@ -11,27 +10,21 @@ Event Types
 5 = Inconsistency
 '''
 
-def add_and_commit(obj):
-    db.session.add(obj)
-    db.session.commit()
+def insert_event(type, vmid):
+    data.make_event(type, vmid, datetime.datetime.now())
 
 def shutdown_event(vmid):
-    new_event = Event(4, vmid, datetime.datetime.now())
-    add_and_commit(new_event)
+    insert_event(4, vmid)
 
 def startup_event(vmid):
-    new_event = Event(3, vmid, datetime.datetime.now())
-    add_and_commit(new_event)
+    insert_event(3, vmid)
 
 def create_event(vmid):
-    new_event = Event(1, vmid, datetime.datetime.now())
-    add_and_commit(new_event)
+    insert_event(1, vmid)
 
 def destroy_event(vmid):
-    new_event = Event(2, vmid, datetime.datetime.now())
-    add_and_commit(new_event)
+    insert_event(2, vmid)
 
 def inconsistent_event(vmid):
-    new_event = Event(5, vmid, datetime.datetime.now())
-    add_and_commit(new_event)
+    insert_event(5, vmid)
 

@@ -22,7 +22,7 @@ def make_server(name, disk_size, disk_image, ram, vcpu):
     new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0})
     id = server_cursor.insert(new_server)
     disk_path = "%s/%s.img" % (str(config.image_path), str(id))
-    server_cursor.update({"_id":objectify(id)}, {"disk_path":disk_path})
+    server_cursor.update({"_id":objectify(id)}, {"$set":{"disk_path":disk_path}})
     return id
 
 def make_log(date, message, level):
@@ -70,12 +70,22 @@ def get_image_id(id):
 def set_server_mac(id, mac_address):
     db = get_connect()
     server_cursor = db.server
-    server_cursor.update({"_id":objectify(id)}, {"mac_address":mac_address})
+    server_cursor.update({"_id":objectify(id)}, {"$set":{"mac_address":mac_address}})
 
 def set_image_all(id, name, path, size):
     db = get_connect()
     image_cursor = db.image
     image_cursor.update({"_id":objectify(id)}, {"name":name, "path":path, "size":size})
+
+def set_ipaddress_all(id, ip, netmask, server_id):
+    db = get_connect()
+    ipaddress_cursor = db.ipaddress
+    ipaddress_cursor.update({"_id":objectify(id)}, {"ip":ip, "netmask":netmask, "server_id":server_id})
+
+def set_ipaddress_serverid(id, server_id):
+    db = get_connect()
+    ipaddress_cursor = db.ipaddress
+    ipaddress_cursor.update({"_id":objectify(id)}, {"$set":{"server_id":server_id}})
 
 def get_all_servers(not_state = 0):
     db = get_connect()
@@ -108,6 +118,18 @@ def get_all_images():
     images = image_cursor.find()
     return images
 
+def get_events_server(vmid):
+    db = get_connect()
+    event_cursor = db.event
+    events = event_cursor.find({"server_id":vmid})
+    return events
+
+def get_ipaddress_server(vmid):
+    db = get_connect()
+    ipaddress_cursor = db.ipaddress
+    ipaddress = ipaddress_cursor.find({"server_id":vmid})
+    return ipaddress
+
 def get_all_ipaddress():
     db = get_connect()
     ipaddress_cursor = db.ipaddress
@@ -131,3 +153,18 @@ def get_ipaddress_free():
     ipaddress_cursor = db.ipaddress
     ipaddress = ipaddress_cursor.find_one({"server_id":0})
     return ipaddress
+
+def delete_ipaddress(id):
+    db = get_connect()
+    ipaddress_cursor = db.ipaddress
+    ipaddress_cursor.remove({"_id":objectify(id)})
+
+def set_server_state(id, state):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(id)}, {"$set":{"state":state}})
+
+def set_server_inconsistent(id, inconsistent):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(id)}, {"$set":{"inconsistent":inconsistent}})

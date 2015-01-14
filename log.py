@@ -1,8 +1,5 @@
-from models import db, Log
-
 import datetime
+import data
 
 def create_log(message, level):
-    logm = Log(datetime.datetime.now(), message, level)
-    db.session.add(logm)
-    db.session.commit()
+    logm = data.make_log(datetime.datetime.now(), message, level)

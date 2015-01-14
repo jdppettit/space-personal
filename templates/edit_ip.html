@@ -1,5 +1,5 @@
 {% extends 'grid.html' %}
-{% block title %}Space - Edit IP ({{ ip.ip }}){% endblock %}
+{% block title %}Space - Edit IP ({{ ip[0]['ip'] }}){% endblock %}
 {% block content %}
 <h3>Edit IP {{ ip[0]['ip'] }}</h3>
 <form action="/ip/edit/{{ ip[0]['_id'] }}" method="post">

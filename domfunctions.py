@@ -57,15 +57,13 @@ def start_vm(name):
 def create_vm(name, ram, disk_size, image, vcpu):
     create.make_config(name, "", ram, vcpu, image)
     message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(name), str(config_path), str(name))
-    
-    logm1 = Log(datetime.datetime.now(), message, 1)
-    db.session.add(logm1)
+   
+    create_log(message, 1)
 
     create.make_image(name, disk_size)
     message2 = "Created new disk image %s/vm%s.img of size %sGB." % (str(name), str(disk_path), str(disk_size))
-
-    logm2 = Log(datetime.datetime.now(), message2, 1)
-    db.session.add(logm2)
+    
+    create_log(message2, 1)
 
     conn = connect()
     xmlpath = "%s/vm%s.xml" % (str(config_path), str(name))
@@ -78,18 +76,13 @@ def create_vm(name, ram, disk_size, image, vcpu):
     conn.defineXML(xml)
 
     message3 = "Defined new domain vm%s." % str(name)
-    logm3 = Log(datetime.datetime.now(), message3, 1)
-    db.session.add(logm3)
+    create_log(message3, 1)
 
     newdom = conn.lookupByName("vm%s" % str(name))
     newdom.create()
 
     message4 = "Sent startup to vm%s." % str(name)
-    logm4 = Log(datetime.datetime.now(), message4, 1)
-    db.session.add(logm4)
-
-    db.session.commit()
-
+    create_log(message4, 1)
 
 def update_config(vm):
     os.remove('%s/vm%s.xml') % (str(config_path), str(vm.id))
@@ -152,9 +145,7 @@ def make_console(name):
         return novncport
     except Exception as e:
         message = "Failed to create VNC console. Got message: %s" % str(e)
-        logm = Log(datetime.datetime.now(), message, 3)
-        db.session.add(logm)
-        db.session.commit()
+        create_log(message, 3)
         return "error" 
 
 
@@ -172,22 +163,17 @@ def get_vnc_port(name):
         port = "59%s" % str(endport)
         eport = endport
     message = "Got VNC port %s, output returned: %s" % (str(port), str(output))
-    logm = Log(datetime.datetime.now(), message, 1)
-    db.session.add(logm)
-    db.session.commit()
+    create_log(message, 1)
     return port, eport
 
 def start_novnc(port, last):
     command = "python /srv/noVNC/utils/websockify --web /srv/noVNC 61%s localhost:%s -D" % (str(last), str(port))
     command = command.replace('\n', '')
-    print command
 #    command = "/srv/noVNC/utils/websockify 127.0.0.1:60%s --vnc 127.0.0.1:%s --web /srv/noVNC/utils -D" % (str(last), str(port))
     p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
     output = p.communicate()[0]
     message = "Opened noVNC on port 60%s" % str(last)
-    logm = Log(datetime.datetime.now(), message, 1)
-    db.session.add(logm)
-    db.session.commit()
+    create_log(message, 1)
     port = "61%s" % str(last)
     return port
 
@@ -196,8 +182,8 @@ def assign_ip(vmid):
     if not available_ips:
         create_log("Attempted to assign an IP address, but no IP addresses remained.", 2)
         return 0
-    data.set_ipaddress_serverid(id, vmid)
-    return available_ips[0]['ip']
+    data.set_ipaddress_serverid(vmid, vmid)
+    return available_ips['ip']
 
 def append_dhcp_config(mac_address, ip, vmid):
     with open("/etc/dhcp/dhcpd.conf", "a") as config:

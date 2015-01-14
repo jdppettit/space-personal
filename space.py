@@ -51,9 +51,9 @@ def syncstatus():
 
 @app.route('/console/<vmid>')
 def console(vmid):
-    vm = Server.query.filter_by(id=vmid).first()
-    vncport = make_console(str(vm.id))    
-    return render_template("vnc_auto.html", port=vncport, server_name=vm.name)
+    vm = get_server_id(vmid)
+    vncport = make_console(str(vmid))    
+    return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'])
 
 @app.route('/ip', methods=['POST','GET'])
 def ips():
@@ -65,6 +65,7 @@ def ips():
         netmask = request.form['netmask']
         new_ip = make_ipaddress(address, netmask, 0)
         message = "Added new IP %s/%s" % (str(address), str(netmask))
+        create_log(message, 1)
         return redirect('/ip')
 
 @app.route('/ip/edit/<ipid>', methods=['POST','GET'])
@@ -73,39 +74,32 @@ def ip_edit(ipid):
         ip = get_ipaddress(ipid)
         return render_template("edit_ip.html", ip=ip)
     elif request.method == "POST":
-        ip = IPAddress.query.filter_by(id=ipid).first()
-        ip.address = request.form['address']
-        ip.netmask = request.form['netmask']
-        db.session.commit()
+        set_ipaddress_all(ipid, request.form['address'], request.form['netmask'], request.form['server_id'])
         return redirect('/ip/edit/%s' % str(ipid))
 
 @app.route('/ip/unassign/<ipid>', methods=['GET'])
 def ip_unassign(ipid):
-    ip = IPAddress.query.filter_by(id=ipid).first()
-    ip.server_id = 0
-    db.session.commit()
+    set_ipaddress_serverid(ipid, 0)
     rebuild_dhcp_config()
     return redirect('/ip')
 
 @app.route('/ip/assign/<vmid>', methods=['POST'])
 def ip_assign(vmid):
     ip_id = request.form['ip']
-    ip = IPAddress.query.filter_by(id=ip_id).first()
-    ip.server_id = vmid
-    db.session.commit()
+    set_ipaddress_serverid(ipid, vmid)
     rebuild_dhcp_config()
     return redirect('/edit/%s' % str(vmid))
 
 @app.route('/ip/delete/<ipid>', methods=['GET'])
 def ip_delete(ipid):
-    ip = IPAddress.query.filter_by(id=ipid).first()
-    db.session.delete(ip)
-    db.session.commit()
+    set_ipaddress_serverid(ipid, 0)
+    rebuild_dhcp_config()
+    delete_ipaddress(ipid)
     redirect('/ip')
 
 @app.route('/events')
 def events():
-    log = Log.query.all()
+    log = get_all_logs() 
     return render_template("events.html", log=log)
 
 @app.route('/')
@@ -125,7 +119,7 @@ def create():
 
     image_obj = get_image_id(image) 
     
-    new_vm = make_server(name, disk_size, image_obj['name'], ram, vcpu)
+    new_vm = make_server(name, disk_size, image_obj[0]['name'], ram, vcpu)
     
     result = assign_ip(new_vm)
 
@@ -134,7 +128,7 @@ def create():
     
     create_event(new_vm)
     startup_event(new_vm)
-    create_vm(new_vm, ram, disk_size, image_obj['name'], vcpu)
+    create_vm(new_vm, ram, disk_size, image_obj[0]['name'], vcpu)
     
     mac_address = get_guest_mac(new_vm)
 
@@ -172,47 +166,36 @@ def destroy(vmid):
 
 @app.route('/reboot/<vmid>')
 def reboot(vmid):
-    vm = Server.query.filter_by(id=vmid).first()
-    vm.state = 0
-    vm.inconsistent = 0
+    set_server_state(vmid, 0)
+    set_server_inconsistent(vmid, 0)
 
-    db.session.commit()
+    shutdown_event(vmid)
+    shutdown_vm(vmid)
+   
+    set_server_state(vmid, 1)
 
-    shutdown_event(vm.id)
-    shutdown_vm(vm.id)
-    
-    vm.state = 1
-
-    db.session.commit()
-
-    startup_event(vm.id)
-    start_vm(vm.id)
+    startup_event(vmid)
+    start_vm(vmid)
 
     return redirect('/')
 
 @app.route('/shutdown/<vmid>')
 def shutdown(vmid):
-    vm = Server.query.filter_by(id=vmid).first()
-    vm.state = 0
-    vm.inconsistent = 0
+    set_server_state(vmid, 0)
+    set_server_inconsistent(vmid, 0)
 
-    shutdown_event(vm.id)
-    shutdown_vm(vm.id)
-
-    db.session.commit()
+    shutdown_event(vmid)
+    shutdown_vm(vmid)
 
     return redirect('/')
 
 @app.route('/start/<vmid>')
 def start(vmid):
-    vm = Server.query.filter_by(id=vmid).first()
-    vm.state = 1
-    vm.inconsistent = 0
+    set_server_state(vmid, 1)
+    set_server_inconsistent(vmid, 0)
     
-    startup_event(vm.id)
-    start_vm(vm.id)
-    
-    db.session.commit()
+    startup_event(vmid)
+    start_vm(vmid)
 
     return redirect('/')
 
@@ -253,12 +236,17 @@ def host():
 @app.route('/edit/<vmid>', methods=['POST','GET'])
 def edit(vmid):
     if request.method == "GET":
-        server = Server.query.filter_by(id=vmid).first()
-        events = Event.query.filter_by(server_id=server.id).all()
-        my_ip = IPAddress.query.filter_by(server_id=server.id).first()
-        ips = IPAddress.query.filter(IPAddress.server_id == 0).all()
+        server = get_server_id(vmid)
+        events = get_events_server(vmid)
+        my_ip = get_ipaddress_server(vmid)
+        ips = get_all_ipaddress()
+        try:
+            print my_ip[0]
+        except:
+            my_ip = None
         return render_template("edit.html", server=server, events=events, my_ip=my_ip, ips=ips)
     elif request.method == "POST":
+        update_server_all()
         vm = Server.query.filter_by(id=vmid).first()
         vm.name = request.form['name']
         vm.ram = request.form['ram']

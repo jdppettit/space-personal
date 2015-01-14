@@ -12,17 +12,17 @@
     </thead>
     {% for event in log %}
     <tr>
-        <td>{{ event.date }}</td>
+        <td>{{ event['date'] }}</td>
         <td>
-        {% if event.level == 1 %}
+        {% if event['level'] == 1 %}
         <p><span class="label label-primary">Debug</span></p>
-        {% elif event.level == 2 %}
+        {% elif event['level'] == 2 %}
         <p><span class="label label-warning">Warning</span></p>
         {% else %}
         <p><span class="label label-danger">Error</span></p>
         {% endif %}
         </td>
-        <td>{{ event.message }}</td>
+        <td>{{ event['message'] }}</td>
     </tr>
     {% endfor %}
 </table>
