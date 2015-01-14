@@ -1,9 +1,15 @@
 import pymongo
 import datetime
+import config 
+#import utils
 
 def build_id_query(id):
     query = ({"_id":"ObjectID\(\"%s\"\)"} % str(id))
     return query
+
+def objectify(id):
+    id_obj = pymongo.ObjectID(id)
+    return id_obj
 
 def get_connect():
     con = pymongo.MongoClient()
@@ -13,11 +19,13 @@ def get_connect():
     else:
         print "Failed to get DB connection."
 
-def make_server(name, disk_image, disk_path, ram, vcpus, state, mac_address, inconsistent = 0):
+def make_server(name, disk_size, disk_image, ram, vcpu):
     db = get_connect()
     server_cursor = db.server
-    new_server = ({"name":name, "disk_image":disk_image, "disk_path": disk_path, "ram":ram, "vcpus":vcpus, "mac_address":mac_address, "inconsistent":0})
+    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu})
     id = server_cursor.insert(new_server)
+    disk_path = "%s/%s.img" % (str(config.image_path), str(id))
+    server_cursor.update({"_id":objectify(id)}, {"disk_path":disk_path})
     return id
 
 def make_log(date, message, level):
