@@ -7,12 +7,14 @@
         <th>Image Name</th>
         <th>Path</th>
         <th>Size</th>
+        <th></th>
     </tr>
     {% for image in images %}
         <tr>
             <td><a href="/image/edit/{{ image['_id'] }}">{{ image['name'] }}</a></td>
             <td>{{ image['path'] }}</td>
             <td>{{ image['size'] }}</td>
+            <td><a class="btn btn-danger btn-xs" href="/image/delete/{{ image['_id'] }}">Delete</a></td>
         </tr>
     {% endfor %}
 </table>

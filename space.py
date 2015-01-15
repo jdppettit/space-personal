@@ -296,5 +296,10 @@ def edit_image(imageid):
         set_image_all(imageid, name, path, size)
         return redirect('/image/edit/%s' % str(imageid))
 
+@app.route('/image/delete/<imageid>')
+def delete_image_route(imageid):
+    delete_image(imageid)
+    return redirect('/images')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10051, debug=True)

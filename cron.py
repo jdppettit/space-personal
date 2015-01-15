@@ -35,26 +35,19 @@ def sync_status():
             data.set_server_inconsistent(server['_id'], 1)
 
 def import_images():
-    #images = data.get_all_images()
     filesystem_images = [ f for f in os.listdir(config.image_path) if os.path.isfile(os.path.join(config.image_path,f)) ]
     message = "Image sync initated."
     create_log(message, 1)
-    #print poop
     for image in filesystem_images:
         images = data.get_all_images()
-        print image
         state = 0
         for existing_image in images:
-            print "image testing is: %s" % str(os.path.splitext(image)[0])
-            print "existing_image['name']: %s" % str(existing_image['name'])
             if os.path.splitext(image)[0] == existing_image['name']:
-                print "found match"
                 state = 1
         if state == 0:
-            # we need to add it
             image_name = os.path.splitext(image)[0]
             image_path = "%s/%s" % (str(config.image_path), str(image))
-            image_size = os.path.getsize(image_path)
+            image_size = os.path.getsize(image_path) / (1024*1024)
             message2 = "Found new image at %s, adding to the DB" % str(image_path)
             create_log(message2, 1)
             data.make_image(image_name, image_path, image_size)

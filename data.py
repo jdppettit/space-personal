@@ -193,3 +193,8 @@ def set_server_inconsistent(id, inconsistent):
     db = get_connect()
     server_cursor = db.server
     server_cursor.update({"_id":objectify(id)}, {"$set":{"inconsistent":inconsistent}})
+
+def delete_image(id):
+    db = get_connect()
+    image_cursor = db.image
+    image_cursor.remove({"_id":objectify(id)})
