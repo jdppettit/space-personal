@@ -130,7 +130,7 @@
             WebUtil.init_logging(WebUtil.getQueryVar('logging', 'warn'));
             // document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
             // By default, use the host and port of server that served this file
-            host = "pluto.pettitservers.com"
+            host = "{{ domain }}"
             // WebUtil.getQueryVar('host', window.location.hostname);
             port = {{ port }}
             // WebUtil.getQueryVar('port', window.location.port);

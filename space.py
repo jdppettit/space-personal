@@ -58,8 +58,8 @@ def importimages():
 def console(vmid):
     vm = get_server_id(vmid)
     vncport = make_console(str(vmid))    
-    return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'])
-
+    return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'], domain=domain)
+# foo
 @app.route('/ip', methods=['POST','GET'])
 def ips():
     if request.method == "GET":
