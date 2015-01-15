@@ -20,14 +20,16 @@
         <th>Disk Size</th>
         <th>Image</th>
     </tr>
+    {% if domains %}
     {% for dom in domains %}
     <tr>
-        <td>{{ dom.id }}</td>
-        <td><a href="/edit/{{ dom.id }}">{{ dom.name }}</a></td>
-        <td>{{ dom.ram }}</td>
-        <td>{{ dom.disk_size }}</td>
-        <td>{{ dom.image }}</td>
+        <td>{{ dom['_id'] }}</td>
+        <td><a href="/edit/{{ dom['_id'] }}">{{ dom['name'] }}</a></td>
+        <td>{{ dom['ram'] }}</td>
+        <td>{{ dom['disk_size'] }}</td>
+        <td>{{ dom['disk_image'] }}</td>
     </tr>
     {% endfor %}
+    {% endif %}
 </table>
 {% endblock %}

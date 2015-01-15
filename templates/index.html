@@ -5,7 +5,6 @@
 <table class="table sortable">
     <thead>
     <tr>
-        <th>ID</th>
         <th>Name</th>
         <th>RAM</th>
         <th>VCPU</th>
@@ -18,7 +17,6 @@
     </thead>
     {% for server in servers %}
     <tr>
-        <td>{{ server['_id'] }}</td>
         <td><a href="/edit/{{ server['_id'] }}">{{ server['name'] }}</a></td>
         <td>{{ server['ram'] }}</td>
         <td>{{ server['vcpu'] }}</td>

@@ -49,6 +49,11 @@ def syncstatus():
    sync_status()
    return redirect('/')
 
+@app.route('/utils/import_images')
+def importimages():
+    import_images()
+    return redirect('/')
+
 @app.route('/console/<vmid>')
 def console(vmid):
     vm = get_server_id(vmid)
@@ -145,22 +150,22 @@ def create():
 
 @app.route('/destroy/<vmid>')
 def destroy(vmid):
-    vm = Server.query.filter_by(id=vmid).first()
-    ip = IPAddress.query.filter_by(server_id=vm.id).first()
-    if ip:
-        ip.server_id = 0
-        db.session.commit()
+    vm = get_server_id(vmid)
+    ip = get_ipaddress_server(vmid)
+    
+    try:
+        set_ipaddress_serverid(ip[0]['_id'], 0)
+    except:
+        pass
 
     rebuild_dhcp_config()
-
-    vm.state = 3
-    destroy_event(vm.id)
-    delete_vm(vm.id, vm.disk_path)
+    
+    set_server_state(vmid, 3)
+    destroy_event(vmid)
+    delete_vm(vmid, vm['disk_path'])
 
     message = "Deleted vm%s." % str(vmid)
     create_log(message, 1)
-
-    db.session.commit()
 
     return redirect('/')
 
@@ -201,29 +206,32 @@ def start(vmid):
 
 @app.route('/vms/all')
 def view_all():
-    domains = Server.query.all()
+    domains = get_all_servers()
     return render_template("view.html", domains=domains, type="all")
 
 @app.route('/vms/active')
 def view_active():
-    domains = Server.query.filter(Server.state != 3).all()
+    domains = get_all_servers(not_state = 3)
     return render_template("view.html", domains=domains, type="active")
 
 @app.route('/vms/deleted')
 def view_deleted():
-    domains = Server.query.filter_by(state=3).all()
+    domains = get_server_state(3)
+    try:
+        print domains[0]
+    except:
+        domains = None
     return render_template("view.html", domains=domains, type="deleted")
 
 @app.route('/host', methods=['POST','GET'])
 def host():
     if request.method == "GET":
-        host = Host.query.first()
-        if not host:
-            new_host = Host("")
-            db.session.add(new_host)
-            db.session.commit()
-            db.session.refresh(new_host)
-            host = new_host
+        host = get_all_hosts()
+        try:
+            print host[0]['name']
+        except:
+            host_id = make_host("default")
+            host = get_host_id(host_id)
         return render_template("host.html", host=host)
     elif request.method == "POST":
         host = Host.query.first()
@@ -246,16 +254,9 @@ def edit(vmid):
             my_ip = None
         return render_template("edit.html", server=server, events=events, my_ip=my_ip, ips=ips)
     elif request.method == "POST":
-        update_server_all()
-        vm = Server.query.filter_by(id=vmid).first()
-        vm.name = request.form['name']
-        vm.ram = request.form['ram']
-        vm.disk_size = request.form['disk_size']
-        vm.image = request.form['image']
-        vm.state = request.form['state']
-        vm.mac_address = request.form['mac_address']
-        db.session.merge(vm)
-        db.session.commit()
+        set_server_all(vmid, request.form['name'], request.form['disk_size'], request.form['disk_path'],
+        request.form['ram'], request.form['state'], request.form['image'], request.form['vcpu'],
+        request.form['mac_address'])
         
         if "push" in request.form:
             # We're going to actually update the config

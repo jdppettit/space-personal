@@ -39,11 +39,13 @@ def list_vms():
 def shutdown_vm(name):
     conn = connect()
     message = "Sent shutdown to vm%s." % str(name)
-    logm = Log(str(datetime.datetime.now()), message, 1)
-    db.session.add(logm)
-    db.session.commit()
+    create_log(message, 1)
     vm = conn.lookupByName("vm%s" % str(name))
-    vm.destroy()
+    try:
+        vm.destroy()
+    except:
+        message2 = "Attempted to shutdown vm%s, but it wasn't running." % str(name)
+        create_log(message2, 2)
 
 def start_vm(name):
     conn = connect()

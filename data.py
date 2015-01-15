@@ -50,15 +50,16 @@ def make_ipaddress(ip, netmask, server_id):
     ipaddress_cursor.insert(new_ipaddress)
 
 def make_host(name):
-    db = get_conect()
+    db = get_connect()
     host_cursor = db.host
     new_host = ({"name":name})
-    host_cursor.insert(new_host)
+    id = host_cursor.insert(new_host)
+    return id
 
-def set_server_all(id, name, disk_size, disk_path, ram, state, disk_image, vcpu, inconsistent = 0):
+def set_server_all(id, name, disk_size, disk_path, ram, state, disk_image, vcpu, mac_address, inconsistent = 0):
     db = get_connect()
     server_cursor = db.server
-    server_cursor.update({"_id":objectify(id)}, {"name":name, "disk_size":disk_size, "disk_path":disk_path, "ram":ram, "state":state, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":inconsistent})
+    server_cursor.update({"_id":objectify(id)}, {"name":name, "disk_size":disk_size, "disk_path":disk_path, "ram":ram, "state":state, "disk_image":disk_image, "vcpu":vcpu, "mac_address":mac_address, "inconsistent":inconsistent})
 
 def get_server_id(id):
     db = get_connect()
@@ -66,11 +67,23 @@ def get_server_id(id):
     server = server_cursor.find({"_id":objectify(id)})
     return server
 
+def get_host_id(id):
+    db = get_connect()
+    host_cursor = db.host
+    host = host_cursor.find({"_id":objectify(id)})
+    return host
+
 def get_image_id(id):
     db = get_connect()
     image_cursor = db.image
     image = image_cursor.find({"_id":objectify(id)})
     return image
+
+def get_all_hosts():
+    db = get_connect()
+    host_cursor = db.host
+    hosts = host_cursor.find()
+    return hosts
 
 def set_server_mac(id, mac_address):
     db = get_connect()
@@ -91,6 +104,13 @@ def set_ipaddress_serverid(id, server_id):
     db = get_connect()
     ipaddress_cursor = db.ipaddress
     ipaddress_cursor.update({"_id":objectify(id)}, {"$set":{"server_id":server_id}})
+
+def get_server_state(state):
+    db = get_connect()
+    server_cursor = db.server
+    servers = server_cursor.find({"state":state})
+    return servers
+
 
 def get_all_servers(not_state = 0):
     db = get_connect()
