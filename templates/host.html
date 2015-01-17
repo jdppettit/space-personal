@@ -9,5 +9,9 @@ on.</p>
     RAM Total: <input type="text" name="ram_total" class="form-control" value="{{ host[0]['ram'] }}"/><br/>
     Estimated Remaining RAM: <input type="text" name="estimated_ram" class="form-control" value=""/><br/>
     <input type="submit"/>
+    RAM Total: {{ host[0]['memory_total'] }}
+    RAM Used: {{ host[0]['memory_free'] }}
+    CPU Used: {{ host[0]['cpu_total'] }}
+    IOWAIT: {{ host[0]['iowait'] }}
 </form>
 {% endblock %}

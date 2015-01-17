@@ -198,3 +198,15 @@ def delete_image(id):
     db = get_connect()
     image_cursor = db.image
     image_cursor.remove({"_id":objectify(id)})
+
+def set_host_memory(total, free):
+    db = get_connect()
+    host_cursor = db.host
+    host = host_cursor.find()
+    host_cursor.update({"_id":host[0]['_id']}, {"$set":{"memory_total":total, "memory_free":free}})
+
+def set_host_cpu(cpu, iowait):
+    db = get_connect()
+    host_cursor = db.host
+    host = host_cursor.find()
+    host_cursor.update({"_id":host[0]['_id']}, {"$set":{"cpu_total":cpu, "iowait":iowait}})

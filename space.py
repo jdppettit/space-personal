@@ -9,6 +9,7 @@ from event import *
 from cron import *
 from log import *
 from data import *
+from host import *
 
 import libvirt
 import subprocess
@@ -52,6 +53,14 @@ def syncstatus():
 @app.route('/utils/import_images')
 def importimages():
     import_images()
+    return redirect('/')
+
+@app.route('/utils/sync_host_stats')
+def updatehoststats():
+    get_memory_stats()
+    get_cpu_stats()
+    message = "Synced host data."
+    create_log(message, 1)
     return redirect('/')
 
 @app.route('/console/<vmid>')
@@ -232,6 +241,8 @@ def host():
         except:
             host_id = make_host("default")
             host = get_host_id(host_id)
+        get_memory_stats()
+        get_cpu_stats()
         return render_template("host.html", host=host)
     elif request.method == "POST":
         host = Host.query.first()
