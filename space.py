@@ -134,7 +134,8 @@ def create():
     image_obj = get_image_id(image) 
     
     new_vm = make_server(name, disk_size, image_obj[0]['name'], ram, vcpu)
-    
+    new_vm = str(new_vm)
+
     result = assign_ip(new_vm)
 
     if result == 0:
@@ -171,7 +172,7 @@ def destroy(vmid):
     
     set_server_state(vmid, 3)
     destroy_event(vmid)
-    delete_vm(vmid, vm['disk_path'])
+    delete_vm(vmid, vm[0]['disk_path'])
 
     message = "Deleted vm%s." % str(vmid)
     create_log(message, 1)

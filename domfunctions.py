@@ -19,9 +19,7 @@ def restart_dhcpd():
 def connect():
     conn=libvirt.open("%s:///system" % system_type)
     message = "Connection established with server."
-    logm = Log(str(datetime.datetime.now()), message, 1)
-    db.session.add(logm)
-    db.session.commit()
+    create_log(message, 1)
     return conn
 
 def list_vms():
@@ -29,8 +27,7 @@ def list_vms():
     other_domains = conn.listDefinedDomains()
     running_domains = conn.listDomainsID()
     message =  "Got a list of domains."
-    db.session.add(logm)
-    db.session.commit()
+    create_log(message, 1)
     data = []
     for id in running_domains:
         data.append(conn.lookupByID(id))
@@ -50,9 +47,7 @@ def shutdown_vm(name):
 def start_vm(name):
     conn = connect()
     message = "Sent startup to vm%s." % str(name)
-    logm = Log(str(datetime.datetime.now()), message, 1)
-    db.session.add(logm)
-    db.session.commit()
+    create_log(message, 1)
     vm = conn.lookupByName("vm%s" % str(name))
     vm.create()
 
@@ -90,17 +85,12 @@ def update_config(vm):
     os.remove('%s/vm%s.xml') % (str(config_path), str(vm.id))
     
     message1 = "Deleted config for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path), str(vm.id))
-    logm1 = Log(datetime.datetime.now(), message1, 1)
-    db.session.add(logm1)
-    
+    create_log(message1, 1)
+
     create.make_config(vm.id, "", str(vm.ram), str(vm.vcpu), vm.image)
 
     message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path), str(vm.id))
-
-    logm2 = Log(datetime.datetime.now(), message, 1)
-    db.session.add(logm2)
-
-    db.session.commit()
+    create_log(message, 1)
 
 def redefine_vm(vm):
     conn = connect()
@@ -120,11 +110,7 @@ def redefine_vm(vm):
     conn.defineXML(xml)
 
     message3 = "Redefined domain vm%s." % str(vm.id)
-    logm3 = Log(datetime.datetime.now(), message3, 1)
-    db.session.add(logm3)
-
-    db.session.commit()
-
+    create_log(message3, 1)
 
 
 def delete_vm(name, image_path):
@@ -136,9 +122,7 @@ def delete_vm(name, image_path):
         vm.undefine()
     os.remove(image_path)
     message = "Deleted VM with name vm%s, image removed at %s." % (str(name), str(image_path))
-    logm = Log(str(datetime.datetime.now()), message, 1)
-    db.session.add(logm)
-    db.session.commit()
+    create_log(message, 1)
 
 def make_console(name):
     try:
@@ -213,13 +197,10 @@ def get_guest_mac(name):
     mac_address = ""
 
     for child in tree:
-        print child
         if child.tag == "devices":
             for sub in child:
-                print sub
                 if sub.tag == "interface":
                     for ssub in sub:
-                        print ssub
                         if ssub.tag == "mac":
                             mac_address = ssub.attrib
 
