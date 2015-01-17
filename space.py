@@ -100,7 +100,7 @@ def ip_unassign(ipid):
 @app.route('/ip/assign/<vmid>', methods=['POST'])
 def ip_assign(vmid):
     ip_id = request.form['ip']
-    set_ipaddress_serverid(ipid, vmid)
+    set_ipaddress_serverid(ip_id, vmid)
     rebuild_dhcp_config()
     return redirect('/edit/%s' % str(vmid))
 

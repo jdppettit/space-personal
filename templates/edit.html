@@ -34,7 +34,7 @@ This VM does not have an IP.
 {% endif %}
 
 <h3>Assign IP Address</h3>
-<form action="/ip/assign/{{ server['_id'] }}" method="post">
+<form action="/ip/assign/{{ server[0]['_id'] }}" method="post">
     <select name="ip" class="form-control">
         {% for ip in ips %}
         <option value="{{ ip['_id'] }}">{{ ip['ip'] }}</option>

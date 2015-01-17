@@ -168,7 +168,7 @@ def assign_ip(vmid):
     if not available_ips:
         create_log("Attempted to assign an IP address, but no IP addresses remained.", 2)
         return 0
-    data.set_ipaddress_serverid(vmid, vmid)
+    data.set_ipaddress_serverid(available_ips['_id'], vmid)
     return available_ips['ip']
 
 def append_dhcp_config(mac_address, ip, vmid):
@@ -178,14 +178,14 @@ def append_dhcp_config(mac_address, ip, vmid):
     restart_dhcpd()
 
 def rebuild_dhcp_config():
-    ips = IPAddress.query.filter(IPAddress.server_id != 0).all()
+    ips = data.get_ipaddress_allocated_all()
     create_log("Rebuilding DHCPD configuration to unassign IP.", 1)
     with open("/etc/dhcp/dhcpd.conf", "w") as config:
         config.write("option domain-name-servers 8.8.8.8, 8.8.4.4;\n\n")
         config.write("subnet 198.204.234.136 netmask 255.255.255.248 {\n range 198.204.234.139 198.204.234.142;\n option routers 198.204.234.137;\n}\n")
         for ip in ips:
-            vm = Server.query.filter_by(id=ip.server_id).first()
-            config.write("host vm%s {\n hardware ethernet %s;\n fixed-address %s;\n}\n" % (str(vm.id), str(vm.mac_address), str(ip.ip)))
+            vm = data.get_server_id(ip['server_id'])
+            config.write("host vm%s {\n hardware ethernet %s;\n fixed-address %s;\n}\n" % (str(vm[0]['_id']), str(vm[0]['mac_address']), str(ip['ip'])))
         config.close()
     restart_dhcpd()    
 

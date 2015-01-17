@@ -179,6 +179,18 @@ def get_ipaddress_free():
     ipaddress = ipaddress_cursor.find_one({"server_id":0})
     return ipaddress
 
+def get_ipaddress_free_all():
+    db = get_connect()
+    ipaddress_cursor = db.ipaddress
+    ipaddress = ipaddress_cursor.find({"server_id":0})
+    return ipaddress
+
+def get_ipaddress_allocated_all():
+    db = get_connect()
+    ipaddress_cursor = db.ipaddress
+    ipaddress = ipaddress_cursor.find({"server_id":{"$ne":0}})
+    return ipaddress
+
 def delete_ipaddress(id):
     db = get_connect()
     ipaddress_cursor = db.ipaddress
