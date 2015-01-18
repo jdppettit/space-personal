@@ -56,6 +56,30 @@ def make_host(name):
     id = host_cursor.insert(new_host)
     return id
 
+def make_configuration(image_directory, disk_directory, config_directory, system_type, domain):
+    db = get_connect()
+    config_cursor = db.configuration
+    configuration = ({"_id":"default", "image_directory":image_directory, "disk_directory":disk_directory, "config_directory":config_directory, "system_type":system_type, "domain":domain})
+    config_cursor.insert(configuration)
+
+def make_host_statistic(cpu, memory_used, total_memory, iowait, date):
+    db = get_connect()
+    host_statistic_cursor = db.host_statistic
+    statistic = ({"cpu":cpu, "memory_used":memory_used, "iowait":iowait, "date":date, "total_memory":total_memory})
+    host_statistic_cursor.insert(statistic)
+
+def get_host_statistic_all():
+    db = get_connect()
+    host_statistic_cursor = db.host_statistic
+    statistics = host_statistic_cursor.find().sort({"date":1})
+    return statistics
+
+def get_host_statistic_specific(num):
+    db = get_connect()
+    host_statistic_cursor = db.host_statistic
+    statistics = host_statistic_cursor.find().sort([("date",-1)]).limit(num)
+    return statistics 
+
 def set_server_all(id, name, disk_size, disk_path, ram, state, disk_image, vcpu, mac_address, inconsistent = 0):
     db = get_connect()
     server_cursor = db.server
@@ -66,6 +90,12 @@ def get_server_id(id):
     server_cursor = db.server
     server = server_cursor.find({"_id":objectify(id)})
     return server
+
+def get_config():
+    db = get_connect()
+    config_cursor = db.configuration
+    config = config_cursor.find_one()
+    return config
 
 def get_host_id(id):
     db = get_connect()

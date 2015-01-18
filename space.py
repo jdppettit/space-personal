@@ -57,8 +57,7 @@ def importimages():
 
 @app.route('/utils/sync_host_stats')
 def updatehoststats():
-    get_memory_stats()
-    get_cpu_stats()
+    get_host_stats()
     message = "Synced host data."
     create_log(message, 1)
     return redirect('/')
@@ -121,7 +120,8 @@ def index():
     servers = get_all_servers(not_state = 3)
     log = get_all_logs(min_level = 2)
     images = get_all_images()
-    return render_template("index.html", servers = servers, images=images, log=log)
+    host = get_all_hosts()
+    return render_template("index.html", servers = servers, images=images, log=log, host=host)
 
 @app.route('/create', methods=['POST'])
 def create():
@@ -236,15 +236,13 @@ def view_deleted():
 @app.route('/host', methods=['POST','GET'])
 def host():
     if request.method == "GET":
-        host = get_all_hosts()
+        config = get_config()
         try:
-            print host[0]['name']
+            print config['disk_directory']
         except:
-            host_id = make_host("default")
-            host = get_host_id(host_id)
-        get_memory_stats()
-        get_cpu_stats()
-        return render_template("host.html", host=host)
+            return redirect('/setup') 
+        stats = get_host_statistic_specific(1)
+        return render_template("host.html", config=config, stat=stats)
     elif request.method == "POST":
         host = Host.query.first()
         host.name = request.form['hostname']
@@ -252,6 +250,16 @@ def host():
         db.session.merge(host)
         db.session.commit()
         return redirect('/host')
+
+@app.route('/setup')
+def setup():
+    config = get_config()
+    try:
+        print config['disk_directory']
+    except: 
+        make_configuration(image_path, disk_path, config_path, system_type, domain)
+        return "Setup completed."
+    return "You can only complete setup once."
 
 @app.route('/edit/<vmid>', methods=['POST','GET'])
 def edit(vmid):

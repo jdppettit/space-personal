@@ -5,13 +5,13 @@
 <p>This page will show you the limitations and statistics for the host (the physical machine) your VM's are running
 on.</p>
 <form action="/host" method="post">
-    Hostname: <input type="text" name="hostname" class="form-control" value="{{ host[0]['name'] }}"/><br/>
-    RAM Total: <input type="text" name="ram_total" class="form-control" value="{{ host[0]['ram'] }}"/><br/>
-    Estimated Remaining RAM: <input type="text" name="estimated_ram" class="form-control" value=""/><br/>
+    Disk Directory: <input type="text" name="disk_directory" value="{{ config['disk_directory'] }}"/><br/>
+    Image Directory: <input type="text" name="image_directory" value="{{ config['image_directory'] }}"/><br/>
+    Config Directory: <input type="text" name="config_directory" value="{{ config['config_directory'] }}"/><br/>
     <input type="submit"/>
-    RAM Total: {{ host[0]['memory_total'] }}
-    RAM Used: {{ host[0]['memory_free'] }}
-    CPU Used: {{ host[0]['cpu_total'] }}
-    IOWAIT: {{ host[0]['iowait'] }}
+    RAM Total: {{ stat[0]['total_memory'] }}
+    RAM Used: {{ stat[0]['memory_used'] }}
+    CPU Used: {{ stat[0]['cpu'] }}
+    IOWAIT: {{ stat[0]['iowait'] }}
 </form>
 {% endblock %}
