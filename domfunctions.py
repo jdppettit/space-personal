@@ -4,6 +4,7 @@ import os
 import subprocess
 import create
 import xml.etree.ElementTree as et
+import data
 
 from log import *
 from event import *
@@ -17,7 +18,8 @@ def restart_dhcpd():
 
 
 def connect():
-    conn=libvirt.open("%s:///system" % system_type)
+    config = data.get_config()
+    conn=libvirt.open("%s:///system" % config['system_type'])
     message = "Connection established with server."
     create_log(message, 1)
     return conn
@@ -52,18 +54,19 @@ def start_vm(name):
     vm.create()
 
 def create_vm(name, ram, disk_size, image, vcpu):
+    config = data.get_config()
     create.make_config(name, "", ram, vcpu, image)
-    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(name), str(config_path), str(name))
+    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(name), str(config['config_directory']), str(name))
    
     create_log(message, 1)
 
     create.make_image(name, disk_size)
-    message2 = "Created new disk image %s/vm%s.img of size %sGB." % (str(name), str(disk_path), str(disk_size))
+    message2 = "Created new disk image %s/vm%s.img of size %sGB." % (str(name), str(config['disk_directory']), str(disk_size))
     
     create_log(message2, 1)
 
     conn = connect()
-    xmlpath = "%s/vm%s.xml" % (str(config_path), str(name))
+    xmlpath = "%s/vm%s.xml" % (str(config['config_directory']), str(name))
     
     xml = ""
 
@@ -82,17 +85,19 @@ def create_vm(name, ram, disk_size, image, vcpu):
     create_log(message4, 1)
 
 def update_config(vm):
-    os.remove('%s/vm%s.xml') % (str(config_path), str(vm.id))
+    config = data.get_config()
+    os.remove('%s/vm%s.xml') % (str(config['config_directory']), str(vm.id))
     
-    message1 = "Deleted config for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path), str(vm.id))
+    message1 = "Deleted config for vm%s at %s/vm%s.xml" % (str(vm.id), str(config['config_directory']), str(vm.id))
     create_log(message1, 1)
 
     create.make_config(vm.id, "", str(vm.ram), str(vm.vcpu), vm.image)
 
-    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(vm.id), str(config_path), str(vm.id))
+    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(vm.id), str(config['config_directory']), str(vm.id))
     create_log(message, 1)
 
 def redefine_vm(vm):
+    config = data.get_config()
     conn = connect()
     dom = conn.lookupByName("vm%s" % str(vm.id))
     try:
@@ -100,7 +105,7 @@ def redefine_vm(vm):
     except:
         dom.undefine()
 
-    xmlpath = "%s/vm%s.xml" % (str(config_path), str(vm.id))
+    xmlpath = "%s/vm%s.xml" % (str(config['config_directory']), str(vm.id))
 
     xml = ""
 
@@ -115,7 +120,10 @@ def redefine_vm(vm):
 
 def delete_vm(name, image_path):
     conn = connect()
-    vm = conn.lookupByName("vm%s" % str(name))
+    try:
+        vm = conn.lookupByName("vm%s" % str(name))
+    except:
+        pass
     try:
         vm.destroy()
     except:

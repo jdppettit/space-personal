@@ -4,13 +4,13 @@
 <div class="row">
     <div class="col-md-4">
         <h3>Memory Stats</h3>
-        Total Memory: {{ host[0]['memory_total'] }}<br/>
-        Used Memory: {{ host[0]['memory_free'] }}<br/>
+        Total Memory: {{ stats[0]['total_memory'] }}<br/>
+        Used Memory: {{ stats[0]['memory_used'] }}<br/>
     </div>
     <div class="col-md-4">
         <h3>CPU Statistics</h3>
-        CPU Used: {{ host[0]['cpu_total'] }}<br/>
-        IOwait: {{ host[0]['iowait'] }}<br/>
+        CPU Used: {{ stats[0]['cpu'] }}<br/>
+        IOwait: {{ stats[0]['iowait'] }}<br/>
     </div>
     <div class="col-md-4">
         <h3>Host Status</h3>

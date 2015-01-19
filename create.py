@@ -1,10 +1,11 @@
 import xml.etree.cElementTree as et
 import uuid
 import subprocess
-
-from config import *
+import data
 
 def make_config(name, disk_path, ram, vcpu, image):
+    config = data.get_config()
+
     domain = et.Element("domain")
     domain.set("type","kvm")
 
@@ -72,7 +73,7 @@ def make_config(name, disk_path, ram, vcpu, image):
     disk1driverxml.set("cache", "none")
 
     disk1sourcexml = et.SubElement(disk1xml, "source")
-    disk1sourcexml.set("file", "/var/disks/vm%s.img" % str(name))
+    disk1sourcexml.set("file", "%s/vm%s.img" % (str(config['disk_directory']), str(name)))
     
     disk1targetxml = et.SubElement(disk1xml, "target")
     disk1targetxml.set("dev","hda")
@@ -89,7 +90,7 @@ def make_config(name, disk_path, ram, vcpu, image):
     disk2xml.set("device", "cdrom")
 
     disk2sourcexml = et.SubElement(disk2xml, "source")
-    disk2sourcexml.set("file", "/var/images/%s.iso" % str(image))
+    disk2sourcexml.set("file", "%s/%s.iso" % (str(config['image_directory']), str(image)))
 
     disk2driverxml = et.SubElement(disk2xml, "driver")
     disk2driverxml.set("name", "qemu")
@@ -127,10 +128,11 @@ def make_config(name, disk_path, ram, vcpu, image):
     interfacemodelxml.set("type", "virtio")
 
     tree = et.ElementTree(domain)
-    path = "%s/vm%s.xml" % (str(config_path), str(name))
+    path = "%s/vm%s.xml" % (str(config['config_directory']), str(name))
     tree.write(path)
 
 def make_image(name, disk_size):
-    command = "qemu-img create %s/vm%s.img %sG" % (str(disk_path), str(name), str(disk_size))
+    config = data.get_config()
+    command = "qemu-img create %s/vm%s.img %sG" % (str(config['disk_directory']), str(name), str(disk_size))
     subprocess.Popen(command.split())
 

@@ -120,8 +120,8 @@ def index():
     servers = get_all_servers(not_state = 3)
     log = get_all_logs(min_level = 2)
     images = get_all_images()
-    host = get_all_hosts()
-    return render_template("index.html", servers = servers, images=images, log=log, host=host)
+    stats = get_host_statistic_specific(1)
+    return render_template("index.html", servers = servers, images=images, log=log, stats=stats)
 
 @app.route('/create', methods=['POST'])
 def create():
@@ -217,11 +217,19 @@ def start(vmid):
 @app.route('/vms/all')
 def view_all():
     domains = get_all_servers()
+    try:
+        print domains[0]
+    except:
+        domains = None
     return render_template("view.html", domains=domains, type="all")
 
 @app.route('/vms/active')
 def view_active():
     domains = get_all_servers(not_state = 3)
+    try:
+        print domains[0]
+    except:
+        domains = None
     return render_template("view.html", domains=domains, type="active")
 
 @app.route('/vms/deleted')
