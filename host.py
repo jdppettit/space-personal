@@ -25,4 +25,4 @@ def get_host_stats():
     cpu_system = output[0].split(":")[1]
     io_wait = output[4].split(":")[1]
 
-    data.make_host_statistic(cpu_system, free_memory, total_memory, io_wait, datetime.datetime.now()) 
+    data.make_host_statistic(float(cpu_system.replace("%","")), int(free_memory), int(total_memory), float(io_wait.replace("%","")), datetime.datetime.now()) 

@@ -14,6 +14,7 @@ from host import *
 import libvirt
 import subprocess
 import datetime
+import json
 
 app = Flask(__name__)
 
@@ -40,6 +41,25 @@ Event Types
 
 db.create_all()
 db.session.commit()
+
+@app.route('/ajax/get_host_stats')
+def ajax_memory_stats():
+    stats = get_host_statistic_specific(60)
+    memory_stats = []
+    cpu_stats = []
+    iowait_stats = []
+    dates = []
+    for stat in stats:
+        memory_stats.append(stat['memory_used'])
+        cpu_stats.append(stat['cpu'])
+        iowait_stats.append(stat['iowait'])
+        dates.append(stat['date'])
+    dict = {"memory":memory_stats, "cpu":cpu_stats, "iowait":iowait_stats, "dates":dates}
+    return jsonify(dict)
+
+@app.route('/ajax/get_host_cpu_stats')
+def ajax_cpu_stats():
+    print "foo"
 
 @app.route('/tests/mac')
 def tests_mac():

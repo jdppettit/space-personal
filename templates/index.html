@@ -1,19 +1,98 @@
 {% extends 'grid.html' %}
 {% block title %}Space{% endblock %}
+{% block head_content %}
+<script type="text/javascript">
+    getData();
+
+    function getData() {
+        $.get("http://pluto.pettitservers.com:10051/ajax/get_host_stats", function(resp) {
+            memory = resp['memory']
+            cpu = resp['cpu']
+            dates = resp['dates']
+            iowait = resp['iowait']
+            
+            makeMemory();
+            makeCPU();
+        });
+    };
+
+    function makeMemory() {
+       $('#memory').highcharts({
+        title: {
+            text: ""
+        },
+        yAxis: {
+            title: {
+                text: 'Memory Used (KiB)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: 'KiB'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'Memory (KiB)',
+            data: memory
+        }]
+    }); 
+    };
+
+    function makeCPU() {
+       $('#cpu').highcharts({
+        title: {
+            text: ""
+        },
+        yAxis: {
+            title: {
+                text: 'CPU Used (%)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: '%'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'CPU (%)',
+            data: cpu
+        }]
+    });
+    };
+
+</script>
+{% endblock %}
 {% block content %}
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <h3>Memory Stats</h3>
         Total Memory: {{ stats[0]['total_memory'] }}<br/>
         Used Memory: {{ stats[0]['memory_used'] }}<br/>
+        <div id="memory"></div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <h3>CPU Statistics</h3>
         CPU Used: {{ stats[0]['cpu'] }}<br/>
         IOwait: {{ stats[0]['iowait'] }}<br/>
-    </div>
-    <div class="col-md-4">
-        <h3>Host Status</h3>
+        <div id="cpu"></div>
     </div>
 </div><!-- row !-->
 <hr/>
