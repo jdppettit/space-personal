@@ -187,10 +187,13 @@ def append_dhcp_config(mac_address, ip, vmid):
 
 def rebuild_dhcp_config():
     ips = data.get_ipaddress_allocated_all()
+    ipranges = data.get_all_iprange()
     create_log("Rebuilding DHCPD configuration to unassign IP.", 1)
     with open("/etc/dhcp/dhcpd.conf", "w") as config:
         config.write("option domain-name-servers 8.8.8.8, 8.8.4.4;\n\n")
-        config.write("subnet 198.204.234.136 netmask 255.255.255.248 {\n range 198.204.234.139 198.204.234.142;\n option routers 198.204.234.137;\n}\n")
+        for range in ipranges:
+            line = "subnet %s netmask %s {\n range %s %s;\n option routers %s;\n}\n" % (str(range['subnet']), str(range['netmask']), str(range['startip']), str(range['endip']), str(range['gateway']))
+            config.write(line)
         for ip in ips:
             vm = data.get_server_id(ip['server_id'])
             config.write("host vm%s {\n hardware ethernet %s;\n fixed-address %s;\n}\n" % (str(vm[0]['_id']), str(vm[0]['mac_address']), str(ip['ip'])))

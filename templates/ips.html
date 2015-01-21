@@ -35,14 +35,18 @@
         <th>ID</th>
         <th>Start IP</th>
         <th>End IP</th>
+        <th>Subnet</th>
         <th>Netmask</th>
+        <th>Gateway</th>
     </tr>
-    {% for range in ipranges %}
+    {% for range in ranges %}
     <tr>
         <td>{{ range['_id'] }}</td>
         <td>{{ range['startip'] }}</td>
         <td>{{ range['endip'] }}</td>
+        <td>{{ range['subnet'] }}</td>
         <td>{{ range['netmask'] }}</td>
+        <td>{{ range['gateway'] }}</td>
     </tr>
     {% endfor %}
 </table>
@@ -51,7 +55,9 @@
 <form action="/iprange" method="post">
     <input class="form-control" type="text" name="startip" placeholder="Start IP"/><br/>
     <input class="form-control" type="text" name="endip" placeholder="End IP"/><br/>
+    <input class="form-control" type="text" name="subnet" placeholder="Subnet"/><br/>
     <input class="form-control" type="text" name="netmask" placeholder="Netmask"/><br/>
+    <input class="form-control" type="text" name="gateway" placeholder="Gateway"/><br/>
     <input type="submit" value="Add" class="btn btn-success"/>
 </form>
 {% endblock %}

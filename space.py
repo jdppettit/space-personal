@@ -15,6 +15,7 @@ import libvirt
 import subprocess
 import datetime
 import json
+import networking
 
 app = Flask(__name__)
 
@@ -57,14 +58,6 @@ def ajax_memory_stats():
     dict = {"memory":memory_stats, "cpu":cpu_stats, "iowait":iowait_stats, "dates":dates}
     return jsonify(dict)
 
-@app.route('/ajax/get_host_cpu_stats')
-def ajax_cpu_stats():
-    print "foo"
-
-@app.route('/tests/mac')
-def tests_mac():
-    print get_guest_mac(7)
-
 @app.route('/utils/sync_status')
 def syncstatus():
    sync_status()
@@ -82,17 +75,24 @@ def updatehoststats():
     create_log(message, 1)
     return redirect('/')
 
+@app.route('/iprange', methods=['POST'])
+def iprange():
+    range_id = make_iprange(request.form['startip'], request.form['endip'], request.form['subnet'], request.form['netmask'], request.form['gateway'])
+    networking.ennumerate_iprange(range_id)
+    return redirect('/ip')
+
 @app.route('/console/<vmid>')
 def console(vmid):
     vm = get_server_id(vmid)
     vncport = make_console(str(vmid))    
     return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'], domain=domain)
-# foo
+
 @app.route('/ip', methods=['POST','GET'])
 def ips():
     if request.method == "GET":
-        ips = get_all_ipaddress() 
-        return render_template("ips.html", ips=ips)
+        ips = get_all_ipaddress()
+        ranges = get_all_iprange()
+        return render_template("ips.html", ips=ips, ranges=ranges)
     else:
         address = request.form['address']
         netmask = request.form['netmask']
@@ -128,7 +128,7 @@ def ip_delete(ipid):
     set_ipaddress_serverid(ipid, 0)
     rebuild_dhcp_config()
     delete_ipaddress(ipid)
-    redirect('/ip')
+    return redirect('/ip')
 
 @app.route('/events')
 def events():
