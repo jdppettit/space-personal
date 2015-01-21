@@ -1,5 +1,5 @@
 {% extends 'grid.html' %}
-{% block title %}Space{% endblock %}
+{% block title %}Space - The Virtualization Control Panel{% endblock %}
 {% block head_content %}
 <script type="text/javascript">
     getData();
@@ -13,6 +13,7 @@
             
             makeMemory();
             makeCPU();
+            makeIOwait();
         });
     };
 
@@ -78,24 +79,41 @@
     });
     };
 
+    function makeIOwait() {
+       $('#iowait').highcharts({
+        title: {
+            text: ""
+        },
+        yAxis: {
+            title: {
+                text: 'IOWait (%)'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: '%'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        },
+        series: [{
+            name: 'IOWait (%)',
+            data: cpu
+        }]
+    });
+    };
+
+
 </script>
 {% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <h3>Memory Stats</h3>
-        Total Memory: {{ stats[0]['total_memory'] }}<br/>
-        Used Memory: {{ stats[0]['memory_used'] }}<br/>
-        <div id="memory"></div>
-    </div>
-    <div class="col-md-6">
-        <h3>CPU Statistics</h3>
-        CPU Used: {{ stats[0]['cpu'] }}<br/>
-        IOwait: {{ stats[0]['iowait'] }}<br/>
-        <div id="cpu"></div>
-    </div>
-</div><!-- row !-->
-<hr/>
 <h3>VMs</h3>
 <table class="table sortable">
     <thead>
@@ -143,22 +161,60 @@
 </table>
 <hr/>
 <div class="row">
-<div class="col-md-6">
-<h3>Make a New VM</h3>
-<form action="/create" method="post">
-    <input class="form-control" type="text" name="name" placeholder="VM Name"/><br/>
-    <input class="form-control" type="text" name="ram" placeholder="RAM in MB"/><br/>
-    <input class="form-control" type="text" name="disk_size" placeholder="Disk Size in GB"/><br/>
-    <input class="form-control" type="text" name="vcpu" placeholder="Number of VCPUs"/><br/>
-    <select class="form-control" name="image">
-        {% for image in images %}
-        <option value="{{ image['_id'] }}">{{ image['name'] }}</option>
-        {% endfor %}
-    </select><br/>
-    <input class="btn btn-success" type="submit" value="Make it"/>
-</form>
+    <div class="col-md-6">
+        <h3>Make a New VM</h3>
+        <form action="/create" method="post" data-toggle="validator" role="form">
+            <div class="form-group">
+                <label for="name" class="control-label">VM Name</label>
+                <input class="form-control" type="text" name="name" placeholder="VM Name" required/>
+                <span class="help-block with-errors"></span>
+            </div>
+            <div class="form-group">
+                <label for="ram" class="control-label">RAM Amount (MB)</label>
+                <input class="form-control" type="number" name="ram" placeholder="RAM in MB" required data-type="number" min="1"/>
+                <span class="help-block with-errors"></span>
+            </div>
+            <div class="form-group">
+                <label for="disk_size" class="control-label">Disk Size (GB)</label>
+                <input class="form-control" type="number" name="disk_size" placeholder="Disk Size in GB" required data-type="number" min="1"/>
+                <span class="help-block with-errors"></span>
+            </div>
+            <div class="form-group">
+                <label for="vcpu" class="control-label">vCPUs</label>
+                <input class="form-control" type="number" name="vcpu" placeholder="Number of VCPUs" required data-type="number" min="1"/>
+                <span class="help-block with-errors"></span>
+            </div>
+            <div class="form-group">
+                <label for="image" class="control-label">Distribution Image</label>
+                <select class="form-control" name="image" required>
+                {% for image in images %}
+                    <option value="{{ image['_id'] }}">{{ image['name'] }}</option>
+                {% endfor %}
+                </select>
+            </div>
+                <input class="btn btn-success" type="submit" value="Make it"/>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h3>CPU Statistics</h3>
+        <div style="text-align:right;"><strong>CPU Used: {{ stats[0]['cpu'] }}%</strong><br/></div>
+        <div id="cpu"></div>
+    </div>
+</div><!-- row !-->
+<hr/>
+<div class="row">
+    <div class="col-md-6">
+        <h3>Memory Stats</h3>
+        Total Memory: {{ stats[0]['total_memory'] }}<br/>
+        Used Memory: {{ stats[0]['memory_used'] }}<br/>
+        <div id="memory"></div>
+    </div>
+    <div class="col-md-6">
+    <h3>IOWait</h3>
+    IOWait: {{ stats[0]['iowait'] }}<br/>
+    <div id="iowait"></div>
+    </div>
 </div>
-<div class="col-md-6">
 <h3>Error / Warning Events</h3>
 <table class="table sortable">
     <thead>
@@ -184,7 +240,4 @@
     </tr>
     {% endfor %}
 </table>
-</div>
-</div>
-<div id="container"></div>
 {% endblock %}
