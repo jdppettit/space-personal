@@ -62,11 +62,23 @@ def make_configuration(image_directory, disk_directory, config_directory, system
     configuration = ({"_id":"default", "image_directory":image_directory, "disk_directory":disk_directory, "config_directory":config_directory, "system_type":system_type, "domain":domain})
     config_cursor.insert(configuration)
 
+def make_iprange(startip, endip, netmask, gateway):
+    db = get_connect()
+    iprange_cursor = db.iprange
+    iprange = ({"startip":startip, "endip":endip, "netmask":netmask, "gateway":gateway})
+    iprange_cursor.insert(iprange)
+
 def make_host_statistic(cpu, memory_used, total_memory, iowait, date):
     db = get_connect()
     host_statistic_cursor = db.host_statistic
     statistic = ({"cpu":cpu, "memory_used":memory_used, "iowait":iowait, "date":date, "total_memory":total_memory})
     host_statistic_cursor.insert(statistic)
+
+def get_iprange_all():
+    db = get_connect()
+    iprange_cursor = db.iprange
+    ipranges = iprange_cursor.find() 
+    return ipranges
 
 def get_host_statistic_all():
     db = get_connect()

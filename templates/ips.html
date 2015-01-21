@@ -21,10 +21,36 @@
         </tr>
     {% endfor %}
 </table>
-
+<hr/>
 <h3>Add New IP</h3>
 <form action="/ip" method="post">
     <input class="form-control" type="text" name="address" placeholder="Address"/><br/>
+    <input class="form-control" type="text" name="netmask" placeholder="Netmask"/><br/>
+    <input type="submit" value="Add" class="btn btn-success"/>
+</form>
+<hr/>
+<h3>IP Ranges</h3>
+<table class="table sortable">
+    <tr>
+        <th>ID</th>
+        <th>Start IP</th>
+        <th>End IP</th>
+        <th>Netmask</th>
+    </tr>
+    {% for range in ipranges %}
+    <tr>
+        <td>{{ range['_id'] }}</td>
+        <td>{{ range['startip'] }}</td>
+        <td>{{ range['endip'] }}</td>
+        <td>{{ range['netmask'] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<hr/>
+<h3>Add New IP Range</h3>
+<form action="/iprange" method="post">
+    <input class="form-control" type="text" name="startip" placeholder="Start IP"/><br/>
+    <input class="form-control" type="text" name="endip" placeholder="End IP"/><br/>
     <input class="form-control" type="text" name="netmask" placeholder="Netmask"/><br/>
     <input type="submit" value="Add" class="btn btn-success"/>
 </form>
