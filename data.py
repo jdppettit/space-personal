@@ -90,13 +90,13 @@ def get_iprange_id(id):
 def get_host_statistic_all():
     db = get_connect()
     host_statistic_cursor = db.host_statistic
-    statistics = host_statistic_cursor.find().sort({"date":1})
+    statistics = host_statistic_cursor.find().sort("date",-1)
     return statistics
 
 def get_host_statistic_specific(num):
     db = get_connect()
     host_statistic_cursor = db.host_statistic
-    statistics = host_statistic_cursor.find().sort([("date",-1)]).limit(num)
+    statistics = host_statistic_cursor.find().sort("date",-1).limit(num)
     return statistics 
 
 def set_server_all(id, name, disk_size, disk_path, ram, state, disk_image, vcpu, mac_address, inconsistent = 0):

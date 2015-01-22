@@ -2,17 +2,14 @@ import subprocess
 import data
 import datetime
 
+from domfunctions import connect
+
 def get_host_stats():
-    command = "virsh nodememstats"
-
-    p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-    output = p.communicate()[0]
-
-    output = output.replace(" ", "")
-    output = output.split("\n")
-   
-    total_memory = output[0].split(":")[1][:-3]      
-    free_memory = output[1].split(":")[1][:-3]
+    con = connect()
+    memory_stats = con.getMemoryStats(0,0)
+    
+    total_memory = memory_stats['total'] / 1024
+    free_memory = memory_stats['free'] / 1024 
 
     command = "virsh nodecpustats --percent"
 

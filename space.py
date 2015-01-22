@@ -55,7 +55,7 @@ def ajax_memory_stats():
         cpu_stats.append(stat['cpu'])
         iowait_stats.append(stat['iowait'])
         dates.append(stat['date'])
-    dict = {"memory":memory_stats, "cpu":cpu_stats, "iowait":iowait_stats, "dates":dates}
+    dict = {"memory":list(reversed(memory_stats)), "cpu":list(reversed(cpu_stats)), "iowait":list(reversed(iowait_stats)), "dates":list(reversed(dates))}
     return jsonify(dict)
 
 @app.route('/utils/sync_status')
