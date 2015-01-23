@@ -271,3 +271,19 @@ def set_host_cpu(cpu, iowait):
     host_cursor = db.host
     host = host_cursor.find()
     host_cursor.update({"_id":host[0]['_id']}, {"$set":{"cpu_total":cpu, "iowait":iowait}})
+
+def delete_iprange(id):
+    db = get_connect()
+    iprange_cursor = db.iprange
+    iprange_cursor.remove({"_id":objectify(id)})
+
+def set_iprange_all(id, startip, endip, subnet, netmask, gateway):
+    db = get_connect()
+    iprange_cursor = db.iprange
+    iprange_cursor.update({"_id":objectify(id)}, {"startip":startip, "endip":endip, "subnet":subnet, "netmask":netmask, "gateway":gateway})
+
+def get_iprange_id(id):
+    db = get_connect()
+    iprange_cursor = db.iprange
+    iprange = iprange_cursor.find({"_id":objectify(id)})
+    return iprange

@@ -1,0 +1,32 @@
+{% extends 'grid.html' %}
+{% block title %}Space - Edit IP Range{% endblock %}
+{% block content %}
+<h3>Edit IP Range</h3>
+<form action="/iprange/edit/{{ range['_id'] }}" method="post" data-toggle="validator" role="form">
+    <div class="form-group">
+        <label class="control-label">First IP in Range</label>
+        <input class="form-control" type="text" name="startip" placeholder="Start IP" required value="{{ range['startip'] }}"/>
+        <span class="help-block with-errors"></span>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Last IP in Range</label>
+        <input class="form-control" type="text" name="endip" placeholder="End IP" required value="{{ range['endip'] }}"/>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Network Address</label>
+        <input class="form-control" type="text" name="subnet" placeholder="Subnet" required value="{{ range['subnet'] }}"/>
+        <span class="help-block with-errors"></span>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Subnet Mask (Non-CIDR)</label>
+        <input class="form-control" type="text" name="netmask" placeholder="Netmask" required value="{{ range['netmask'] }}"/>
+        <span class="help-block with-errors"></span>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Gateway Address (Default Gateway)</label>
+        <input class="form-control" type="text" name="gateway" placeholder="Gateway" required value="{{ range['gateway'] }}"/>
+        <span class="help-block with-errors"></span>
+    </div>
+    <input type="submit" value="Edit" class="btn btn-success"/>
+</form>
+{% endblock %}

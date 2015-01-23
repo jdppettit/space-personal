@@ -81,6 +81,20 @@ def iprange():
     networking.ennumerate_iprange(range_id)
     return redirect('/ip')
 
+@app.route('/iprange/delete/<iprangeid>', methods=['GET'])
+def iprange_delete(iprangeid):
+    delete_iprange(iprangeid)
+    return redirect('/ip')
+
+@app.route('/iprange/edit/<iprangeid>', methods=['GET','POST'])
+def iprange_edit(iprangeid):
+    if request.method == "GET":
+        range = get_iprange_id(iprangeid)
+        return render_template("edit_iprange.html", range=range[0])
+    elif request.method == "POST":
+        set_iprange_all(iprangeid, request.form['startip'], request.form['endip'], request.form['subnet'], request.form['netmask'], request.form['gateway'])
+        return redirect('/ip')
+
 @app.route('/console/<vmid>')
 def console(vmid):
     vm = get_server_id(vmid)
