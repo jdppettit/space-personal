@@ -12,7 +12,12 @@
     Disk Size: <input class="form-control" type="text" name="disk_size" value="{{ server[0]['disk_size'] }}"/><br/>
     Disk Path: <input class="form-control" type="text" name="disk_path" value="{{ server[0]['disk_path'] }}"/><br/>
     Image: <input class="form-control" type="text" name="image" value="{{ server[0]['disk_image'] }}"/><br/>
-    State: <input class="form-control" type="text" name="state" value="{{ server[0]['state'] }}"/><br/>
+    State: 
+    <select class="form-control" name="state">
+        <option value="0" {% if server[0]['state'] == 0 %}selected{% endif %}>Powered Off</option>
+        <option value="1" {% if server[0]['state'] == 1 %}selected{%endif %}>Running</option>
+        <option value="3" {% if server[0]['state'] == 3 %}selected{% endif %}>Destroyed</option>
+    </select><br/>
     <div class="checkbox"><label><input type="checkbox" name="push" value="1">Push to VM (this will restart the VM)</label></div>
     <input class="btn btn-success" type="submit" value="Edit"/>
 </form>

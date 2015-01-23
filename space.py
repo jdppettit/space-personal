@@ -317,7 +317,7 @@ def edit(vmid):
         return render_template("edit.html", server=server, events=events, my_ip=my_ip, ips=ips)
     elif request.method == "POST":
         set_server_all(vmid, request.form['name'], request.form['disk_size'], request.form['disk_path'],
-        request.form['ram'], request.form['state'], request.form['image'], request.form['vcpu'],
+        request.form['ram'], int(request.form['state']), request.form['image'], request.form['vcpu'],
         request.form['mac_address'])
         
         if "push" in request.form:
