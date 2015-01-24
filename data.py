@@ -297,7 +297,7 @@ def get_log_datelevel(date = "", level = 0):
         level = int(level)
         log = log_cursor.find({"level":level})
         return log
-    elif date != "" and level == "":
+    elif date != "" and level == 0:
         if date == "day":
             one_day = now - datetime.timedelta(days=1)
             log = log_cursor.find({"date": {"$gt":one_day}})
