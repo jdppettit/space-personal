@@ -51,7 +51,11 @@ def start_vm(name):
     message = "Sent startup to vm%s." % str(name)
     create_log(message, 1)
     vm = conn.lookupByName("vm%s" % str(name))
-    vm.create()
+    try:
+        vm.create()
+    except:
+        message = "Attempted to start vm%s but it was already running." % (str(name))
+        create_log(message, 2)
 
 def create_vm(name, ram, disk_size, image, vcpu):
     config = data.get_config()

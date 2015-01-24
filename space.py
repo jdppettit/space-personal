@@ -79,10 +79,12 @@ def updatehoststats():
 def iprange():
     range_id = make_iprange(request.form['startip'], request.form['endip'], request.form['subnet'], request.form['netmask'], request.form['gateway'])
     networking.ennumerate_iprange(range_id)
+    rebuild_dhcp_config()
     return redirect('/ip')
 
 @app.route('/iprange/delete/<iprangeid>', methods=['GET'])
 def iprange_delete(iprangeid):
+    rebuild_dhcp_config()
     delete_iprange(iprangeid)
     return redirect('/ip')
 
@@ -93,6 +95,7 @@ def iprange_edit(iprangeid):
         return render_template("edit_iprange.html", range=range[0])
     elif request.method == "POST":
         set_iprange_all(iprangeid, request.form['startip'], request.form['endip'], request.form['subnet'], request.form['netmask'], request.form['gateway'])
+        rebuild_dhcp_config()
         return redirect('/ip')
 
 @app.route('/console/<vmid>')
@@ -146,7 +149,22 @@ def ip_delete(ipid):
 
 @app.route('/events')
 def events():
-    log = get_all_logs() 
+    date = ""
+    level = ""
+    try:
+        date = request.args.get('date')
+        level = request.args.get('level')
+    except:
+        pass
+    if date != None and level != None:
+        log = get_log_datelevel(date=date, level=int(level))
+    elif date != None and level == None:
+        log = get_log_datelevel(date=date)
+    elif date == None and level != None:
+        print "got here"
+        log = get_log_datelevel(level=int(level))
+    else:
+        log = get_all_logs()
     return render_template("events.html", log=log)
 
 @app.route('/')

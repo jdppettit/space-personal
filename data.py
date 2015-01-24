@@ -287,3 +287,46 @@ def get_iprange_id(id):
     iprange_cursor = db.iprange
     iprange = iprange_cursor.find({"_id":objectify(id)})
     return iprange
+
+def get_log_datelevel(date = "", level = 0):
+    db = get_connect()
+    log_cursor = db.log
+    log = ""
+    now = datetime.datetime.now()
+    if date == "" and level != "":
+        level = int(level)
+        log = log_cursor.find({"level":level})
+        return log
+    elif date != "" and level == "":
+        if date == "day":
+            one_day = now - datetime.timedelta(days=1)
+            log = log_cursor.find({"date": {"$gt":one_day}})
+            return log
+        elif date == "week":
+            one_week = now - datetime.timedelta(days=7)
+            log = log_cursor.find({"date": {"$gt":one_week}})
+            return log
+        elif date == "month":
+            one_month = now - datetime.timedelta(days=30)
+            log = log_cursor.find({"date": {"$gt":one_month}})
+            return log
+        elif date == "all":
+            log = log_cursor.find()
+            return log
+    elif date != "" and level != "":
+        if date == "day":
+            one_day = now - datetime.timedelta(days=1)
+            log = log_cursor.find({"date": {"$gt":one_day}, "level":level})
+            return log
+        elif date == "week":
+            one_week = now - datetime.timedelta(days=7)
+            log = log_cursor.find({"date": {"$gt":one_week}, "level":level})
+            return log
+        elif date == "month":
+            one_month = now - datetime.timedelta(days=30)
+            log = log_cursor.find({"date": {"$gt":one_month}, "level":level})
+            return log
+        elif date == "all":
+            log = log_cursor.find()
+            return log
+ 
