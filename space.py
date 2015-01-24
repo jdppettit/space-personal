@@ -100,9 +100,10 @@ def iprange_edit(iprangeid):
 
 @app.route('/console/<vmid>')
 def console(vmid):
+    config = get_config()
     vm = get_server_id(vmid)
     vncport = make_console(str(vmid))    
-    return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'], domain=domain)
+    return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'], domain=config['domain'])
 
 @app.route('/ip', methods=['POST','GET'])
 def ips():
@@ -298,17 +299,13 @@ def host():
     if request.method == "GET":
         config = get_config()
         try:
-            print config['disk_directory']
+            config['disk_directory']
         except:
             return redirect('/setup') 
         stats = get_host_statistic_specific(1)
         return render_template("host.html", config=config, stat=stats)
     elif request.method == "POST":
-        host = Host.query.first()
-        host.name = request.form['hostname']
-        host.ram = int(request.form['ram_total'])
-        db.session.merge(host)
-        db.session.commit()
+        set_configuration_all(request.form['system'], request.form['domain'], request.form['disk_directory'], request.form['image_directory'], request.form['config_directory'])
         return redirect('/host')
 
 @app.route('/setup')

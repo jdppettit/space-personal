@@ -2,16 +2,34 @@
 {% block title %}Space - Host Configuration{% endblock %}
 {% block content %}
 <h3>Host Configuration</h3>
-<p>This page will show you the limitations and statistics for the host (the physical machine) your VM's are running
-on.</p>
+<p>This page will let you change all of the configuration options for your host. These options are initially included in config.py, once the setup has been run you can configure the options here.</p>
 <form action="/host" method="post">
-    Disk Directory: <input type="text" name="disk_directory" value="{{ config['disk_directory'] }}"/><br/>
-    Image Directory: <input type="text" name="image_directory" value="{{ config['image_directory'] }}"/><br/>
-    Config Directory: <input type="text" name="config_directory" value="{{ config['config_directory'] }}"/><br/>
-    <input type="submit"/>
-    RAM Total: {{ stat[0]['total_memory'] }}
-    RAM Used: {{ stat[0]['memory_used'] }}
-    CPU Used: {{ stat[0]['cpu'] }}
-    IOWAIT: {{ stat[0]['iowait'] }}
+    <div class="form-group">
+        <label class="control-label">System Type</label>
+        <select class="form-control" name="system">
+            <option value="qemu">QEMU</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Domain Name</label>
+        <input class="form-control" type="text" name="domain" value="{{ config['domain'] }}" required/>
+        <span class="help-block">This is the domain name used to access this host.</span>
+    </div>
+    <div class="form-goup">
+        <label class="control-label">Disk Directory</label>
+        <input class="form-control" type="text" name="disk_directory" value="{{ config['disk_directory'] }}" required/>
+        <span class="help-block">This is where the VM's disk images will be stored.</span>
+    </div>
+    <div class="form-group">
+        <label class="form-group">Image Directory</label>
+        <input class="form-control" type="text" name="image_directory" value="{{ config['image_directory'] }}"/>
+        <span class="help-block">This is where the images (ISO's) will be stored.</span>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Config Directory</label>
+        <input class="form-control" type="text" name="config_directory" value="{{ config['config_directory'] }}"/>
+        <span class="help-block">This is where the VM's configuration files will be stored.</span>
+    </div>
+    <input class="btn btn-success" type="submit" value="Submit"/>
 </form>
 {% endblock %}

@@ -329,4 +329,9 @@ def get_log_datelevel(date = "", level = 0):
         elif date == "all":
             log = log_cursor.find()
             return log
- 
+
+def set_configuration_all(system, domain, disk_directory, image_directory, config_directory):
+    db = get_connect()
+    config_cursor = db.configuration
+    config.cursor.update({"_id":"default"}, {"system":system, "domain":domain, "disk_directory":disk_directory, "image_directory":image_directory, "config_directory":config_directory})
+

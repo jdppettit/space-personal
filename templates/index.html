@@ -41,6 +41,9 @@
             verticalAlign: 'middle',
             borderWidth: 0
         },
+        credits: {
+            enabled:false
+        },
         series: [{
             name: 'Memory (MB)',
             data: memory
@@ -71,6 +74,9 @@
             align: 'right',
             verticalAlign: 'middle',
             borderWidth: 0
+        },
+        credits: {
+            enabled:false
         },
         series: [{
             name: 'CPU (%)',
@@ -103,9 +109,12 @@
             verticalAlign: 'middle',
             borderWidth: 0
         },
+        credits: {
+            enabled:false
+        },
         series: [{
             name: 'IOWait (%)',
-            data: cpu
+            data: iowait
         }]
     });
     };
@@ -205,12 +214,12 @@
 <div class="row">
     <div class="col-md-6">
         <h3>Memory Stats</h3>
-        <div style="text-align:right;"><strong>Used Memory: {{ stats[0]['memory_used'] }} MB</strong><br/></div>
+        <div style="text-align:right;"><strong>Free Memory: {{ stats[0]['memory_used'] }} MB</strong><br/></div>
         <div id="memory"></div>
     </div>
     <div class="col-md-6">
     <h3>IOWait</h3>
-    IOWait: {{ stats[0]['iowait'] }}<br/>
+    <div style="text-align:right;"><strong>IOWait: {{ stats[0]['iowait'] }}%</strong><br/></div>
     <div id="iowait"></div>
     </div>
 </div>
