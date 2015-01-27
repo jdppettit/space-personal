@@ -6,10 +6,10 @@ from config import *
 from domfunctions import *
 from models import *
 from event import *
-from cron import *
+from utilities import *
 from log import *
 from data import *
-from host import *
+from functools import update_wrapper, wraps
 
 import libvirt
 import subprocess
@@ -31,6 +31,8 @@ app.config['BASIC_AUTH_FORCE'] = True
 
 basic_auth = BasicAuth(app)
 
+app.secret_key = secret_key
+
 '''
 Event Types
 1 = Create
@@ -43,7 +45,41 @@ Event Types
 db.create_all()
 db.session.commit()
 
+def login_required(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        try:
+            session['logged_in']
+        except:
+            return redirect('/login') 
+        return f(*args, **kwargs)
+    return decorator
+
+@app.route('/login', methods=['POST','GET'])
+def login():
+    if request.method ==  "GET":
+        return render_template("login.html")
+    elif request.method == "POST":
+        try:
+            admin = get_admin(request.form['username'])
+            if request.form['username'] == admin[0]['username'] and encrypt_password(request.form['password']) == admin[0]['password']:
+                session['logged_in'] = True
+                return redirect('/')
+        except Exception ,e:
+            print e[0]
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect('/login')
+
+@app.route('/login/test')
+@login_required
+def login_test():
+    return redirect('/')
+
 @app.route('/ajax/get_host_stats')
+@login_required
 def ajax_memory_stats():
     stats = get_host_statistic_specific(60)
     memory_stats = []
@@ -59,16 +95,19 @@ def ajax_memory_stats():
     return jsonify(dict)
 
 @app.route('/utils/sync_status')
+@login_required
 def syncstatus():
    sync_status()
    return redirect('/')
 
 @app.route('/utils/import_images')
+@login_required
 def importimages():
     import_images()
     return redirect('/')
 
 @app.route('/utils/sync_host_stats')
+@login_required
 def updatehoststats():
     get_host_stats()
     message = "Synced host data."
@@ -76,6 +115,7 @@ def updatehoststats():
     return redirect('/')
 
 @app.route('/iprange', methods=['POST'])
+@login_required
 def iprange():
     range_id = make_iprange(request.form['startip'], request.form['endip'], request.form['subnet'], request.form['netmask'], request.form['gateway'])
     networking.ennumerate_iprange(range_id)
@@ -83,12 +123,14 @@ def iprange():
     return redirect('/ip')
 
 @app.route('/iprange/delete/<iprangeid>', methods=['GET'])
+@login_required
 def iprange_delete(iprangeid):
     rebuild_dhcp_config()
     delete_iprange(iprangeid)
     return redirect('/ip')
 
 @app.route('/iprange/edit/<iprangeid>', methods=['GET','POST'])
+@login_required
 def iprange_edit(iprangeid):
     if request.method == "GET":
         range = get_iprange_id(iprangeid)
@@ -99,6 +141,7 @@ def iprange_edit(iprangeid):
         return redirect('/ip')
 
 @app.route('/console/<vmid>')
+@login_required
 def console(vmid):
     config = get_config()
     vm = get_server_id(vmid)
@@ -106,6 +149,7 @@ def console(vmid):
     return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'], domain=config['domain'])
 
 @app.route('/ip', methods=['POST','GET'])
+@login_required
 def ips():
     if request.method == "GET":
         ips = get_all_ipaddress()
@@ -120,6 +164,7 @@ def ips():
         return redirect('/ip')
 
 @app.route('/ip/edit/<ipid>', methods=['POST','GET'])
+@login_required
 def ip_edit(ipid):
     if request.method == "GET":
         ip = get_ipaddress(ipid)
@@ -129,12 +174,14 @@ def ip_edit(ipid):
         return redirect('/ip/edit/%s' % str(ipid))
 
 @app.route('/ip/unassign/<ipid>', methods=['GET'])
+@login_required
 def ip_unassign(ipid):
     set_ipaddress_serverid(ipid, 0)
     rebuild_dhcp_config()
     return redirect('/ip')
 
 @app.route('/ip/assign/<vmid>', methods=['POST'])
+@login_required
 def ip_assign(vmid):
     ip_id = request.form['ip']
     set_ipaddress_serverid(ip_id, vmid)
@@ -142,6 +189,7 @@ def ip_assign(vmid):
     return redirect('/edit/%s' % str(vmid))
 
 @app.route('/ip/delete/<ipid>', methods=['GET'])
+@login_required
 def ip_delete(ipid):
     set_ipaddress_serverid(ipid, 0)
     rebuild_dhcp_config()
@@ -149,6 +197,7 @@ def ip_delete(ipid):
     return redirect('/ip')
 
 @app.route('/events')
+@login_required
 def events():
     date = ""
     level = ""
@@ -169,6 +218,7 @@ def events():
     return render_template("events.html", log=log)
 
 @app.route('/')
+@login_required
 def index():
     servers = get_all_servers(not_state = 3)
     log = get_all_logs(min_level = 2)
@@ -177,6 +227,7 @@ def index():
     return render_template("index.html", servers = servers, images=images, log=log, stats=stats)
 
 @app.route('/create', methods=['POST'])
+@login_required
 def create():
     name = request.form['name']
     ram = request.form['ram']
@@ -212,6 +263,7 @@ def create():
     return redirect('/')
 
 @app.route('/destroy/<vmid>')
+@login_required
 def destroy(vmid):
     vm = get_server_id(vmid)
     ip = get_ipaddress_server(vmid)
@@ -233,6 +285,7 @@ def destroy(vmid):
     return redirect('/')
 
 @app.route('/reboot/<vmid>')
+@login_required
 def reboot(vmid):
     set_server_state(vmid, 0)
     set_server_inconsistent(vmid, 0)
@@ -248,6 +301,7 @@ def reboot(vmid):
     return redirect('/')
 
 @app.route('/shutdown/<vmid>')
+@login_required
 def shutdown(vmid):
     set_server_state(vmid, 0)
     set_server_inconsistent(vmid, 0)
@@ -258,6 +312,7 @@ def shutdown(vmid):
     return redirect('/')
 
 @app.route('/start/<vmid>')
+@login_required
 def start(vmid):
     set_server_state(vmid, 1)
     set_server_inconsistent(vmid, 0)
@@ -268,33 +323,37 @@ def start(vmid):
     return redirect('/')
 
 @app.route('/vms/all')
+@login_required
 def view_all():
     domains = get_all_servers()
     try:
-        print domains[0]
+        domains[0]
     except:
         domains = None
     return render_template("view.html", domains=domains, type="all")
 
 @app.route('/vms/active')
+@login_required
 def view_active():
     domains = get_all_servers(not_state = 3)
     try:
-        print domains[0]
+        domains[0]
     except:
         domains = None
     return render_template("view.html", domains=domains, type="active")
 
 @app.route('/vms/deleted')
+@login_required
 def view_deleted():
     domains = get_server_state(3)
     try:
-        print domains[0]
+        domains[0]
     except:
         domains = None
     return render_template("view.html", domains=domains, type="deleted")
 
 @app.route('/host', methods=['POST','GET'])
+@login_required
 def host():
     if request.method == "GET":
         config = get_config()
@@ -309,6 +368,7 @@ def host():
         return redirect('/host')
 
 @app.route('/setup')
+@login_required
 def setup():
     config = get_config()
     try:
@@ -318,18 +378,42 @@ def setup():
         return "Setup completed."
     return "You can only complete setup once."
 
+@app.route('/utils/rebuild_dhcp_config')
+@login_required
+def rebuild_dhcpconfig():
+    rebuild_dhcp_config()
+    return redirect('/ip')
+
+@app.route('/redefine/<vmid>', methods=['GET'])
+@login_required
+def redefine(vmid):
+    vm = get_server_id(vmid)
+    update_config(vm)
+    try:
+        shutdown_event(vm[0]['_id'])
+        shutdown_vm(vm[0]['_id'])
+    except:
+        pass
+    redefine_vm(vm[0]['_id'])
+    if vm[0]['state'] == 1:
+        start_vm(vm[0]['_id'])
+        startup_event(vm[0]['_id'])
+    return redirect('/edit/%s' % str(vmid))
+
 @app.route('/edit/<vmid>', methods=['POST','GET'])
+@login_required
 def edit(vmid):
     if request.method == "GET":
         server = get_server_id(vmid)
         events = get_events_server(vmid)
         my_ip = get_ipaddress_server(vmid)
         ips = get_all_ipaddress()
+        images = get_all_images()
         try:
             print my_ip[0]
         except:
             my_ip = None
-        return render_template("edit.html", server=server, events=events, my_ip=my_ip, ips=ips)
+        return render_template("edit.html", server=server, events=events, my_ip=my_ip, ips=ips, images=images)
     elif request.method == "POST":
         set_server_all(vmid, request.form['name'], request.form['disk_size'], request.form['disk_path'],
         request.form['ram'], int(request.form['state']), request.form['image'], request.form['vcpu'],
@@ -337,19 +421,21 @@ def edit(vmid):
         
         if "push" in request.form:
             # We're going to actually update the config
+            vm = get_server_id(vmid)
             update_config(vm) 
             try:
-                shutdown_event(vm.id)
-                shutdown_vm(vm.id)
+                shutdown_event(vm[0]['_id'])
+                shutdown_vm(vm[0]['_id'])
             except:
                 pass
-            redefine_vm(vm)
-            if vm.state == 1:
-                start_vm(vm.id)
-                startup_event(vm.id)
+            redefine_vm(vm[0]['_id'])
+            if vm[0]['state'] == 1:
+                start_vm(vm[0]['_id'])
+                startup_event(vm[0]['_id'])
         return redirect('/edit/%s' % str(vmid))
 
 @app.route('/images', methods=['POST','GET'])
+@login_required
 def images():
     if request.method == "GET":
         images = get_all_images()
@@ -361,6 +447,7 @@ def images():
         return redirect('/images')
 
 @app.route('/image/edit/<imageid>', methods=['POST','GET'])
+@login_required
 def edit_image(imageid):
     if request.method == "GET":
         image = get_image(imageid)
@@ -374,6 +461,7 @@ def edit_image(imageid):
         return redirect('/image/edit/%s' % str(imageid))
 
 @app.route('/image/delete/<imageid>')
+@login_required
 def delete_image_route(imageid):
     delete_image(imageid)
     return redirect('/images')

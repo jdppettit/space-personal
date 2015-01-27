@@ -1,3 +1,7 @@
 body {
     padding-top:70px;
 }
+
+.glyphicon {
+    padding:.2em;
+}

@@ -90,26 +90,32 @@ def create_vm(name, ram, disk_size, image, vcpu):
 
 def update_config(vm):
     config = data.get_config()
-    os.remove('%s/vm%s.xml') % (str(config['config_directory']), str(vm.id))
+    path = "%s/vm%s.xml" % (str(config['config_directory']), str(vm[0]['_id']))
+    try:
+        os.remove(path)
+    except:
+        message2 = "Tried to delete config at %s but it wasn't there." % path
+        create_log(message2, 2)
+        pass
     
-    message1 = "Deleted config for vm%s at %s/vm%s.xml" % (str(vm.id), str(config['config_directory']), str(vm.id))
+    message1 = "Deleted config for vm%s at %s/vm%s.xml" % (str(vm), str(config['config_directory']), str(vm[0]['_id']))
     create_log(message1, 1)
 
-    create.make_config(vm.id, "", str(vm.ram), str(vm.vcpu), vm.image)
+    create.make_config(vm[0]['_id'], "", str(vm[0]['ram']), str(vm[0]['vcpu']), vm[0]['disk_image'])
 
-    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(vm.id), str(config['config_directory']), str(vm.id))
+    message = "Created new configuration for vm%s at %s/vm%s.xml" % (str(vm[0]['_id']), str(config['config_directory']), str(vm[0]['_id']))
     create_log(message, 1)
 
 def redefine_vm(vm):
     config = data.get_config()
     conn = connect()
-    dom = conn.lookupByName("vm%s" % str(vm.id))
+    dom = conn.lookupByName("vm%s" % str(vm))
     try:
         dom.destroy()
     except:
         dom.undefine()
 
-    xmlpath = "%s/vm%s.xml" % (str(config['config_directory']), str(vm.id))
+    xmlpath = "%s/vm%s.xml" % (str(config['config_directory']), str(vm))
 
     xml = ""
 
@@ -118,7 +124,7 @@ def redefine_vm(vm):
 
     conn.defineXML(xml)
 
-    message3 = "Redefined domain vm%s." % str(vm.id)
+    message3 = "Redefined domain vm%s." % str(vm)
     create_log(message3, 1)
 
 

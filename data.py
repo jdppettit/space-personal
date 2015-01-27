@@ -3,6 +3,8 @@ import datetime
 import config 
 #import utils
 import bson
+import hashlib
+import uuid
 
 def objectify(id):
     id_obj = bson.objectid.ObjectId(id)
@@ -15,6 +17,19 @@ def get_connect():
         return db
     else:
         print "Failed to get DB connection."
+
+def encrypt_password(password):
+    m = hashlib.sha256()
+    m.update(password)
+    config_rec = get_config()
+    m.update(config_rec['password_salt'])
+    return m.hexdigest()
+
+def make_admin(username, password):
+    db = get_connect()
+    admin_cursor = db.admin
+    new_admin = ({"_id":username, "username":username, "password":encrypt_password(password)})
+    admin_cursor.insert(new_admin)
 
 def make_server(name, disk_size, disk_image, ram, vcpu):
     db = get_connect()
@@ -59,7 +74,7 @@ def make_host(name):
 def make_configuration(image_directory, disk_directory, config_directory, system_type, domain):
     db = get_connect()
     config_cursor = db.configuration
-    configuration = ({"_id":"default", "image_directory":image_directory, "disk_directory":disk_directory, "config_directory":config_directory, "system_type":system_type, "domain":domain})
+    configuration = ({"_id":"default", "image_directory":image_directory, "disk_directory":disk_directory, "config_directory":config_directory, "system_type":system_type, "domain":domain, "password_salt":str(uuid.uuid1())})
     config_cursor.insert(configuration)
 
 def make_iprange(startip, endip, subnet, netmask, gateway):
@@ -333,5 +348,12 @@ def get_log_datelevel(date = "", level = 0):
 def set_configuration_all(system, domain, disk_directory, image_directory, config_directory):
     db = get_connect()
     config_cursor = db.configuration
-    config.cursor.update({"_id":"default"}, {"system":system, "domain":domain, "disk_directory":disk_directory, "image_directory":image_directory, "config_directory":config_directory})
+    config_cursor.update({"_id":"default"}, {"$set": {"system_type":system, "domain":domain, "disk_directory":disk_directory, "image_directory":image_directory, "config_directory":config_directory}})
+
+def get_admin(username):
+    db = get_connect()
+    admin_cursor = db.admin
+    admin = admin_cursor.find({"_id":username})
+    return admin
+
 

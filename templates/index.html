@@ -1,126 +1,7 @@
 {% extends 'grid.html' %}
 {% block title %}Space - The Virtualization Control Panel{% endblock %}
 {% block head_content %}
-<script type="text/javascript">
-    getData();
-
-    function getData() {
-        $.get("http://pluto.pettitservers.com:10051/ajax/get_host_stats", function(resp) {
-            memory = resp['memory']
-            cpu = resp['cpu']
-            dates = resp['dates']
-            iowait = resp['iowait']
-            
-            makeMemory();
-            makeCPU();
-            makeIOwait();
-        });
-    };
-
-    function makeMemory() {
-       $('#memory').highcharts({
-        title: {
-            text: ""
-        },
-        yAxis: {
-            title: {
-                text: 'Memory Used (MB)'
-            },
-            plotLines: [{
-                value: 0,
-                width: 1,
-                color: '#808080'
-            }]
-        },
-        tooltip: {
-            valueSuffix: 'MB'
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
-        },
-        credits: {
-            enabled:false
-        },
-        series: [{
-            name: 'Memory (MB)',
-            data: memory
-        }]
-    }); 
-    };
-
-    function makeCPU() {
-       $('#cpu').highcharts({
-        title: {
-            text: ""
-        },
-        yAxis: {
-            title: {
-                text: 'CPU Used (%)'
-            },
-            plotLines: [{
-                value: 0,
-                width: 1,
-                color: '#808080'
-            }]
-        },
-        tooltip: {
-            valueSuffix: '%'
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
-        },
-        credits: {
-            enabled:false
-        },
-        series: [{
-            name: 'CPU (%)',
-            data: cpu
-        }]
-    });
-    };
-
-    function makeIOwait() {
-       $('#iowait').highcharts({
-        title: {
-            text: ""
-        },
-        yAxis: {
-            title: {
-                text: 'IOWait (%)'
-            },
-            plotLines: [{
-                value: 0,
-                width: 1,
-                color: '#808080'
-            }]
-        },
-        tooltip: {
-            valueSuffix: '%'
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
-        },
-        credits: {
-            enabled:false
-        },
-        series: [{
-            name: 'IOWait (%)',
-            data: iowait
-        }]
-    });
-    };
-
-
-</script>
+<script type="text/javascript" src="/static/js/index_graphs.js"></script>
 {% endblock %}
 {% block content %}
 <h3>VMs</h3>
@@ -133,38 +14,36 @@
         <th>Disk Size</th>
         <th>Image</th>
         <th>State</th>
-        <th>Flags</th>
         <th>Actions</th>
     </tr>
     </thead>
     {% for server in servers %}
     <tr>
         <td><a href="/edit/{{ server['_id'] }}">{{ server['name'] }}</a></td>
-        <td>{{ server['ram'] }}</td>
+        <td>{{ server['ram'] }} MB</td>
         <td>{{ server['vcpu'] }}</td>
-        <td>{{ server['disk_size'] }}</td>
+        <td>{{ server['disk_size'] }} GB</td>
         <td>{{ server['disk_image'] }}</td>
         <td>
         {% if server['state'] == 1 %}
-        <p><span class="label label-success">Running</span></p>
+        <p><span class="label label-success">On</span></p>
         {% else %}
-        <p><span class="label label-danger">Shutdown</span></p>
-        {% endif %}
-        </td>
-        <td>
-        {% if server['inconsistent'] == 1 %}
-        <span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" data-placement="right" title="Server is in an inconsistent state"></span>
+        <p><span class="label label-danger">Off</span></p>
         {% endif %}
         </td>
         <td>
         {% if server['state'] == 1 %}
-        <a class="btn btn-warning btn-xs" href="/shutdown/{{ server['_id'] }}">Shutdown</a>&nbsp;
-        <a class="btn btn-warning btn-xs" href="/reboot/{{ server['_id'] }}">Reboot</a>&nbsp;
-        <a class="btn btn-primary btn-xs" href="/console/{{ server['_id'] }}">Console</a>&nbsp;
+        <a title="Shutdown" class="btn btn-warning btn-xs" href="/shutdown/{{ server['_id'] }}"><span class="glyphicon glyphicon-off"></span></a>&nbsp;
+        <a title="Reboot" class="btn btn-warning btn-xs" href="/reboot/{{ server['_id'] }}"><span class="glyphicon glyphicon-refresh"></span></a>&nbsp;
+        <a title="Console" class="btn btn-primary btn-xs" href="/console/{{ server['_id'] }}"><span class="glyphicon glyphicon-tasks"></span></a>&nbsp;
         {% elif server['state'] == 0 %}
-        <a class="btn btn-success btn-xs" href="/start/{{ server['_id'] }}">Start</a>&nbsp;
+        <a title="Start" class="btn btn-success btn-xs" href="/start/{{ server['_id'] }}"><span class="glyphicon glyphicon-play"></span></a>&nbsp;
         {% endif %}
-        <a class="btn btn-danger btn-xs" href="/destroy/{{ server['_id'] }}">Destroy</a></td>
+        <a title="Destroy" class="btn btn-danger btn-xs" onClick="return confirm('Are you sure you want to delete this VM? This action cannot be undone.');" href="/destroy/{{ server['_id'] }}"><span class="glyphicon glyphicon-fire"></span></a>
+        {% if server['inconsistent'] == 1 %}
+        <span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" data-placement="right" title="Server is in an inconsistent state"></span>
+        {% endif %} 
+        </td>
     </tr>
     {% endfor %}
 </table>
@@ -214,7 +93,8 @@
 <div class="row">
     <div class="col-md-6">
         <h3>Memory Stats</h3>
-        <div style="text-align:right;"><strong>Free Memory: {{ stats[0]['memory_used'] }} MB</strong><br/></div>
+        <div style="text-align:right;">
+            <strong>Free Memory: {{ stats[0]['memory_used'] }} MB</strong><br/></div>
         <div id="memory"></div>
     </div>
     <div class="col-md-6">
