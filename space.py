@@ -25,11 +25,11 @@ connectionString = "mysql+mysqlconnector://%s:%s@%s:3306/%s" % (username, passwo
 app.config['SQLALCHEMY_DATABASE_URI'] = connectionString
 db = SQLAlchemy(app)
 
-app.config['BASIC_AUTH_USERNAME'] = ba_username
-app.config['BASIC_AUTH_PASSWORD'] = ba_password
-app.config['BASIC_AUTH_FORCE'] = True
+#app.config['BASIC_AUTH_USERNAME'] = ba_username
+#app.config['BASIC_AUTH_PASSWORD'] = ba_password
+#app.config['BASIC_AUTH_FORCE'] = True
 
-basic_auth = BasicAuth(app)
+#basic_auth = BasicAuth(app)
 
 app.secret_key = secret_key
 
@@ -362,21 +362,23 @@ def host():
         except:
             return redirect('/setup') 
         stats = get_host_statistic_specific(1)
-        return render_template("host.html", config=config, stat=stats)
+        services = get_service_all()
+        return render_template("host.html", config=config, stat=stats, services=services)
     elif request.method == "POST":
         set_configuration_all(request.form['system'], request.form['domain'], request.form['disk_directory'], request.form['image_directory'], request.form['config_directory'])
         return redirect('/host')
 
-@app.route('/setup')
-@login_required
+@app.route('/setup', methods=['POST','GET'])
 def setup():
-    config = get_config()
-    try:
-        print config['disk_directory']
-    except: 
-        make_configuration(image_path, disk_path, config_path, system_type, domain)
-        return "Setup completed."
-    return "You can only complete setup once."
+    if request.method == "GET":
+        config = get_config()
+        try:
+            print config['disk_directory']
+        except: 
+            return render_template("setup.html")
+        return "You can only complete setup once."
+    elif request.method == "POST":
+        return "foo"
 
 @app.route('/utils/rebuild_dhcp_config')
 @login_required

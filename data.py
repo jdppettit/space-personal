@@ -25,6 +25,12 @@ def encrypt_password(password):
     m.update(config_rec['password_salt'])
     return m.hexdigest()
 
+def make_service(name):
+    db = get_connect()
+    service_cursor = db.service
+    new_service = ({"name":name, "status":2})
+    service_cursor.insert(new_service)
+
 def make_admin(username, password):
     db = get_connect()
     admin_cursor = db.admin
@@ -356,4 +362,8 @@ def get_admin(username):
     admin = admin_cursor.find({"_id":username})
     return admin
 
-
+def get_service_all():
+    db = get_connect()
+    service_cursor = db.service
+    services = service_cursor.find()
+    return services

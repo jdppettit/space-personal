@@ -1,6 +1,27 @@
 {% extends 'grid.html' %}
 {% block title %}Space - Host Configuration{% endblock %}
 {% block content %}
+<h2>Host</h2>
+<h3>Services</h3>
+<table class="table">
+    <tr>
+        <th>Service</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    {% for service in services %}
+    <tr>
+        <td>{{ service['name'] }}</td>
+        <td>{% if service['status'] == 0 %}Stopped
+            {% elif service['status'] == 1 %}Running
+            {% else %}Unknown{% endif %}</td>
+        <td><a href="/service/{{ service['_id'] }}/restart">Restart</a>&nbsp;
+            <a href="/service/{{ service['_id'] }}/stop">Stop</a>&nbsp;
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<hr/>
 <h3>Host Configuration</h3>
 <p>This page will let you change all of the configuration options for your host. These options are initially included in config.py, once the setup has been run you can configure the options here.</p>
 <form action="/host" method="post">

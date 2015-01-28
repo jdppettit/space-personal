@@ -1,7 +1,7 @@
     getData();
 
     function getData() {
-        $.get("http://pluto.pettitservers.com:10051/ajax/get_host_stats", function(resp) {
+        $.get("/ajax/get_host_stats", function(resp) {
             memory = resp['memory']
             cpu = resp['cpu']
             dates = resp['dates']

@@ -65,7 +65,7 @@
         <label class="control-label">Distribution ISO</label>
         <select class="form-control" name="image">
             {% for image in images %}
-                <option value="{{ image['name'] }}">{{ image['name'] }}</option>
+                <option value="{{ image['name'] }}" {% if server[0]['disk_image'] == image['name'] %}selected{% endif %}>{{ image['name'] }}</option>
             {% endfor %}
         </select>
         <span class="help-block">The distribution ISO your VM will boot with if not booting in to the VM's disk image.</span>

@@ -171,7 +171,7 @@ def get_vnc_port(name):
     return port, eport
 
 def start_novnc(port, last):
-    command = "python /srv/noVNC/utils/websockify --web /srv/noVNC 61%s localhost:%s -D" % (str(last), str(port))
+    command = "python /srv/noVNC/utils/websockify --web /srv/noVNC 61%s localhost:%s -D --cert /srv/noVNC/self.pem" % (str(last), str(port))
     command = command.replace('\n', '')
 #    command = "/srv/noVNC/utils/websockify 127.0.0.1:60%s --vnc 127.0.0.1:%s --web /srv/noVNC/utils -D" % (str(last), str(port))
     p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)

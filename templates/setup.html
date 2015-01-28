@@ -1,0 +1,66 @@
+{% extends 'grid.html' %}
+{% block title %}Space - Welcome/Setup{% endblock %}
+{% block content %}
+<h2>Setup</h2>
+<hr/>
+<h3>Welcome to Space!</h3>
+<p>Space panel is a simple control panel that will allow you to control your virtualized machines easily from this web interface. To get started, please complete the configuration options below.</p>
+<hr/>
+<form action="/setup" method="post" data-toggle="validator" role="form">
+<h3>1. The system type</h3>
+<p>First, please select the type of hypervisor your machine will be running (KVM or Xen).</p>
+    <div class="form-group">
+        <label class="control-label">System Type</label>
+        <select class="form-control" name="system">
+            <option value="qemu">QEMU</option>
+            <option value="xen">Xen</option>
+        </select>
+    </div>
+<hr/>
+<h3>2. The domain name</h3>
+<p>Next, enter the domain name this control panel will live at. For example, if you intend to access Space using space.yourdomain.com, enter space.yourdomain.com.</p>
+    <div class="form-group">
+        <label class="control-label">Domain Name</label>
+        <input class="form-control" type="text" name="domain" required/>
+        <span class="help-block">This is the domain name used to access this host.</span>
+    </div>
+<hr/>
+<h3>3. Login credentials</h3>
+<p>These credentials will be used to log in to Space - please be sure to note your password. The password must be at least 6 characters long.</p>
+    <div class="form-group">
+        <label class="control-label">Username</label>
+        <input class="form-control" type="text" name="username" required/>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Password</label>
+        <input id="password1" class="form-control" type="password" name="password1" data-minlength="6" required/>
+        <span class="help-block with-errors">Minimum of 6 characters</span>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Confirm Password</label>
+        <input class="form-control" type="password" name="password2" data-match="#password1" required/>
+        <span class="help-block with-errors"></span>
+    </div>
+<hr/>
+<h3>4. Important directories</h3>
+<p>Enter the directories where you would like your disk images, distribution images, and VM configurations stored. Please enter the <strong>full path</strong> on the filesystem.</p>
+    <div class="form-goup">
+        <label class="control-label">Disk Directory</label>
+        <input class="form-control" type="text" name="disk_directory" value="{{ config['disk_directory'] }}" required/>
+        <span class="help-block">This is where the VM's disk images will be stored.</span>
+    </div>
+    <div class="form-group">
+        <label class="form-group">Image Directory</label>
+        <input class="form-control" type="text" name="image_directory" value="{{ config['image_directory'] }}" required/>
+        <span class="help-block">This is where the images (ISO's) will be stored.</span>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Config Directory</label>
+        <input class="form-control" type="text" name="config_directory" value="{{ config['config_directory'] }}" required/>
+        <span class="help-block">This is where the VM's configuration files will be stored.</span>
+    </div>
+<h3>Fire!</h3>
+<p>Looks good, fire!</p>
+    <input class="btn btn-success" type="submit" value="Fire!"/>
+</form>
+{% endblock %}
