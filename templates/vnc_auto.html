@@ -13,9 +13,11 @@
         {% endblock %}
 {% block content %}
 <h3>Console Session - {{ server_name }}</h3>
+<p>If this is your first time viewing a console, please <a href="https://{{ domain }}:{{ port }}">click here</a> and accept the security warning.</p>
+<p>The password for this VNC console is: {{ server_id }}</p>
 <br/>
     <div id="noVNC_screen">
-            <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px; display:none;">
+            <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
                 <table border=0 width="100%"><tr>
                     <td><div id="noVNC_status" style="position: relative; height: auto;">
                         Loading

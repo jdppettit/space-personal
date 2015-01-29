@@ -1,6 +1,8 @@
 {% extends 'grid.html' %}
 {% block title %}Space - Welcome/Setup{% endblock %}
 {% block content %}
+{% block navigation %}{% endblock %}
+<div style="margin-left:auto; margin-right:auto; text-align:center; margin-bottom:2em;"><img src="/static/images/logo_medium.png"/></div>
 <h2>Setup</h2>
 <hr/>
 <h3>Welcome to Space!</h3>
@@ -11,7 +13,7 @@
 <p>First, please select the type of hypervisor your machine will be running (KVM or Xen).</p>
     <div class="form-group">
         <label class="control-label">System Type</label>
-        <select class="form-control" name="system">
+        <select class="form-control" name="system_type">
             <option value="qemu">QEMU</option>
             <option value="xen">Xen</option>
         </select>
@@ -46,17 +48,17 @@
 <p>Enter the directories where you would like your disk images, distribution images, and VM configurations stored. Please enter the <strong>full path</strong> on the filesystem.</p>
     <div class="form-goup">
         <label class="control-label">Disk Directory</label>
-        <input class="form-control" type="text" name="disk_directory" value="{{ config['disk_directory'] }}" required/>
+        <input class="form-control" type="text" name="disk_directory" value="{{ config['disk_directory'] }}" value="/var/disks" required/>
         <span class="help-block">This is where the VM's disk images will be stored.</span>
     </div>
     <div class="form-group">
         <label class="form-group">Image Directory</label>
-        <input class="form-control" type="text" name="image_directory" value="{{ config['image_directory'] }}" required/>
+        <input class="form-control" type="text" name="image_directory" value="{{ config['image_directory'] }}" value="/var/images" required/>
         <span class="help-block">This is where the images (ISO's) will be stored.</span>
     </div>
     <div class="form-group">
         <label class="control-label">Config Directory</label>
-        <input class="form-control" type="text" name="config_directory" value="{{ config['config_directory'] }}" required/>
+        <input class="form-control" type="text" name="config_directory" value="{{ config['config_directory'] }}" value="/var/configs" required/>
         <span class="help-block">This is where the VM's configuration files will be stored.</span>
     </div>
 <h3>Fire!</h3>

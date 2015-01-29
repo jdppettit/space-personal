@@ -118,6 +118,7 @@ def make_config(name, disk_path, ram, vcpu, image):
     graphicsxml = et.SubElement(devicesxml, "graphics")
     graphicsxml.set("type","vnc")
     graphicsxml.set("port","-1")
+    graphicsxml.set("passwd", str(name))
     
     interfacexml = et.SubElement(domain, "interface")
     

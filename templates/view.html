@@ -1,20 +1,22 @@
 {% extends 'grid.html' %}
 {% block title %}Space - 
-{% if type == "deleted" %}Deleted VMs
-{% elif type == "active" %}Active VMs
-{% elif type == "all" %}All VMs
+{% if type == "deleted" %}Deleted Servers
+{% elif type == "active" %}Active Servers
+{% elif type == "all" %}All Servers
 {% endif %}{% endblock %}
 {% block content %}
 {% if type == "all" %}
-<h3>All VMs</h3>
+<h3>All Servers</h3>
+<p>This is a list of all servers, including active servers and those that have been deleted.</p>
 {% elif type == "deleted" %}
-<h3>Deleted VMs</h3>
+<h3>Deleted Servers</h3>
+<p>This is a list of all servers that have been deleted.</p>
 {% elif type == "active" %}
-<h3>Active VMs</h3>
+<h3>Active Servers</h3>
+<p>This is a list of all active servers.</p>
 {% endif %}
 <table class="table">
     <tr>
-        <th>ID</th>
         <th>Name</th>
         <th>RAM</th>
         <th>Disk Size</th>
@@ -23,7 +25,6 @@
     {% if domains %}
     {% for dom in domains %}
     <tr>
-        <td>{{ dom['_id'] }}</td>
         <td><a href="/edit/{{ dom['_id'] }}">{{ dom['name'] }}</a></td>
         <td>{{ dom['ram'] }}</td>
         <td>{{ dom['disk_size'] }}</td>

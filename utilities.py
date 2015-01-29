@@ -27,7 +27,9 @@ def get_host_stats():
     cpu_system = output[0].split(":")[1]
     io_wait = output[4].split(":")[1]
 
-    data.make_host_statistic(float(cpu_system.replace("%","")), int(free_memory), int(total_memory), float(io_wait.replace("%","")), datetime.datetime.now())
+    memory_used = total_memory - free_memory
+
+    data.make_host_statistic(float(cpu_system.replace("%","")), int(memory_used), int(total_memory), float(io_wait.replace("%","")), datetime.datetime.now())
 
 
 def sync_status():

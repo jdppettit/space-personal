@@ -6,7 +6,8 @@
             cpu = resp['cpu']
             dates = resp['dates']
             iowait = resp['iowait']
-            
+            max_memory = resp['max_memory'][0]
+
             makeMemory();
             makeCPU();
             makeIOwait();
@@ -19,8 +20,9 @@
             text: ""
         },
         yAxis: {
+            max: max_memory,
             title: {
-                text: 'Memory Free (MB)'
+                text: 'Memory Used (MB)'
             },
             plotLines: [{
                 value: 0,

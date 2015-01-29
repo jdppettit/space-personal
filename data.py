@@ -367,3 +367,8 @@ def get_service_all():
     service_cursor = db.service
     services = service_cursor.find()
     return services
+
+def update_admin(username, password):
+    db = get_connect()
+    admin_cursor = db.admin
+    admin_cursor.update({"_id":username}, {"$set": {"password": encrypt_password(password) }})

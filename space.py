@@ -55,6 +55,12 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorator
 
+@app.route('/login/reset', methods=['POST'])
+@login_required
+def login_reset():
+    update_admin(session['username'], request.form['password1'])
+    return redirect('/host')
+
 @app.route('/login', methods=['POST','GET'])
 def login():
     if request.method ==  "GET":
@@ -64,9 +70,13 @@ def login():
             admin = get_admin(request.form['username'])
             if request.form['username'] == admin[0]['username'] and encrypt_password(request.form['password']) == admin[0]['password']:
                 session['logged_in'] = True
+                session['username'] = request.form['username']
                 return redirect('/')
+            else:
+                return redirect('/login?error=1')
         except Exception ,e:
             print e[0]
+            return redirect('/login?error=1')
 
 @app.route('/logout')
 def logout():
@@ -86,12 +96,14 @@ def ajax_memory_stats():
     cpu_stats = []
     iowait_stats = []
     dates = []
+    max_memory = []
     for stat in stats:
         memory_stats.append(stat['memory_used'])
         cpu_stats.append(stat['cpu'])
         iowait_stats.append(stat['iowait'])
         dates.append(stat['date'])
-    dict = {"memory":list(reversed(memory_stats)), "cpu":list(reversed(cpu_stats)), "iowait":list(reversed(iowait_stats)), "dates":list(reversed(dates))}
+        max_memory.append(stat['total_memory'])
+    dict = {"memory":list(reversed(memory_stats)), "cpu":list(reversed(cpu_stats)), "iowait":list(reversed(iowait_stats)), "dates":list(reversed(dates)), "max_memory":list(reversed(max_memory))}
     return jsonify(dict)
 
 @app.route('/utils/sync_status')
@@ -146,7 +158,7 @@ def console(vmid):
     config = get_config()
     vm = get_server_id(vmid)
     vncport = make_console(str(vmid))    
-    return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'], domain=config['domain'])
+    return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'], domain=config['domain'], server_id=vm[0]["_id"])
 
 @app.route('/ip', methods=['POST','GET'])
 @login_required
@@ -221,7 +233,7 @@ def events():
 @login_required
 def index():
     servers = get_all_servers(not_state = 3)
-    log = get_all_logs(min_level = 2)
+    log = get_log_datelevel(date="day", level=3)
     images = get_all_images()
     stats = get_host_statistic_specific(1)
     return render_template("index.html", servers = servers, images=images, log=log, stats=stats)
@@ -378,7 +390,10 @@ def setup():
             return render_template("setup.html")
         return "You can only complete setup once."
     elif request.method == "POST":
-        return "foo"
+        make_configuration(request.form['image_directory'], request.form['disk_directory'], request.form['config_directory'], request.form['system_type'], request.form['domain'])
+        make_admin(request.form['username'], request.form['password1'])
+        make_host("default")
+        return redirect('/login')
 
 @app.route('/utils/rebuild_dhcp_config')
 @login_required

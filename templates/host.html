@@ -2,6 +2,7 @@
 {% block title %}Space - Host Configuration{% endblock %}
 {% block content %}
 <h2>Host</h2>
+<!---
 <h3>Services</h3>
 <table class="table">
     <tr>
@@ -22,6 +23,7 @@
     {% endfor %}
 </table>
 <hr/>
+!--->
 <h3>Host Configuration</h3>
 <p>This page will let you change all of the configuration options for your host. These options are initially included in config.py, once the setup has been run you can configure the options here.</p>
 <form action="/host" method="post">
@@ -50,6 +52,22 @@
         <label class="control-label">Config Directory</label>
         <input class="form-control" type="text" name="config_directory" value="{{ config['config_directory'] }}"/>
         <span class="help-block">This is where the VM's configuration files will be stored.</span>
+    </div>
+    <input class="btn btn-success" type="submit" value="Submit"/>
+</form>
+<hr/>
+<h3>Change Password</h3>
+<p>This form will allow you to change the password you use to log in to Space.</p>
+<form action="/login/reset" method="post" data-toggle="validator" role="form">
+    <div class="form-group">
+        <label class="control-label">New Password</label>
+        <input type="password" name="password1" class="form-control" id="password1" required/>
+        <span class="help-block with-errors"></span>
+    </div>
+    <div class="form-group">
+        <label class="control-label">New Password (Confirm)</label>
+        <input type="password" name="password2" class="form-control" required data-match="#password1"/>
+        <span class="help-block with-errors"></span>
     </div>
     <input class="btn btn-success" type="submit" value="Submit"/>
 </form>

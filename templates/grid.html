@@ -44,7 +44,9 @@
     </head>
     <body>
     <div class="container">
+        {% block navigation %}
         {% include 'navigation.html' %}
+        {% endblock %}
         {% block content %}{% endblock %}
     </div>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
