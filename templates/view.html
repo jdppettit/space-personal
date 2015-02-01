@@ -15,13 +15,21 @@
 <h3>Active Servers</h3>
 <p>This is a list of all active servers.</p>
 {% endif %}
-<table class="table">
+<div class="btn-group" role="group">
+    <a href="/server/active" class="btn btn-default">Active</a>
+    <a href="/server/deleted" class="btn btn-default">Deleted</a>
+    <a href="/server/all" class="btn btn-default">All</a>
+</div>
+<br/><br/>
+<table class="table sortable">
+    <thead>
     <tr>
         <th>Name</th>
         <th>RAM</th>
         <th>Disk Size</th>
         <th>Image</th>
     </tr>
+    </thead>
     {% if domains %}
     {% for dom in domains %}
     <tr>

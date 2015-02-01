@@ -12,7 +12,8 @@ from config import *
 from models import db, Log, IPAddress, Server
 
 def restart_dhcpd():
-    command = "service dhcpd restart"
+    config = data.get_config()
+    command = "service %s restart" % str(config['dhcp_service'])
     ip = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
     create_log("Restarted DHCPD.", 1)
 
@@ -171,7 +172,8 @@ def get_vnc_port(name):
     return port, eport
 
 def start_novnc(port, last):
-    command = "python /srv/noVNC/utils/websockify --web /srv/noVNC 61%s localhost:%s -D --cert /srv/noVNC/self.pem" % (str(last), str(port))
+    config = data.get_config()
+    command = "python %s/utils/websockify --web %s 61%s localhost:%s -D --cert %s" % (str(config['novnc_directory']), str(config['novnc_directory']), str(last), str(port), str(config['pem_location']))
     command = command.replace('\n', '')
 #    command = "/srv/noVNC/utils/websockify 127.0.0.1:60%s --vnc 127.0.0.1:%s --web /srv/noVNC/utils -D" % (str(last), str(port))
     p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
@@ -190,16 +192,18 @@ def assign_ip(vmid):
     return available_ips['ip']
 
 def append_dhcp_config(mac_address, ip, vmid):
-    with open("/etc/dhcp/dhcpd.conf", "a") as config:
+    config = data.get_config()
+    with open(config['dhcp_configuration'], "a") as config:
         config.write("host vm%s {\n hardware ethernet %s;\n fixed-address %s;\n}" % (str(vmid), str(mac_address), str(ip)))
         config.close()
     restart_dhcpd()
 
 def rebuild_dhcp_config():
+    config = data.get_config()
     ips = data.get_ipaddress_allocated_all()
     ipranges = data.get_all_iprange()
     create_log("Rebuilding DHCPD configuration to unassign IP.", 1)
-    with open("/etc/dhcp/dhcpd.conf", "w") as config:
+    with open(config['dhcp_configuration'], "w") as config:
         config.write("option domain-name-servers 8.8.8.8, 8.8.4.4;\n\n")
         for range in ipranges:
             line = "subnet %s netmask %s {\n range %s %s;\n option routers %s;\n}\n" % (str(range['subnet']), str(range['netmask']), str(range['startip']), str(range['endip']), str(range['gateway']))

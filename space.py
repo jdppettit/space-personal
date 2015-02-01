@@ -334,7 +334,7 @@ def start(vmid):
 
     return redirect('/')
 
-@app.route('/vms/all')
+@app.route('/server/all')
 @login_required
 def view_all():
     domains = get_all_servers()
@@ -344,7 +344,7 @@ def view_all():
         domains = None
     return render_template("view.html", domains=domains, type="all")
 
-@app.route('/vms/active')
+@app.route('/server/active')
 @login_required
 def view_active():
     domains = get_all_servers(not_state = 3)
@@ -354,7 +354,7 @@ def view_active():
         domains = None
     return render_template("view.html", domains=domains, type="active")
 
-@app.route('/vms/deleted')
+@app.route('/server/deleted')
 @login_required
 def view_deleted():
     domains = get_server_state(3)
@@ -377,7 +377,7 @@ def host():
         services = get_service_all()
         return render_template("host.html", config=config, stat=stats, services=services)
     elif request.method == "POST":
-        set_configuration_all(request.form['system'], request.form['domain'], request.form['disk_directory'], request.form['image_directory'], request.form['config_directory'])
+        set_configuration_all(request.form['system'], request.form['domain'], request.form['disk_directory'], request.form['image_directory'], request.form['config_directory'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'])
         return redirect('/host')
 
 @app.route('/setup', methods=['POST','GET'])
@@ -390,7 +390,7 @@ def setup():
             return render_template("setup.html")
         return "You can only complete setup once."
     elif request.method == "POST":
-        make_configuration(request.form['image_directory'], request.form['disk_directory'], request.form['config_directory'], request.form['system_type'], request.form['domain'])
+        make_configuration(request.form['image_directory'], request.form['disk_directory'], request.form['config_directory'], request.form['system_type'], request.form['domain'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'])
         make_admin(request.form['username'], request.form['password1'])
         make_host("default")
         return redirect('/login')
