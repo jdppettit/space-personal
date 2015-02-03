@@ -1,6 +1,4 @@
 from flask import *
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.basicauth import BasicAuth
 
 from config import *
 from domfunctions import *
@@ -20,28 +18,7 @@ import jobs
 
 app = Flask(__name__)
 
-db.init_app(app)
-
-connectionString = "mysql+mysqlconnector://%s:%s@%s:3306/%s" % (username, password, hostname, database)
-app.config['SQLALCHEMY_DATABASE_URI'] = connectionString
-db = SQLAlchemy(app)
-
-#app.config['BASIC_AUTH_USERNAME'] = ba_username
-#app.config['BASIC_AUTH_PASSWORD'] = ba_password
-#app.config['BASIC_AUTH_FORCE'] = True
-
-#basic_auth = BasicAuth(app)
-
-app.secret_key = secret_key
-
-'''
-Event Types
-1 = Create
-2 = Destroy
-3 = Boot
-4 = Shutdown
-5 = Inconsistency
-'''
+app.secret_key = "ENTER_SECRET_KEY_HERE"
 
 db.create_all()
 db.session.commit()
