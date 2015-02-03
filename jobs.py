@@ -2,6 +2,8 @@ from celery import Celery
 
 import data
 import subprocess
+import datetime
+
 from log import create_log
 from event import resize_event
 
@@ -11,6 +13,7 @@ app = Celery("jobs", broker="amqp://")
 def resize_disk(vmid, size):    
     try:
         server = data.get_server_id(vmid)
+        data.set_server_blocked(vmid, 1)
 
         resize_event_id = resize_event(str(server[0]['_id']))
 
@@ -38,10 +41,15 @@ def resize_disk(vmid, size):
         do_rename(server)
         data.set_server_disksize(vmid, size)
         data.set_event_status(resize_event_id, 1)
+        data.set_server_blocked(vmid, 0)
+        data.set_event_complete(resize_event_id, str(datetime.datetime.now()))
         return 1
     except Exception as e:
         log6 = "Resize process failed for vm%s: %s" % (str(server[0]['_id']), str(e.args))
         create_log(log6, 3)
+        data.set_server_blocked(vmid, 0)
+        data.set_event_status(resize_event_id, 99)
+        data.set_event_complete(resize_event_id, str(datetime.datetime.now()))
 
 def make_temp_disk(size):
     config = data.get_config()

@@ -40,7 +40,7 @@ def make_admin(username, password):
 def make_server(name, disk_size, disk_image, ram, vcpu):
     db = get_connect()
     server_cursor = db.server
-    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0})
+    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0})
     id = server_cursor.insert(new_server)
     disk_path = "%s/vm%s.img" % (str(config.disk_path), str(id))
     server_cursor.update({"_id":objectify(id)}, {"$set":{"disk_path":disk_path}})
@@ -52,10 +52,12 @@ def make_log(date, message, level):
     new_log = ({"date":date, "message":message, "level":level})
     log_cursor.insert(new_log)
 
-def make_event(type, server_id, date, status=1):
+def make_event(type, server_id, date, status=1, complete_date=""):
+    if complete_date == "" and type != 6:
+        complete_date = date
     db = get_connect()
     event_cursor = db.event
-    new_event = ({"type":type, "server_id":str(server_id), "date":date, "status":status})
+    new_event = ({"type":type, "server_id":str(server_id), "date":date, "status":status, "complete_date":complete_date})
     id = event_cursor.insert(new_event)
     return id
 
@@ -383,3 +385,13 @@ def set_event_status(id, status):
     db = get_connect()
     event_cursor = db.event
     event_cursor.update({"_id":objectify(id)}, {"$set": {"status":status}})
+
+def set_event_complete(id, date):
+    db = get_connect()
+    event_cursor = db.event
+    event_cursor.update({"_id":objectify(id)}, {"$set": {"complete_date":date}})
+
+def set_server_blocked(id, blocked):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(id)}, {"$set": {"blocked":blocked}})

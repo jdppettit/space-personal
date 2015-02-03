@@ -87,11 +87,11 @@
 <hr/>
 <h3>Storage</h3>
 <p>This option will allow you to increase the size of your server's disk. This will reboot the server.</p>
-<form action="/edit/{{ server[0]['_id'] }}/resize" method="post" data-toggle="" role="form">
+<form action="/edit/{{ server[0]['_id'] }}/resize" method="post" data-toggle="validator" role="form">
     <div class="form-group">
         <p>Current Disk Size: {{ server[0]['disk_size'] }} GB</p>
         <label class="control-label">Change Disk Size</label>
-        <input type="number" name="new_size" required min="{{ server[0]['disk_size'] }}"/>
+        <input type="number" name="new_size" class="form-control" required min="{{ server[0]['disk_size'] }}"/>
         <span class="help-block">The resulting size (after the change) in GB. (Must be larger than current disk)</span>
     </div>
     <input class="btn btn-success" type="submit" value="Resize"/>
@@ -128,15 +128,19 @@
 </form>
 <hr/>
 <h3>Events</h3>
-<table class="table">
+<table class="table sortable">
+    <thead>
     <tr>
         <th>Date</th>
+        <th>Completed</th>
         <th>Type</th>
         <th>Status</th>
     </tr>
+    </thead>
     {% for event in events %}
     <tr>
         <td>{{ event['date'] }}</td>
+        <td>{{ event['complete_date'] }}</td>
         <td>{% if event['type'] == 1 %}Create{% elif event['type'] == 2 %}Destroy{% elif event['type'] == 3 %}Boot{% elif
         event['type'] == 4 %}Shutdown{% elif event['type'] == 5 %}Server is inconsistent{% elif event['type'] == 6 %}Resize{% endif %}</td>
         <td>{% if event['status'] == 0 %}Processing{% else %}Complete{% endif %}</td>

@@ -42,7 +42,10 @@
         <a title="Destroy" class="btn btn-danger btn-xs" onClick="return confirm('Are you sure you want to delete this VM? This action cannot be undone.');" href="/destroy/{{ server['_id'] }}"><span class="glyphicon glyphicon-fire"></span></a>
         {% if server['inconsistent'] == 1 %}
         <span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" data-placement="right" title="Server is in an inconsistent state"></span>
-        {% endif %} 
+        {% endif %}
+        {% if server['blocked'] == 1 %}
+        <span class="glyphicon glyphicon-remove-sign" data-toggle="tooltip" data-placement="right" title="Server is blocked, wait for processing jobs to complete."></span>
+        {% endif %}
         </td>
     </tr>
     {% endfor %}

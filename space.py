@@ -299,6 +299,10 @@ def destroy(vmid):
 @app.route('/reboot/<vmid>')
 @login_required
 def reboot(vmid):
+    server = get_server_id(vmid)
+    if server[0]['blocked'] == 1:
+        return redirect('/')
+
     set_server_state(vmid, 0)
     set_server_inconsistent(vmid, 0)
 
@@ -326,6 +330,11 @@ def shutdown(vmid):
 @app.route('/start/<vmid>')
 @login_required
 def start(vmid):
+    server = get_server_id(vmid)
+
+    if server[0]['blocked'] == 1:
+        return redirect('/')
+
     set_server_state(vmid, 1)
     set_server_inconsistent(vmid, 0)
     
@@ -422,6 +431,8 @@ def redefine(vmid):
 def resize_disk(vmid):
     server = get_server_id(vmid)
     if server[0]['state'] == 1:
+        set_server_state(vmid, 0)
+        set_server_inconsistent(vmid, 0)
         shutdown_event(server[0]['_id'])
         shutdown_vm(server[0]['_id'])
     jobs.resize_disk.delay(vmid, request.form['new_size'])
