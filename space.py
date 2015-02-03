@@ -20,9 +20,6 @@ app = Flask(__name__)
 
 app.secret_key = "ENTER_SECRET_KEY_HERE"
 
-db.create_all()
-db.session.commit()
-
 def login_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
