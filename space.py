@@ -420,6 +420,10 @@ def redefine(vmid):
 @app.route('/edit/<vmid>/resize', methods=['POST'])
 @login_required
 def resize_disk(vmid):
+    server = get_server_id(vmid)
+    if server[0]['state'] == 1:
+        shutdown_event(server[0]['_id'])
+        shutdown_vm(server[0]['_id'])
     jobs.resize_disk.delay(vmid, request.form['new_size'])
     return redirect('/edit/%s' % str(vmid))
 
