@@ -16,6 +16,7 @@ import subprocess
 import datetime
 import json
 import networking
+import jobs
 
 app = Flask(__name__)
 
@@ -208,9 +209,9 @@ def ip_delete(ipid):
     delete_ipaddress(ipid)
     return redirect('/ip')
 
-@app.route('/events')
+@app.route('/logs')
 @login_required
-def events():
+def logs():
     date = ""
     level = ""
     try:
@@ -223,11 +224,10 @@ def events():
     elif date != None and level == None:
         log = get_log_datelevel(date=date)
     elif date == None and level != None:
-        print "got here"
         log = get_log_datelevel(level=int(level))
     else:
         log = get_all_logs()
-    return render_template("events.html", log=log)
+    return render_template("logs.html", log=log)
 
 @app.route('/')
 @login_required
@@ -415,6 +415,12 @@ def redefine(vmid):
     if vm[0]['state'] == 1:
         start_vm(vm[0]['_id'])
         startup_event(vm[0]['_id'])
+    return redirect('/edit/%s' % str(vmid))
+
+@app.route('/edit/<vmid>/resize', methods=['POST'])
+@login_required
+def resize_disk(vmid):
+    jobs.resize_disk.delay(vmid, request.form['new_size'])
     return redirect('/edit/%s' % str(vmid))
 
 @app.route('/edit/<vmid>', methods=['POST','GET'])

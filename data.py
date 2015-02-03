@@ -52,11 +52,12 @@ def make_log(date, message, level):
     new_log = ({"date":date, "message":message, "level":level})
     log_cursor.insert(new_log)
 
-def make_event(type, server_id, date):
+def make_event(type, server_id, date, status=1):
     db = get_connect()
     event_cursor = db.event
-    new_event = ({"type":type, "server_id":server_id, "date":date})
-    event_cursor.insert(new_event)
+    new_event = ({"type":type, "server_id":str(server_id), "date":date, "status":status})
+    id = event_cursor.insert(new_event)
+    return id
 
 def make_image(name, path, size):
     db = get_connect()
@@ -372,3 +373,13 @@ def update_admin(username, password):
     db = get_connect()
     admin_cursor = db.admin
     admin_cursor.update({"_id":username}, {"$set": {"password": encrypt_password(password) }})
+
+def set_server_disksize(vmid, size):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"disk_size":size}})
+
+def set_event_status(id, status):
+    db = get_connect()
+    event_cursor = db.event
+    event_cursor.update({"_id":objectify(id)}, {"$set": {"status":status}})

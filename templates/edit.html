@@ -51,11 +51,11 @@
         <input class="form-control" type="text" name="vcpu" value="{{ server[0]['vcpu'] }}"/>
         <span class="help-block">The number of virtual VPU's allocated to your server.</span>
     </div>
-    <div class="form-group">
+<!--    <div class="form-group">
         <label class="control-label">Disk Size (GB)</label>
         <input class="form-control" type="text" name="disk_size" value="{{ server[0]['disk_size'] }}"/>
         <span class="help-block">The amount of storage space allocated to your server. Changing this will not resize your disk currently.</span>
-    </div>
+    </div>!-->
     <div class="form-group">
         <label class="control-label">Disk Path</label>
         <input class="form-control" type="text" name="disk_path" value="{{ server[0]['disk_path'] }}"/>
@@ -83,6 +83,18 @@
         <div class="checkbox" class="form-control"><label><input type="checkbox" name="push" value="1">Push to server (this will restart the server)</label></div>
     </div>
     <input class="btn btn-success" type="submit" value="Edit"/>
+</form>
+<hr/>
+<h3>Storage</h3>
+<p>This option will allow you to increase the size of your server's disk. This will reboot the server.</p>
+<form action="/edit/{{ server[0]['_id'] }}/resize" method="post" data-toggle="" role="form">
+    <div class="form-group">
+        <p>Current Disk Size: {{ server[0]['disk_size'] }} GB</p>
+        <label class="control-label">Change Disk Size</label>
+        <input type="number" name="new_size" required min="{{ server[0]['disk_size'] }}"/>
+        <span class="help-block">The resulting size (after the change) in GB. (Must be larger than current disk)</span>
+    </div>
+    <input class="btn btn-success" type="submit" value="Resize"/>
 </form>
 <hr/>
 <h3>Networking</h3>
@@ -120,12 +132,14 @@
     <tr>
         <th>Date</th>
         <th>Type</th>
+        <th>Status</th>
     </tr>
     {% for event in events %}
     <tr>
         <td>{{ event['date'] }}</td>
         <td>{% if event['type'] == 1 %}Create{% elif event['type'] == 2 %}Destroy{% elif event['type'] == 3 %}Boot{% elif
-        event['type'] == 4 %}Shutdown{% elif event['type'] == 5 %}Server is inconsistent{% endif %}</td>
+        event['type'] == 4 %}Shutdown{% elif event['type'] == 5 %}Server is inconsistent{% elif event['type'] == 6 %}Resize{% endif %}</td>
+        <td>{% if event['status'] == 0 %}Processing{% else %}Complete{% endif %}</td>
     </tr>
     {% endfor %}
 </table>

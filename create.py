@@ -40,6 +40,9 @@ def make_config(name, disk_path, ram, vcpu, image):
 
     bootdev1xml = et.SubElement(osxml, "boot")
     bootdev1xml.set("dev", "hd")
+    
+    bootmenuxml = et.SubElement(osxml, "bootmenu")
+    bootmenuxml.set("enabled", "true")
 
     featurexml = et.SubElement(domain, "features")
     acpixml = et.SubElement(featurexml, "acpi")
