@@ -208,7 +208,10 @@ def index():
     log = get_log_datelevel(date="day", level=3)
     images = get_all_images()
     stats = get_host_statistic_specific(1)
-
+    try:
+        servers[0]
+    except:
+        servers = None
     return render_template("index.html", servers = servers, images=images, log=log, stats=stats)
 
 @app.route('/create', methods=['POST'])
