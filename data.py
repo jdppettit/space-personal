@@ -36,6 +36,7 @@ def make_admin(username, password):
     admin_cursor.insert(new_admin)
 
 def make_server(name, disk_size, disk_image, ram, vcpu):
+    config = get_config()
     db = get_connect()
     server_cursor = db.server
     new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0})
