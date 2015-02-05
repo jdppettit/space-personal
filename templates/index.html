@@ -90,11 +90,13 @@
     </div>
     <div class="col-md-6">
         <h3>CPU Statistics</h3>
+        {% if stats %}
         <div class="progress">
             <div class="progress-bar" role="progressbar" aria-valuenow="{{ stats[0]['cpu'] }}" aria-valuemin="0" aria-valuemax="100" style="min-width:3em; width:{{ stats[0]['cpu'] }}%;">
                 {{ stats[0]['cpu'] }}% CPU
             </div>
         </div>
+        {% endif %}
         <div id="cpu"></div>
     </div>
 </div><!-- row !-->
@@ -102,20 +104,24 @@
 <div class="row">
     <div class="col-md-6">
         <h3>Memory Stats</h3>
+        {% if stats %}
         <div class="progress">
         <div class="progress-bar" role="progressbar" aria-valuenow="{{ stats[0]['memory_used'] }}" aria-valuemin="0" aria-valuemax="{{ stats[0]['total_memory'] }}" style="min-width:3em; width:{{ (stats[0]['memory_used']/stats[0]['total_memory'])*100 }}%;">
                 {{ stats[0]['memory_used'] }} MB
             </div>  
         </div>
+        {% endif %}
         <div id="memory"></div>
     </div>
     <div class="col-md-6">
+    {% if stats %}
     <h3>IOWait</h3>
     <div class="progress">
         <div class="progress-bar" role="progressbar" aria-valuenow="{{ stats[0]['iowait'] }}" aria-valuemin="0" aria-valuemax="100" style="min-width:3em; width:{{ stats[0]['iowait'] }}%;">
             {{ stats[0]['iowait'] }}% 
         </div>
     </div>
+    {% endif %}
     <div id="iowait"></div>
     </div>
 </div>
