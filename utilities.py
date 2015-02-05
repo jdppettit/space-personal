@@ -70,7 +70,7 @@ def import_images():
                 state = 1
         if state == 0:
             image_name = os.path.splitext(image)[0]
-            image_path = "%s/%s" % (str(config['image_path']), str(image))
+            image_path = "%s/%s" % (str(config['image_directory']), str(image))
             image_size = os.path.getsize(image_path) / (1024*1024)
             message2 = "Found new image at %s, adding to the DB" % str(image_path)
             create_log(message2, 1)
