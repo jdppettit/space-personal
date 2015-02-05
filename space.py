@@ -383,6 +383,7 @@ def setup():
         make_admin(request.form['username'], request.form['password1'])
         make_host("default")
         get_host_stats()
+        add_crontab_entries()
         return redirect('/login')
 
 @app.route('/utils/rebuild_dhcp_config')
