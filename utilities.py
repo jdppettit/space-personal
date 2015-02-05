@@ -59,7 +59,7 @@ def sync_status():
 
 def import_images():
     config = data.get_config()
-    filesystem_images = [ f for f in os.listdir(config['image_directory']) if os.path.isfile(os.path.join(config['image_path'],f)) ]
+    filesystem_images = [ f for f in os.listdir(config['image_directory']) if os.path.isfile(os.path.join(config['image_directory'],f)) ]
     message = "Image sync initated."
     create_log(message, 1)
     for image in filesystem_images:
