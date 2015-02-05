@@ -212,6 +212,12 @@ def index():
         servers[0]
     except:
         servers = None
+
+    try:
+        stats[0]
+    except:
+        stats = None
+
     return render_template("index.html", servers = servers, images=images, log=log, stats=stats)
 
 @app.route('/create', methods=['POST'])
@@ -378,6 +384,7 @@ def setup():
         make_configuration(request.form['image_directory'], request.form['disk_directory'], request.form['config_directory'], request.form['system_type'], request.form['domain'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'])
         make_admin(request.form['username'], request.form['password1'])
         make_host("default")
+        get_host_stats()
         return redirect('/login')
 
 @app.route('/utils/rebuild_dhcp_config')
