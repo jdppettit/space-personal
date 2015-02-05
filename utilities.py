@@ -75,3 +75,9 @@ def import_images():
             message2 = "Found new image at %s, adding to the DB" % str(image_path)
             create_log(message2, 1)
             data.make_image(image_name, image_path, image_size)
+
+def add_crontab_entries():
+    cron = CronTab(user=True)
+    job = cron.new(command="/usr/bin/python /srv/space/cron.py")
+    job.minute.every(1)
+    cron.write()
