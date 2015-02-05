@@ -40,7 +40,7 @@ def make_server(name, disk_size, disk_image, ram, vcpu):
     server_cursor = db.server
     new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0})
     id = server_cursor.insert(new_server)
-    disk_path = "%s/vm%s.img" % (str(config.disk_path), str(id))
+    disk_path = "%s/vm%s.img" % (str(config['disk_directory']), str(id))
     server_cursor.update({"_id":objectify(id)}, {"$set":{"disk_path":disk_path}})
     return id
 
