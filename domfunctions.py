@@ -8,8 +8,6 @@ import data
 
 from log import *
 from event import *
-from config import *
-from models import db, Log, IPAddress, Server
 
 def restart_dhcpd():
     config = data.get_config()

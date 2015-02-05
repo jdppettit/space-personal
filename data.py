@@ -1,6 +1,5 @@
 import pymongo
 import datetime
-import config 
 import bson
 import hashlib
 import uuid

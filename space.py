@@ -1,8 +1,6 @@
 from flask import *
 
-from config import *
 from domfunctions import *
-from models import *
 from event import *
 from utilities import *
 from log import *
