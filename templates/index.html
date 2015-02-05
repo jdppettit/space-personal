@@ -17,6 +17,7 @@
         <th>Actions</th>
     </tr>
     </thead>
+    {% if servers %}
     {% for server in servers %}
     <tr>
         <td><a href="/edit/{{ server['_id'] }}">{{ server['name'] }}</a></td>
@@ -49,6 +50,7 @@
         </td>
     </tr>
     {% endfor %}
+    {% endif %}
 </table>
 <hr/>
 <div class="row">
