@@ -252,8 +252,6 @@ def create():
     message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm), str(name), str(ram), str(disk_size))
     create_log(message, 1)
 
-    db.session.commit()
-
     return redirect('/')
 
 @app.route('/destroy/<vmid>')
