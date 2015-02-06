@@ -15,7 +15,7 @@ This project is still in a relatively early stage of development, it is feature 
 
 ## Installation
 
-1. Clone repo in `/srv`.
+1. `cd /srv && mkdir space && git clone https://github.com/silverp1/space-personal.git .`
 2. Configure `virbr0` as bridge interface.
 3. `./srv/space/scripts/setup.sh` - This will install all dependencies, start necessary services and start Space.
 4. Navigate to `your.ip.address.here/setup` to complete the setup process.
