@@ -61,6 +61,11 @@ service mongod start
 echo -n
 echo -e "Starting Space..."
 
+echo -n
+echo -e "Starting celery worker..."
+
+sh /srv/space/scripts/celery.sh
+
 service space start
 
 echo -n

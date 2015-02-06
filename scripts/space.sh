@@ -4,7 +4,7 @@
 . /etc/init.d/functions
 
 SPACE_PATH=/srv/space
-PIDFILE=/var/run/space.pid
+SPACE_PIDFILE=/var/run/space.pid
 PROG=gunicorn
 CONFIG_PATH=/srv/space/conf.d/gunicorn.conf.py
 
@@ -20,18 +20,18 @@ start () {
 
 stop () {
     echo -e "Stopping Space:"
-    killproc -p ${PIDFILE} ${PROG} -QUIT
+    killproc -p ${SPACE_PIDFILE} ${PROG} -QUIT
     RETVAL=$?
     echo
-    [ $RETVAL = 0 ] && rm -f ${PIDFILE} 
+    [ $RETVAL = 0 ] && rm -f ${SPACE_PIDFILE} 
+
 }
 
 restart () {
     echo -e "Restarting space."
     echo -e "Stopping Space:"
-    killproc -p ${PIDFILE} ${PROG} -QUIT
+    killproc -p ${SPACE_PIDFILE} ${PROG} -QUIT
     RETVAL=$?
-    echo
     echo -e "Starting Space:"
     cd $SPACE_PATH
     gunicorn --config $CONFIG_PATH space:app
