@@ -35,11 +35,11 @@ def make_admin(username, password):
     new_admin = ({"_id":username, "username":username, "password":encrypt_password(password)})
     admin_cursor.insert(new_admin)
 
-def make_server(name, disk_size, disk_image, ram, vcpu):
+def make_server(name, disk_size, disk_image, ram, vcpu, type="", id=""):
     config = get_config()
     db = get_connect()
     server_cursor = db.server
-    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0})
+    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0, "type":"local", "id":id})
     id = server_cursor.insert(new_server)
     disk_path = "%s/vm%s.img" % (str(config['disk_directory']), str(id))
     server_cursor.update({"_id":objectify(id)}, {"$set":{"disk_path":disk_path}})
@@ -79,10 +79,10 @@ def make_host(name):
     id = host_cursor.insert(new_host)
     return id
 
-def make_configuration(image_directory, disk_directory, config_directory, system_type, domain, dhcp_configuration, dhcp_service, novnc_directory, pem_location):
+def make_configuration(image_directory, disk_directory, config_directory, system_type, domain, dhcp_configuration, dhcp_service, novnc_directory, pem_location, linode_api_key, do_api_key):
     db = get_connect()
     config_cursor = db.configuration
-    configuration = ({"_id":"default", "image_directory":image_directory, "disk_directory":disk_directory, "config_directory":config_directory, "system_type":system_type, "domain":domain, "password_salt":str(uuid.uuid1()), "dhcp_configuration":dhcp_configuration, "dhcp_service":dhcp_service, "novnc_directory":novnc_directory, "pem_location": pem_location})
+    configuration = ({"_id":"default", "image_directory":image_directory, "disk_directory":disk_directory, "config_directory":config_directory, "system_type":system_type, "domain":domain, "password_salt":str(uuid.uuid1()), "dhcp_configuration":dhcp_configuration, "dhcp_service":dhcp_service, "novnc_directory":novnc_directory, "pem_location": pem_location, "linode_api_key":linode_api_key, "do_api_key":do_api_key})
     config_cursor.insert(configuration)
 
 def make_iprange(startip, endip, subnet, netmask, gateway):
@@ -125,7 +125,7 @@ def get_host_statistic_specific(num):
 def set_server_all(id, name, disk_size, disk_path, ram, state, disk_image, vcpu, mac_address, inconsistent = 0):
     db = get_connect()
     server_cursor = db.server
-    server_cursor.update({"_id":objectify(id)}, {"name":name, "disk_size":disk_size, "disk_path":disk_path, "ram":ram, "state":state, "disk_image":disk_image, "vcpu":vcpu, "mac_address":mac_address, "inconsistent":inconsistent})
+    server_cursor.update({"_id":objectify(id)}, {"$set":{"name":name, "disk_size":disk_size, "disk_path":disk_path, "ram":ram, "state":state, "disk_image":disk_image, "vcpu":vcpu, "mac_address":mac_address, "inconsistent":inconsistent}})
 
 def get_server_id(id):
     db = get_connect()
@@ -394,3 +394,8 @@ def set_server_blocked(id, blocked):
     db = get_connect()
     server_cursor = db.server
     server_cursor.update({"_id":objectify(id)}, {"$set": {"blocked":blocked}})
+
+def set_config_providers(do="", linode=""):
+    db = get_connect()
+    config_cursor = db.configuration
+    config_cursor.update({"_id":"default"}, {"$set": {"linode_api_key":linode, "do_api_key":do}})

@@ -1,44 +1,41 @@
-{% extends 'grid.html' %}
+{% extends 'frame.html' %}
 {% block title %}Space - 
 {% if type == "deleted" %}Deleted Servers
 {% elif type == "active" %}Active Servers
 {% elif type == "all" %}All Servers
 {% endif %}{% endblock %}
 {% block content %}
+<div class="row">
 {% if type == "all" %}
-<h3>All Servers</h3>
+<h2>Servers - All</h2>
 <p>This is a list of all servers, including active servers and those that have been deleted.</p>
 {% elif type == "deleted" %}
-<h3>Deleted Servers</h3>
+<h2>Servers - Deleted</h2>
 <p>This is a list of all servers that have been deleted.</p>
 {% elif type == "active" %}
-<h3>Active Servers</h3>
+<h2>Servers - Active</h2>
 <p>This is a list of all active servers.</p>
 {% endif %}
-<div class="btn-group" role="group">
-    <a href="/server/active" class="btn btn-default">Active</a>
-    <a href="/server/deleted" class="btn btn-default">Deleted</a>
-    <a href="/server/all" class="btn btn-default">All</a>
-</div>
-<br/><br/>
-<table class="table sortable">
+<table class="table table-condensed table-hover table-striped table-server sortable">
     <thead>
     <tr>
-        <th>Name</th>
+        <th>Provider</th>
+        <th>Server Name</th>
         <th>RAM</th>
-        <th>Disk Size</th>
-        <th>Image</th>
+        <th>Storage</th>
     </tr>
     </thead>
     {% if domains %}
     {% for dom in domains %}
-    <tr>
+    {% if dom['state'] == 3 %}<tr class="danger">{% else %}
+    <tr>{% endif %}
+        <td><img src="/static/images/local_logo.png"/></td>
         <td><a href="/edit/{{ dom['_id'] }}">{{ dom['name'] }}</a></td>
-        <td>{{ dom['ram'] }}</td>
-        <td>{{ dom['disk_size'] }}</td>
-        <td>{{ dom['disk_image'] }}</td>
+        <td>{{ dom['ram'] }}GB</td>
+        <td>{{ dom['disk_size'] }}GB</td>
     </tr>
     {% endfor %}
     {% endif %}
 </table>
+</div>
 {% endblock %}

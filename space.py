@@ -18,6 +18,55 @@ app = Flask(__name__)
 
 app.secret_key = "ENTER_SECRET_KEY_HERE"
 
+###############################################################
+
+@app.route('/test/index')
+def test_index():
+    return render_template("frame.html")
+
+@app.route('/server/new', methods=['POST','GET'])
+def new_server():
+    if request.method == "GET":
+        images = get_all_images()
+        return render_template("server_create.html", images=images)
+    elif request.method == "POST":
+        name = request.form['server_name']
+        ram = request.form['ram']
+        disk_size = request.form['disk_size']
+        image = request.form['disk_image']
+        vcpu = request.form['vcpu']
+        type = request.form['provider']
+
+        image_obj = get_image_id(image)
+
+        new_vm = make_server(name, disk_size, image_obj[0]['name'], ram, vcpu, type=type)
+        new_vm = str(new_vm)
+
+        result = assign_ip(new_vm)
+
+        if result == 0:
+            return "Failed."
+
+        create_event(new_vm)
+        startup_event(new_vm)
+        create_vm(new_vm, ram, disk_size, image_obj[0]['name'], vcpu)
+    
+        mac_address = get_guest_mac(new_vm)
+
+        set_server_mac(new_vm, mac_address)
+
+        append_dhcp_config(mac_address, result, new_vm)
+
+        message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm), str(name), str(ram), str(disk_size))
+        create_log(message, 1)
+    
+        return redirect('/edit/%s' % str(new_vm))
+  
+@app.route('/settings/providers', methods=['POST'])
+def update_providers():
+    set_config_providers(do=request.form['do_api'], linode=request.form['linode_api'])
+    return redirect('/settings')
+
 def login_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
@@ -32,7 +81,7 @@ def login_required(f):
 @login_required
 def login_reset():
     update_admin(session['username'], request.form['password1'])
-    return redirect('/host')
+    return redirect('/settings')
 
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -353,9 +402,9 @@ def view_deleted():
         domains = None
     return render_template("view.html", domains=domains, type="deleted")
 
-@app.route('/host', methods=['POST','GET'])
+@app.route('/settings', methods=['POST','GET'])
 @login_required
-def host():
+def settings():
     if request.method == "GET":
         config = get_config()
         try:
@@ -487,4 +536,4 @@ def delete_image_route(imageid):
     return redirect('/images')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10051)
+    app.run(host='0.0.0.0', port=10050, debug="true")

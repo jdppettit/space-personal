@@ -34,10 +34,7 @@
             valueSuffix: 'MB'
         },
         legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
+            enabled:false
         },
         credits: {
             enabled:false
@@ -45,7 +42,8 @@
         series: [{
             name: 'Memory (MB)',
             data: memory,
-            type: 'area'
+            type: 'area',
+            color: '#FFA161'
         }]
     }); 
     };
@@ -70,10 +68,7 @@
             valueSuffix: '%'
         },
         legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
+            enabled:false
         },
         credits: {
             enabled:false
@@ -81,7 +76,8 @@
         series: [{
             name: 'CPU (%)',
             data: cpu,
-            type: 'area'
+            type: 'area',
+            color: '#FFA161'
         }]
     });
     };
@@ -106,10 +102,7 @@
             valueSuffix: '%'
         },
         legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle',
-            borderWidth: 0
+            enabled:false 
         },
         credits: {
             enabled:false
@@ -117,7 +110,8 @@
         series: [{
             name: 'IOWait (%)',
             data: iowait,
-            type: 'area'
+            type: 'area',
+            color: '#FFA161'
         }]
     });
     };
