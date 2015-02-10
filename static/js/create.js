@@ -1,4 +1,10 @@
-$('#provider_select').on('change', function() {
+$(document).ready(function() {
+    $('.do').hide()
+    $('.linode').hide()
+    $('.local').show()
+});
+
+$('.provider_select').on('change', function() {
     var selection = this.value
     console.log("it changed")
     switch(selection) {
@@ -18,3 +24,4 @@ $('#provider_select').on('change', function() {
             $('.linode').show()
     }
 });
+

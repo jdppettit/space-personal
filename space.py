@@ -6,6 +6,7 @@ from utilities import *
 from log import *
 from data import *
 from functools import update_wrapper, wraps
+from dofunctions import *
 
 import libvirt
 import subprocess
@@ -28,39 +29,52 @@ def test_index():
 def new_server():
     if request.method == "GET":
         images = get_all_images()
-        return render_template("server_create.html", images=images)
+        do_images = get_do_images()
+        do_sizes = get_do_sizes()
+        do_regions = get_do_regions()
+        return render_template("server_create.html", images=images, do_images=do_images, do_regions=do_regions, do_sizes=do_sizes)
     elif request.method == "POST":
-        name = request.form['server_name']
-        ram = request.form['ram']
-        disk_size = request.form['disk_size']
-        image = request.form['disk_image']
-        vcpu = request.form['vcpu']
+        print request.form['provider']
         type = request.form['provider']
+        if type == "do":
+            name = request.form['server_name']
+            region = request.form['do_region']
+            image = request.form['do_image']
+            size = request.form['do_plan']
+            new_vm = make_server(name, size, "DigitalOcean", size, size, type="do")
+            make_droplet(name, region, image, size)
+        else:
+            name = request.form['server_name']
+            ram = request.form['ram']
+            disk_size = request.form['disk_size']
+            image = request.form['disk_image']
+            vcpu = request.form['vcpu']
+            type = request.form['provider']
 
-        image_obj = get_image_id(image)
+            image_obj = get_image_id(image)
 
-        new_vm = make_server(name, disk_size, image_obj[0]['name'], ram, vcpu, type=type)
-        new_vm = str(new_vm)
+            new_vm = make_server(name, disk_size, image_obj[0]['name'], ram, vcpu, type=type)
+            new_vm = str(new_vm)
 
-        result = assign_ip(new_vm)
+            result = assign_ip(new_vm)
 
-        if result == 0:
-            return "Failed."
+            if result == 0:
+                return "Failed."
 
-        create_event(new_vm)
-        startup_event(new_vm)
-        create_vm(new_vm, ram, disk_size, image_obj[0]['name'], vcpu)
+            create_event(new_vm)
+            startup_event(new_vm)
+            create_vm(new_vm, ram, disk_size, image_obj[0]['name'], vcpu)
     
-        mac_address = get_guest_mac(new_vm)
+            mac_address = get_guest_mac(new_vm)
 
-        set_server_mac(new_vm, mac_address)
+            set_server_mac(new_vm, mac_address)
 
-        append_dhcp_config(mac_address, result, new_vm)
+            append_dhcp_config(mac_address, result, new_vm)
 
-        message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm), str(name), str(ram), str(disk_size))
-        create_log(message, 1)
+            message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm), str(name), str(ram), str(disk_size))
+            create_log(message, 1)
     
-        return redirect('/edit/%s' % str(new_vm))
+            return redirect('/edit/%s' % str(new_vm))
   
 @app.route('/settings/providers', methods=['POST'])
 def update_providers():
@@ -183,6 +197,7 @@ def console(vmid):
     return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'], domain=config['domain'], server_id=vm[0]["_id"])
 
 @app.route('/ip', methods=['POST','GET'])
+@app.route('/networking', methods=['POST','GET'])
 @login_required
 def ips():
     if request.method == "GET":
@@ -195,7 +210,7 @@ def ips():
         new_ip = make_ipaddress(address, netmask, 0)
         message = "Added new IP %s/%s" % (str(address), str(netmask))
         create_log(message, 1)
-        return redirect('/ip')
+        return redirect('/networking')
 
 @app.route('/ip/edit/<ipid>', methods=['POST','GET'])
 @login_required
@@ -307,23 +322,26 @@ def create():
 @login_required
 def destroy(vmid):
     vm = get_server_id(vmid)
-    ip = get_ipaddress_server(vmid)
+    if vm[0]['type'] == "do":
+        delete_droplet(vm[0]['id'])
+    else:
+        ip = get_ipaddress_server(vmid)
     
-    try:
-        set_ipaddress_serverid(ip[0]['_id'], 0)
-    except:
-        pass
+        try:
+            set_ipaddress_serverid(ip[0]['_id'], 0)
+        except:
+            pass
 
-    rebuild_dhcp_config()
+        rebuild_dhcp_config()
     
-    set_server_state(vmid, 3)
-    destroy_event(vmid)
-    delete_vm(vmid, vm[0]['disk_path'])
+        set_server_state(vmid, 3)
+        destroy_event(vmid)
+        delete_vm(vmid, vm[0]['disk_path'])
 
-    message = "Deleted vm%s." % str(vmid)
-    create_log(message, 1)
+        message = "Deleted vm%s." % str(vmid)
+        create_log(message, 1)
 
-    return redirect('/')
+        return redirect('/')
 
 @app.route('/reboot/<vmid>')
 @login_required

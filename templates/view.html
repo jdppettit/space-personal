@@ -6,6 +6,7 @@
 {% endif %}{% endblock %}
 {% block content %}
 <div class="row">
+<div class="col-md-10">
 {% if type == "all" %}
 <h2>Servers - All</h2>
 <p>This is a list of all servers, including active servers and those that have been deleted.</p>
@@ -16,6 +17,8 @@
 <h2>Servers - Active</h2>
 <p>This is a list of all active servers.</p>
 {% endif %}
+</div>
+<div class="col-md-2" style="text-align:right; margin-top:2em;"><a href="/server/new" class="btn btn-success">Create a Server</a></div>
 <table class="table table-condensed table-hover table-striped table-server sortable">
     <thead>
     <tr>
@@ -29,7 +32,7 @@
     {% for dom in domains %}
     {% if dom['state'] == 3 %}<tr class="danger">{% else %}
     <tr>{% endif %}
-        <td><img src="/static/images/local_logo.png"/></td>
+        <td>{% if dom['type'] == "local" %}<img src="/static/images/local_logo.png"/>{% elif dom['type'] == "do" %}<img src="/static/images/do_logo.png"/>{% endif %}</td>
         <td><a href="/edit/{{ dom['_id'] }}">{{ dom['name'] }}</a></td>
         <td>{{ dom['ram'] }}GB</td>
         <td>{{ dom['disk_size'] }}GB</td>

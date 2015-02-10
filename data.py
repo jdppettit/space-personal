@@ -39,7 +39,7 @@ def make_server(name, disk_size, disk_image, ram, vcpu, type="", id=""):
     config = get_config()
     db = get_connect()
     server_cursor = db.server
-    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0, "type":"local", "id":id})
+    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0, "type":type, "id":id})
     id = server_cursor.insert(new_server)
     disk_path = "%s/vm%s.img" % (str(config['disk_directory']), str(id))
     server_cursor.update({"_id":objectify(id)}, {"$set":{"disk_path":disk_path}})
@@ -71,6 +71,21 @@ def make_ipaddress(ip, netmask, server_id):
     ipaddress_cursor = db.ipaddress
     new_ipaddress = ({"ip":ip, "netmask":netmask, "server_id":server_id})
     ipaddress_cursor.insert(new_ipaddress)
+
+def make_do_image(slug, id):
+    db = get_connect()
+    do_image_cursor = db.do_image
+    do_image_cursor.insert({"slug":slug, "id":id})
+
+def make_do_region(slug, name):
+    db = get_connect()
+    do_region_cursor = db.do_region
+    do_region_cursor.insert({"slug":slug, "name":name})
+
+def make_do_size(slug, memory, vcpus, disk, transfer, price_monthly, price_hourly):
+    db = get_connect()
+    do_size_cursor = db.do_size
+    do_size_cursor.insert({"slug":slug, "memory":memory, "vcpus":vcpus, "disk":disk, "transfer":transfer, "price_monthly":price_monthly, "price_hourly":price_hourly})
 
 def make_host(name):
     db = get_connect()
@@ -399,3 +414,21 @@ def set_config_providers(do="", linode=""):
     db = get_connect()
     config_cursor = db.configuration
     config_cursor.update({"_id":"default"}, {"$set": {"linode_api_key":linode, "do_api_key":do}})
+
+def get_do_images():
+    db = get_connect()
+    do_image_cursor = db.do_image
+    images = do_image_cursor.find()
+    return images
+
+def get_do_sizes():
+    db = get_connect()
+    do_size_cursor = db.do_size
+    sizes = do_size_cursor.find()
+    return sizes
+
+def get_do_regions():
+    db = get_connect()
+    do_region_cursor = db.do_region
+    regions = do_region_cursor.find()
+    return regions
