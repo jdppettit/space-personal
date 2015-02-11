@@ -21,6 +21,10 @@ app.secret_key = "ENTER_SECRET_KEY_HERE"
 
 ###############################################################
 
+@app.route('/test/droplet')
+def droplet_test():
+    return render_template("view_droplet.html")
+
 @app.route('/server/new', methods=['POST','GET'])
 def new_server():
     if request.method == "GET":

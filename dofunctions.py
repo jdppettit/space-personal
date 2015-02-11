@@ -73,3 +73,19 @@ def get_regions():
     regions = manager.get_data("https://api.digitalocean.com/v2/regions")
     for region in regions['regions']:
         data.make_do_region(region['slug'], region['name'])
+
+def sync_status():
+    manager = get_manager()
+    droplets = data.get_server_type("do")
+    for droplet in droplets:
+        try:
+            d = manager.get_droplet(droplet['id'])
+        except:
+            pass
+        if droplet['state'] == 0 and d.status == "active":
+            data.set_server_state(droplet['_id'], 1)
+        elif droplet['state'] == 1 and d.status == "off":
+            data.set_server_state(droplet['_id'], 0)
+        elif droplet['state'] < 3 and d.status == "archive":
+            data.set_server_state(droplet['_id'], 3)
+
