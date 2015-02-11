@@ -19,7 +19,16 @@ app = Flask(__name__)
 
 app.secret_key = "ENTER_SECRET_KEY_HERE"
 
-###############################################################
+
+def login_required(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        try:
+            session['logged_in']
+        except:
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorator
 
 @app.route('/server/edit/<vmid>/droplet/resize', methods=['POST'])
 @login_required
@@ -161,16 +170,6 @@ def new_server():
 def update_providers():
     set_config_providers(do=request.form['do_api'], linode=request.form['linode_api'])
     return redirect('/settings')
-
-def login_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        try:
-            session['logged_in']
-        except:
-            return redirect('/login') 
-        return f(*args, **kwargs)
-    return decorator
 
 @app.route('/login/reset', methods=['POST'])
 @login_required
