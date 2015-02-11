@@ -79,6 +79,8 @@ def import_images():
 
 def add_crontab_entries():
     cron = CronTab(user=True)
-    job = cron.new(command="/usr/bin/python /srv/space/cron.py")
-    job.minute.every(1)
+    job1 = cron.new(command="/usr/bin/python /srv/space/cron_minute.py")
+    job1.minute.every(1)
+    job2 = cron.new(command="/usr/bin/python /srv/space/cron_15minute.py")
+    job2.minute.every(15)
     cron.write()
