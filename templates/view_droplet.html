@@ -1,0 +1,25 @@
+{% extends 'frame.html' %}
+{% block title %}Space - Edit Droplet server[0]['name']{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="type">Droplet - server[0]['name']</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8 well">
+        <h4>Attributes</h4>
+        Plan: Foo<br/>
+    </div>
+    <div class="col-md-4">
+        <h4>Features</h4>
+        <a class="btn btn-success" href="#">Enable Backups</a>
+        <a class="btn btn-success" href="#">Enable Private Networking</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 col-md-offset-8">
+        <h4>Actions</h4>
+    </div>
+</div>
+{% endblock %}
