@@ -35,11 +35,11 @@ def make_admin(username, password):
     new_admin = ({"_id":username, "username":username, "password":encrypt_password(password)})
     admin_cursor.insert(new_admin)
 
-def make_server(name, disk_size, disk_image, ram, vcpu, type="", id=""):
+def make_server(name, disk_size, disk_image, ram, vcpu, type="", id="", ip=""):
     config = get_config()
     db = get_connect()
     server_cursor = db.server
-    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0, "type":type, "id":id})
+    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0, "type":type, "id":id, "ip":ip})
     id = server_cursor.insert(new_server)
     disk_path = "%s/vm%s.img" % (str(config['disk_directory']), str(id))
     server_cursor.update({"_id":objectify(id)}, {"$set":{"disk_path":disk_path}})
@@ -432,3 +432,9 @@ def get_do_regions():
     do_region_cursor = db.do_region
     regions = do_region_cursor.find()
     return regions
+
+def get_server_type(type):
+    db = get_connect()
+    server_cursor = db.server
+    servers = server_cursor.find({"type":type})
+    return servers

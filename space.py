@@ -37,7 +37,7 @@ def new_server():
             image = request.form['do_image']
             size = request.form['do_plan']
             droplet = make_droplet(name, region, image, size)
-            new_vm = make_server(name, size, "DigitalOcean", size, size, type="do", id=str(droplet).split(" ")[0])
+            new_vm = make_server(name, size, "DigitalOcean", size, size, type="do", id=droplet.id, ip=droplet.ip_address)
             return redirect('/edit/%s' % str(new_vm))
         else:
             name = request.form['server_name']
@@ -381,6 +381,21 @@ def shutdown(vmid):
         shutdown_vm(vmid)
 
     return redirect('/edit/%s' % str(vmid))
+
+@app.route('/server/type/droplet')
+def server_droplet():
+    domains = get_server_type("do")
+    return render_template("view.html", domains=domains, type="droplet")
+
+@app.route('/server/type/linode')
+def server_linode():
+    domains = get_server_type("linode")
+    return render_template("view.html", domains=domains, type="linode")
+
+@app.route('/server/type/local')
+def server_local():
+    domains = get_server_type("local")
+    return render_template("view.html", domains=domains, type="local")
 
 @app.route('/start/<vmid>')
 @login_required

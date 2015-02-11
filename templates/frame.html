@@ -25,9 +25,9 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script src="https://code.highcharts.com/highcharts.js"></script>
-        <script type="text/javascript" src="/static/js/confirm.js"></script>
-<link href="../static/css/bootstrap.min.css" rel="stylesheet"/>
-<link href="../static/css/space.css" rel="stylesheet"/>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/confirm.js') }}"></script>
+<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"/>
+<link href="{{ url_for('static', filename='css/space.css') }}" rel="stylesheet"/>
 {% block header %}
 {% endblock %}
 </head>
@@ -56,10 +56,10 @@
     </div>
 {% block content %}
 {% endblock %}
-<script type="text/javascript" src="/static/js/validator.min.js"></script>
-<script src="/static/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/static/js/main.js"></script>
-<script src='/static/js/moment.min.js'></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/validator.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
 <script src='/static/js/bootstrap-sortable.js'></script>
 {% block footer %}
 {% endblock %}

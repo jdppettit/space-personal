@@ -15,6 +15,11 @@ def get_droplets():
     all_droplets = manager.get_all_droplets()
     return all_droplets
 
+def get_droplet(id):
+    manager = get_manager()
+    droplet = manager.get_droplet(id)
+    return droplet
+
 def make_droplet(name, region, image, size):
     token = get_token()
     droplet = digitalocean.Droplet(token=token,
@@ -23,6 +28,7 @@ def make_droplet(name, region, image, size):
                                     image=image,
                                     size=size)
     droplet.create()
+    droplet = get_droplet(str(droplet).split(" ")[0])
     return droplet
 
 def destroy_droplet(id):
