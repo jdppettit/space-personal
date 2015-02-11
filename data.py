@@ -35,11 +35,11 @@ def make_admin(username, password):
     new_admin = ({"_id":username, "username":username, "password":encrypt_password(password)})
     admin_cursor.insert(new_admin)
 
-def make_server(name, disk_size, disk_image, ram, vcpu, type="", id="", ip=""):
+def make_server(name, disk_size, disk_image, ram, vcpu, type="", id="", ip="", state=1):
     config = get_config()
     db = get_connect()
     server_cursor = db.server
-    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0, "type":type, "id":id, "ip":ip})
+    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":state, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0, "type":type, "id":id, "ip":ip})
     id = server_cursor.insert(new_server)
     disk_path = "%s/vm%s.img" % (str(config['disk_directory']), str(id))
     server_cursor.update({"_id":objectify(id)}, {"$set":{"disk_path":disk_path}})
@@ -436,5 +436,41 @@ def get_do_regions():
 def get_server_type(type):
     db = get_connect()
     server_cursor = db.server
-    servers = server_cursor.find({"type":type})
+    servers = server_cursor.find({"type":type, "state": {"$ne":3}})
     return servers
+
+def set_ipaddress_server(vmid, ip):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"ip":ip}})
+
+def set_server_name(vmid, name):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"name":name}})
+
+def set_server_do_specs(vmid, disk, memory, vcpus):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"disk_size":disk, "ram":memory, "vcupus":vcpus}})
+
+def get_do_size(slug):
+    db = get_connect()
+    do_size_cursor = db.do_size
+    size = do_size_cursor.find({"slug":slug})
+    return size
+
+def set_server_memory(vmid, memory):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"ram":memory}})
+
+def set_server_vcpus(vmid, vcpus):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"vcpu":vcpus}})
+
+def set_server_disk_size(vmid, disk_size):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"disk_size":disk_size}})

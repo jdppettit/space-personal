@@ -21,11 +21,85 @@ app.secret_key = "ENTER_SECRET_KEY_HERE"
 
 ###############################################################
 
-@app.route('/test/droplet')
-def droplet_test():
-    return render_template("view_droplet.html")
+@app.route('/server/edit/<vmid>/droplet/resize', methods=['POST'])
+@login_required
+def droplet_resize(vmid):
+    server = get_server_id(vmid)
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    if server[0]['state'] == 1:
+        return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to resize, please power your droplet off.")
+    resize_droplet(server[0]['id'], request.form['size'])
+    size = get_do_size(request.form['size'])
+    set_server_do_specs(server[0]['_id'], size[0]['disk'], size[0]['memory'], size[0]['vcpus'])
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Your droplet is now resizing, you can track its progress on <a href=\"https://cloud.digitalocean.com\">cloud.digitalocean.com</a>")
+
+@app.route('/server/edit/<vmid>/droplet/private', methods=['GET'])
+@login_required
+def droplet_private_networking(vmid):
+    server = get_server_id(vmid)
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    if server[0]['state'] == 1:
+        return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to this enable feature, please power your droplet off.")
+    enable_private_networking(server[0]['id'])
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Private networking is now being enabled.")
+
+@app.route('/server/edit/<vmid>/droplet/ipv6', methods=['GET'])
+@login_required
+def droplet_ipv6(vmid):
+    server = get_server_id(vmid)
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    if server[0]['state'] == 1:
+        return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to this enable feature, please power your droplet off.")
+    enable_ipv6(server[0]['id'])
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="IPv6 is now being enabled.")
+
+@app.route('/server/edit/<vmid>/droplet/disablebackups', methods=['GET'])
+@login_required
+def disable_backups_endpoint(vmid):
+    server = get_server_id(vmid)
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    if server[0]['state'] == 1:
+        return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to this disable feature, please power your droplet off.")
+    disable_backups(server[0]['id'])
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Backups are now being disabled.")
+
+
+@app.route('/server/edit/<vmid>/droplet/rename', methods=['POST'])
+@login_required
+def droplet_rename(vmid):
+    server = get_server_id(vmid)
+    rename_droplet(server[0]['id'], request.form['name'])
+    set_server_name(server[0]['_id'], request.form['name'])
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Your droplet has been renamed.")
+
+@app.route('/server/edit/<vmid>/droplet/reset', methods=['GET'])
+@login_required
+def droplet_reset(vmid):
+    server = get_server_id(vmid)
+    reset_root_password(server[0]['id'])
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Root password is now resetting, please check your DO email for the new password.")
+
+@app.route('/server/edit/<vmid>/droplet')
+@login_required
+def edit_server_droplet(vmid):
+    server = get_server_id(vmid)
+    if server[0]['type'] == "do":
+        droplet = get_droplet(server[0]['id'])
+        do_sizes = get_do_sizes()
+    else:
+        return redirect('/server/edit/%s/local' % str(vmid))
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes)
 
 @app.route('/server/new', methods=['POST','GET'])
+@login_required
 def new_server():
     if request.method == "GET":
         images = get_all_images()
@@ -40,9 +114,15 @@ def new_server():
             region = request.form['do_region']
             image = request.form['do_image']
             size = request.form['do_plan']
-            droplet = make_droplet(name, region, image, size)
-            new_vm = make_server(name, size, "DigitalOcean", size, size, type="do", id=droplet.id, ip=droplet.ip_address)
-            return redirect('/edit/%s' % str(new_vm))
+            if "backups" in request.form:
+                droplet = make_droplet(name, region, image, size, backups=1)
+            else:
+                droplet = make_droplet(name, region, image, size) 
+                if not droplet.ip_address:
+                    new_vm = make_server(name, droplet.disk, droplet.image['slug'], droplet.memory, droplet.vcpus, type="do", id=droplet.id, ip=droplet.ip_address, state=2)
+                else:
+                    new_vm = make_server(name, droplet.disk, droplet.image['slug'], droplet.memory, droplet.vcpus, type="do", id=droplet.id, ip=droplet.ip_address)
+            return redirect('/server/edit/%s/droplet' % str(new_vm))
         else:
             name = request.form['server_name']
             ram = request.form['ram']
@@ -74,9 +154,10 @@ def new_server():
             message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm), str(name), str(ram), str(disk_size))
             create_log(message, 1)
     
-            return redirect('/edit/%s' % str(new_vm))
+            return redirect('/server/edit/%s/local' % str(new_vm))
   
 @app.route('/settings/providers', methods=['POST'])
+@login_required
 def update_providers():
     set_config_providers(do=request.form['do_api'], linode=request.form['linode_api'])
     return redirect('/settings')
@@ -353,6 +434,7 @@ def reboot(vmid):
         set_server_state(vmid, 0)
         reboot_droplet(server[0]['id'])
         set_server_state(vmid, 1)
+        return redirect('/server/edit/%s/droplet' % str(vmid))
     else:
         if server[0]['blocked'] == 1:
             return redirect('/')
@@ -368,7 +450,7 @@ def reboot(vmid):
         startup_event(vmid)
         start_vm(vmid)
     
-    return redirect('/edit/%s' % str(vmid))
+        return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/shutdown/<vmid>')
 @login_required
@@ -377,6 +459,8 @@ def shutdown(vmid):
     if server[0]['type'] == "do":
         set_server_state(vmid, 0)
         shutdown_droplet(server[0]['id'])
+
+        return redirect('/server/edit/%s/droplet' % str(vmid))
     else:
         set_server_state(vmid, 0)
         set_server_inconsistent(vmid, 0)
@@ -384,7 +468,7 @@ def shutdown(vmid):
         shutdown_event(vmid)
         shutdown_vm(vmid)
 
-    return redirect('/edit/%s' % str(vmid))
+        return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/server/type/droplet')
 def server_droplet():
@@ -408,6 +492,8 @@ def start(vmid):
     if server[0]['type'] == "do":
         set_server_state(vmid, 1)
         start_droplet(server[0]['id'])
+
+        return redirect('/server/edit/%s/droplet' % str(vmid))
     else:
         if server[0]['blocked'] == 1:
             return redirect('/')
@@ -418,7 +504,7 @@ def start(vmid):
         startup_event(vmid)
         start_vm(vmid)
 
-    return redirect('/edit/%s' % str(vmid))
+        return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/server/all')
 @login_required
@@ -431,6 +517,7 @@ def view_all():
     return render_template("view.html", domains=domains, type="all")
 
 @app.route('/server/active')
+@app.route('/server')
 @login_required
 def view_active():
     domains = get_all_servers(not_state = 3)
@@ -517,7 +604,7 @@ def resize_disk(vmid):
     jobs.resize_disk.delay(vmid, request.form['new_size'])
     return redirect('/edit/%s' % str(vmid))
 
-@app.route('/edit/<vmid>', methods=['POST','GET'])
+@app.route('/server/edit/<vmid>/local', methods=['POST','GET'])
 @login_required
 def edit(vmid):
     if request.method == "GET":

@@ -1,13 +1,19 @@
 import digitalocean
 import data
 
+from log import *
+
 def get_token():
     config = data.get_config()
     return config['do_api_key']
 
 def get_manager():
     token = get_token()
-    manager = digitalocean.Manager(token=token)
+    try:
+        manager = digitalocean.Manager(token=token)
+    except Exception as e:
+        message = "Failed to get manager, DO API responded: %s" % str(e.args)
+        create_log(message, 3)
     return manager
 
 def get_droplets():
@@ -17,43 +23,73 @@ def get_droplets():
 
 def get_droplet(id):
     manager = get_manager()
-    droplet = manager.get_droplet(id)
-    return droplet
+    try:
+        droplet = manager.get_droplet(id)
+        return droplet
+    except Exception as e:
+        message = "Failed to get droplet, DO API responded: %s" % str(e.args)
+        create_log(message, 3)
 
-def make_droplet(name, region, image, size):
+def make_droplet(name, region, image, size, backups=0):
     token = get_token()
-    droplet = digitalocean.Droplet(token=token,
-                                    name=name,
-                                    region=region,
-                                    image=image,
-                                    size=size)
-    droplet.create()
-    droplet = get_droplet(str(droplet).split(" ")[0])
-    return droplet
+    if backups == 0:
+        backups = False
+    elif backups == 1:
+        backups = True
+    else:
+        backups == False
+    try:
+        droplet = digitalocean.Droplet(token=token,
+                                        name=name,
+                                        region=region,
+                                        image=image,
+                                        size=size,
+                                        backups=backups)
+        droplet.create()
+        droplet = get_droplet(str(droplet).split(" ")[0])
+        return droplet
+    except Exception as e:
+        message = "Failed to create droplet, DO API responded: %s" % str(e.args)
+        create_log(message, 3)
 
 def destroy_droplet(id):
     manager = get_manager()
-    droplet = manager.get_droplet(id)
-    stat = droplet.destroy()
-    if stat:
-        return 1
-    else:
-        return 0
+    try:
+        droplet = manager.get_droplet(id)
+        stat = droplet.destroy()
+        if stat:
+            return 1
+        else:
+            return 0
+    except Exception as e:
+        message = "Failed to destroy droplet %s, DO API responded: %s" % (str(id), str(e.args))
+        create_log(message, 3)
 
 def shutdown_droplet(id):
     manager = get_manager()
-    droplet = manager.get_droplet(id)
-    droplet.shutdown()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.shutdown()
+    except Exception as e:
+        message = "Failed to shutdown droplet %s, DO API responded: %s" % (str(id), str(e.args))
+        create_log(message, 3)
 
 def start_droplet(id):
     manager = get_manager()
-    droplet = manager.get_droplet(id)
-    droplet.power_on()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.power_on()
+    except Exception as e:
+        message = "Failed to start droplet %s, DO API responded: %s" % (str(id), str(e.args))
+        create_log(message, 3)
 
 def reboot_droplet(id):
     manager = get_manager()
-    droplet = manager.get_droplet(id)
-    droplet.power_cycle()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.power_cycle()
+    except Exception as e:
+        message = "Failed to reboot droplet %s, DO API responded: %s" % (str(id),str(e.args))
 
 def get_dist_images():
     manager = get_manager()
@@ -89,3 +125,87 @@ def sync_status():
         elif droplet['state'] < 3 and d.status == "archive":
             data.set_server_state(droplet['_id'], 3)
 
+        if droplet['ram'] != d.memory:
+            data.set_server_memory(droplet['_id'], d.memory)
+
+        if droplet['vcpu'] != d.vcpus:
+            data.set_server_vcpus(droplet['_id'], d.vcpus)
+
+        if droplet['disk_size'] != d.disk:
+            data.set_server_disk_size(droplet['_id'], d.disk)
+        
+        if droplet['state'] == 2 and d.status != "new":
+            if d.status == "active":
+                data.set_server_state(droplet['_id'], 1)
+            elif d.status == "off":
+                data.set_server_state(droplet['_id'], 0)
+
+def get_droplet_ipaddress():
+    manager = get_manager()
+    droplets = data.get_server_type("do")
+    for droplet in droplets:
+        try:
+            if not droplet['ip']:
+                d = manager.get_droplet(droplet['id'])
+                data.set_ipaddress_server(droplet['_id'], d.ip_address)
+                if droplet['state'] == "2":
+                    if d.status == "active":
+                        data.set_server_state(droplet['_id'], 1)
+                    elif d.status == "off":
+                        data.set_server_state(droplet['_id'], 0)
+        except:
+            pass
+
+def resize_droplet(id, size):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.resize(size)
+    except Exception as e:
+        message = "Failed to resize droplet %s, DO API responded: %s" % (str(id), str(e.args))
+        create_log(message, 3)
+
+def rename_droplet(id, name):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.rename(name)
+    except Exception as e:
+        message = "Failed to rename droplet %s, DO API responded: %s" % (str(id), str(e.args))
+        create_log(message, 3)
+
+def reset_root_password(id):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.reset_root_password
+    except Exception as e:
+        message = "Failed to reset root password for droplet %s, DO API responded: %s" % (str(id), str(e.args))
+        create_log(message, 3)
+
+def disable_backups(id):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.disable_backups()
+    except Exception as e:
+        message = "Failed to disable backups for droplet %s, DO API responded: %s" % (str(id), str(e.args))
+        create_log(message, 3)
+
+def enable_private_networking(id):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.enable_private_networking()
+    except Exception as e:
+        message = "Failed to enable private networking for droplet %s, DO API responded: %s" % (str(id), str(e.args))
+        create_log(message, 3)
+
+def enable_ipv6(id):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.enable_ipv6()
+    except Exception as e:
+        message = "failed to enable IPv6 for droplet %s, DO API responded: %s" % (str(id), str(e.args))
+        create_log(message, 3)
