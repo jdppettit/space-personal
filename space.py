@@ -30,6 +30,10 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorator
 
+@app.route('/test/login')
+def login_test_endpoint():
+    return render_template("login_test.html")
+
 @app.route('/server/edit/<vmid>/droplet/resize', methods=['POST'])
 @login_required
 def droplet_resize(vmid):
