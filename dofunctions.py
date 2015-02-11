@@ -22,7 +22,8 @@ def make_droplet(name, region, image, size):
                                     region=region,
                                     image=image,
                                     size=size)
-    foo = droplet.create()
+    droplet.create()
+    return droplet
 
 def destroy_droplet(id):
     manager = get_manager()

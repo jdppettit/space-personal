@@ -21,10 +21,6 @@ app.secret_key = "ENTER_SECRET_KEY_HERE"
 
 ###############################################################
 
-@app.route('/test/index')
-def test_index():
-    return render_template("frame.html")
-
 @app.route('/server/new', methods=['POST','GET'])
 def new_server():
     if request.method == "GET":
@@ -34,15 +30,15 @@ def new_server():
         do_regions = get_do_regions()
         return render_template("server_create.html", images=images, do_images=do_images, do_regions=do_regions, do_sizes=do_sizes)
     elif request.method == "POST":
-        print request.form['provider']
         type = request.form['provider']
         if type == "do":
             name = request.form['server_name']
             region = request.form['do_region']
             image = request.form['do_image']
             size = request.form['do_plan']
-            new_vm = make_server(name, size, "DigitalOcean", size, size, type="do")
-            make_droplet(name, region, image, size)
+            droplet = make_droplet(name, region, image, size)
+            new_vm = make_server(name, size, "DigitalOcean", size, size, type="do", id=str(droplet).split(" ")[0])
+            return redirect('/edit/%s' % str(new_vm))
         else:
             name = request.form['server_name']
             ram = request.form['ram']
@@ -323,7 +319,9 @@ def create():
 def destroy(vmid):
     vm = get_server_id(vmid)
     if vm[0]['type'] == "do":
-        delete_droplet(vm[0]['id'])
+        destroy_droplet(vm[0]['id'])
+        set_server_state(vmid, 3)
+        return redirect('/server/active')
     else:
         ip = get_ipaddress_server(vmid)
     
@@ -341,54 +339,67 @@ def destroy(vmid):
         message = "Deleted vm%s." % str(vmid)
         create_log(message, 1)
 
-        return redirect('/')
+        return redirect('/server/active')
 
 @app.route('/reboot/<vmid>')
 @login_required
 def reboot(vmid):
     server = get_server_id(vmid)
-    if server[0]['blocked'] == 1:
-        return redirect('/')
+    if server[0]['type'] == "do":
+        set_server_state(vmid, 0)
+        reboot_droplet(server[0]['id'])
+        set_server_state(vmid, 1)
+    else:
+        if server[0]['blocked'] == 1:
+            return redirect('/')
 
-    set_server_state(vmid, 0)
-    set_server_inconsistent(vmid, 0)
+        set_server_state(vmid, 0)
+        set_server_inconsistent(vmid, 0)
 
-    shutdown_event(vmid)
-    shutdown_vm(vmid)
+        shutdown_event(vmid)
+        shutdown_vm(vmid)
    
-    set_server_state(vmid, 1)
+        set_server_state(vmid, 1)
 
-    startup_event(vmid)
-    start_vm(vmid)
-
-    return redirect('/')
+        startup_event(vmid)
+        start_vm(vmid)
+    
+    return redirect('/edit/%s' % str(vmid))
 
 @app.route('/shutdown/<vmid>')
 @login_required
 def shutdown(vmid):
-    set_server_state(vmid, 0)
-    set_server_inconsistent(vmid, 0)
+    server = get_server_id(vmid)
+    if server[0]['type'] == "do":
+        set_server_state(vmid, 0)
+        shutdown_droplet(server[0]['id'])
+    else:
+        set_server_state(vmid, 0)
+        set_server_inconsistent(vmid, 0)
 
-    shutdown_event(vmid)
-    shutdown_vm(vmid)
+        shutdown_event(vmid)
+        shutdown_vm(vmid)
 
-    return redirect('/')
+    return redirect('/edit/%s' % str(vmid))
 
 @app.route('/start/<vmid>')
 @login_required
 def start(vmid):
     server = get_server_id(vmid)
+    if server[0]['type'] == "do":
+        set_server_state(vmid, 1)
+        start_droplet(server[0]['id'])
+    else:
+        if server[0]['blocked'] == 1:
+            return redirect('/')
 
-    if server[0]['blocked'] == 1:
-        return redirect('/')
-
-    set_server_state(vmid, 1)
-    set_server_inconsistent(vmid, 0)
+        set_server_state(vmid, 1)
+        set_server_inconsistent(vmid, 0)
     
-    startup_event(vmid)
-    start_vm(vmid)
+        startup_event(vmid)
+        start_vm(vmid)
 
-    return redirect('/')
+    return redirect('/edit/%s' % str(vmid))
 
 @app.route('/server/all')
 @login_required
