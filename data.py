@@ -507,6 +507,12 @@ def get_linode_plan():
     plans = plan_cursor.find()
     return plans
 
+def get_linode_plan_id(planid):
+    db = get_connect()
+    plan_cursor = db.linode_plan
+    plan = plan_cursor.find({"id":int(planid)})
+    return plan
+
 def get_linode_kernel():
     db = get_connect()
     kernel_cursor = db.linode_kernel

@@ -56,6 +56,13 @@
         <td>{{ dom['ram'] }}MB</td>
         <td>{{ dom['disk_size'] }}GB</td>
         <td>{{ dom['ip'] }}</td>
+        {% elif dom['type'] == "linode" %}
+        <td><img src="{{ url_for('static', filename='images/linode_logo.png') }}"/></td>
+        <td>{% if dom['state'] == 0 %}Off{% elif dom['state'] == 1 %}On{% elif dom['state'] == 3 %}Destroyed{% endif %}</td>
+        <td><a href="/server/edit/{{ dom['_id'] }}/linode">{{ dom['name'] }}</a></td>
+        <td>{{ dom['ram'] }}MB</td>
+        <td>{{ dom['disk_space'] }}MB</td>
+        <td>{{ dom['ip'] }}</td>
         {% else %}
         <td><img src="/static/images/local_logo.png"/></td>
         <td>{% if dom['state'] == 0 %}Off{% elif dom['state'] == 1 %}On{% elif dom['state'] == 3 %}Destroyed{% endif %}

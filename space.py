@@ -7,6 +7,7 @@ from log import *
 from data import *
 from functools import update_wrapper, wraps
 from dofunctions import *
+from linodefunctions import *
 
 import libvirt
 import subprocess
@@ -147,7 +148,12 @@ def new_server():
             kernel = request.form['linode_kernel']
             dist = request.form['linode_distribution']
             rootPass = request.form['linode_root']
-
+            plan_record = get_linode_plan_id(plan)
+            linodeID = make_linode(facility, plan)
+            diskID = make_disk(linodeID, dist, name, plan_record[0]['disk'] * 1000, rootPass)
+            make_config(linodeID, kernel, name, diskID)
+            linode_ip = get_linode_ip(linodeID)
+            new_vm = make_server(name, plan_record[0]['disk'] * 1000, dist, plan_record[0]['ram'], plan_record[0]['cores'], type="linode", id=linodeID, ip=linode_ip['IPADDRESS'])
             return redirect('/server/edit/%s/linode' % str(new_vm))
         else:
             name = request.form['server_name']

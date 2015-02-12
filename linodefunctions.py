@@ -1,10 +1,21 @@
 import data
 import linode
+import time
 
 def get_api():
     config = data.get_config()
     api = linode.Api(config['linode_api_key'])
     return api
+
+def get_linode(linodeID):
+    api = get_api()
+    linode = api.linode.list(LinodeID=linodeID)
+    return linode[0]
+
+def get_linode_ip(linodeID):
+    api = get_api()
+    linode_ip = api.linode.ip.list(LinodeID=linodeID)
+    return linode_ip[0]
 
 def get_datacenters():
     api = get_api()
@@ -33,15 +44,20 @@ def get_distributions():
 def make_linode(datacenterID, planID):
     api = get_api()
     linode = api.linode.create(DatacenterID=datacenterID, PlanID=planID)
-    return linode['DATA']['LinodeID']
+    #pending_jobs = api.linode.job.list(LinodeID=linode['LinodeID'], pendingOnly="True")
+    #while pending_jobs[0]['HOST_SUCCESS'] != 1:
+    #    time.sleep(5)        
+    #    pending_jobs = api.linode.job.list(LinodeID=linode['LinodeID'], pendingOnly="True")
+    return linode['LinodeID']
 
-def make_config(linodeID, kernelID, label):
+def make_config(linodeID, kernelID, label, diskID):
     api = get_api()
-    config = api.linode.config.create(LinodeID=linodeID, KernelID=kernelID, Label=label)
+    config = api.linode.config.create(LinodeID=linodeID, KernelID=kernelID, Label=label, DiskID="%s" % str(diskID))
 
 def make_disk(linodeID, distributionID, label, size, rootPass):
     api = get_api()
     disk = api.linode.createfromdistribution(LinodeID=linodeID, DistributionID=distributionID, Label=label, Size=size, rootPass=rootPass)
+    return disk['DiskID']
 
 def boot_linode(linodeID):
     api = get_api()
