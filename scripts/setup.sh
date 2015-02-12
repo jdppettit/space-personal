@@ -9,7 +9,7 @@ echo -e "Updating yum db..."
 yum update
 
 yum install python-setuptools
-easy_install python
+easy_install pip
 
 echo -n
 echo -e "Adding mongodb.repo to /etc/yum.repos.d"
