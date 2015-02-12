@@ -404,6 +404,7 @@ def index():
     log = get_log_datelevel(date="day", level=3)
     images = get_all_images()
     stats = get_host_statistic_specific(1)
+    services = get_all_service()
     try:
         servers[0]
     except:
@@ -414,7 +415,7 @@ def index():
     except:
         stats = None
 
-    return render_template("index.html", servers = servers, images=images, log=log, stats=stats)
+    return render_template("index.html", servers = servers, images=images, log=log, stats=stats, services=services)
 
 @app.route('/create', methods=['POST'])
 @login_required
@@ -459,7 +460,7 @@ def destroy(vmid):
         set_server_state(vmid, 3)
         return redirect('/server/active')
     elif vm[0]['type'] == "linode":
-        destroy_linode(vm[0]['id'])
+        delete_linode(vm[0]['id'])
         set_server_state(vmid, 3)
         return redirect('/server/active')
     else:

@@ -27,13 +27,17 @@
         <div class="col-md-6">
             <div class="panel panel-success">
                 <div class="panel-heading">
-                    <h4>System Status - All good!</h4>
+                    <h4>System Status</h4>
                 </div>
                 <ul class="list-group">
-                    <a class="list-group-item" href="#"><span class="glyphicon glyphicon-ok"></span>&nbsp;&nbsp;DHCP Server Running</a>
-                    <a class="list-group-item" href="#"><span class="glyphicon glyphicon-ok"></span>&nbsp;&nbsp;Memory OK</a>
-                    <a class="list-group-item" href="#"><span class="glyphicon glyphicon-ok"></span>&nbsp;&nbsp;Celery Running</a>
-                    <a class="list-group-item" href="#"><span class="glyphicon glyphicon-ok"></span>&nbsp;&nbsp;Space Running</a>
+                    {% for service in services %}
+                    <a class="list-group-item" href="#">
+                    {% if service['status'] == 1 %}
+                    <span class="glyphicon glyphicon-ok"></span>&nbsp;&nbsp;{{ service['_id'] }} Running</a>
+                    {% else %}
+                    <span class="glyphicon glyphicon-remove"></span>&nbsp;&nbps;{{ service['_id'] }} <strong>Not Running</strong></a>
+                    {% endif %}
+                    {% endfor %}
                 </ul>
             </div>
         </div>

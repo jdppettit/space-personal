@@ -69,7 +69,7 @@ def reboot_linode(linodeID):
 
 def delete_linode(LinodeID):
     api = get_api()
-    api.linode.delete(LinodeID=linodeID)
+    api.linode.delete(LinodeID=LinodeID, skipChecks="True")
 
 def resize_linode(LinodeID, PlanID):
     api = get_api()

@@ -1,8 +1,14 @@
 {% extends 'frame.html' %}
 {% block title %}Space - Images{% endblock %}
 {% block content %}
-<h2>Images</h2>
-<p>This page will let you manage your images (ISO's) that you can use to create VM's from. To add a new image, upload it to your image directory (specified on the <a href="/settings">settings page</a>). Once the ISO has been uploaded, you can add the image manually using the form below, or use the <a href="/utils/import_images">import images</a> feature to import it automatically.</p>
+<div class="row">
+    <div class="col-md-12">
+        <div class="page-header">
+            <h2>Local Images</h2>
+        </div>
+    </div>
+</div>
+<p>This page will let you manage your images (ISO's) that you can use to create local servers from. To add a new image, upload it to your image directory (specified on the <a href="/settings">settings page</a>). Once the ISO has been uploaded, you can add the image manually using the form below, or use the <a href="/utils/import_images">import images</a> feature to import it automatically.</p>
 <hr/>
 <h3>Existing Images</h3>
 <p>Deleting an image here will <strong>not</strong> remove it from your filesystem, it must be deleted manually.</p>

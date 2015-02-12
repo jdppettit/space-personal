@@ -43,11 +43,23 @@ def make_linode_distribution(id, label):
     dist_cursor = db.linode_distribution
     dist_cursor.insert({"id":id, "label":label})
 
-def make_service(name):
+def make_service(name, status):
     db = get_connect()
     service_cursor = db.service
-    new_service = ({"name":name, "status":2})
+    new_service = ({"_id":name, "status":status})
     service_cursor.insert(new_service)
+
+def get_all_service():
+    db = get_connect()
+    service_cursor = db.service
+    services = service_cursor.find()
+    return services
+
+def set_service_status(name, status):
+    db = get_connect()
+    service_cursor = db.service
+    services = service_cursor.update({"_id":name}, {"$set":{"status":status}})
+
 
 def make_admin(username, password):
     db = get_connect()
