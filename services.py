@@ -6,7 +6,6 @@ def check_services():
     command = "ps aux"
     ps = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
     output = ps.stdout.read()
-    print output
     ps.stdout.close()
     ps.wait()
     for service in services:
