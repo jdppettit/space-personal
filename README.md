@@ -4,8 +4,13 @@ Space is a simple virtualization control panel written in Python with Flask. Spa
 
 This project is still in a relatively early stage of development, it is feature complete but there is still a fair amount of work to be done. With that being said, use at your own risk! 
 
+The projects official website is: [https://spacepanel.io](https://spacepanel.io)
+
+---
+
 ## Requirements
 
+* Processor / virtual processor that supports hardware virtualization
 * Centos 6 (more support coming)
 * Python2
 * MongoDB
@@ -13,20 +18,42 @@ This project is still in a relatively early stage of development, it is feature 
 * RabbitMQ (used by Celery)
 * Variety of python packages shown [here](https://github.com/silverp1/space-personal/blob/master/requirements.txt)
 
+---
+
 ## Installation
 
 1. `cd /srv && mkdir space && git clone https://github.com/silverp1/space-personal.git .`
-2. Configure `virbr0` as bridge interface.
+2. Configure `virbr0` as a bridge interface, [this](http://www.linux-kvm.org/page/Networking) may be useful in accomplishing this.
 3. `./srv/space/scripts/setup.sh` - This will install all dependencies, start necessary services and start Space.
-4. Navigate to `your.ip.address.here/setup` to complete the setup process.
-5. Login and enjoy. 
+4. Navigate to `your.ip.address.here:10051/setup` to complete the setup process.
+5. Make the directories for your disks, images and configs, by default these are `/var/disks`, `/var/images`, `/var/configs`. Make them with `mkdir /var/disks /var/images /var/configs` if you are using the defaults. 
+6. Add an image to the `/var/images` directory, you can use wget to do that. 
+6. Login via `your.ip.address.here:10051/login`
+7. Go to `Networking` and add an IP range. 
+8. Go to `your.ip.address.here:10051/utils/import_images` to import your new image.
+9. (Optional) If you are looking to use Linode/DigitalOcean, go to `/settings` and input your API key for each/either service.
+10. Make your first virtual machine and enjoy!
 
-## Use
+---
 
-* You'll want to add some IP addresses before adding a server - to do this, visit `/ip` or click networking. Its easiest to add a whole range.
-* Be sure to add some images (ISOs) for your servers. You can upload them to `/var/images` if you used the default path. When you're done, you can use the import images option under `Utilities` or visit `/utils/import_images`.
-* If you derped on any configuration settings you can fix it on the `Host` page at `/host`.
-* You should be all set to make a new server now. 
+## Troubleshooting
+
+<dl>
+  <dt>Celery didn't start</dt>
+  <dd>This is a known issue, you may need to run `export C_FORCE_ROOT="true"` as root before Celery wills start. You can manually start Celery if it fails using `./srv/space/celery`.
+  <dt>I see command gunicorn was not found</dt>
+  <dd>This means pip failed to install stuff, first make sure the `pip` command works. If it doesn't, install python-pip using yum `yum install python-pip` or easy_install `easy_install pip`. After pip is installed, install the requirements `pip -r /srv/space/requirements.txt`.</dd>
+  <dt>Experiencing general weirdness, things not installing, etc.</dt>
+  <dd>Other strangeness is usually attributed to not running Space as `root`, make sure you are using the root user when installing Space, starting/stopping space, etc.</dd>
+  <dt>DHCPD failed to start</dt>
+  <dd>This is expected (sort of). You should see DHCPD start normally after you add an IP range. If that doesn't happen, `dnsmasq` is likely running on that port. Kill it with `pkill dnsmasq` and then try `service dhcpd start`.</dd>
+  <dt>I'm seeing errors when I try to make a Linode/Droplet, or nothing is happening at all</dt>
+  <dd>You probably forgot to input your API key, do that on `/settings`.</dd>
+  <dt>Other stuff</dt>
+  <dd>Space is new and I don't have a ton of people to test it, so there are <strong>certainly</strong> problems I'm not aware of. If you encounter one, please open an issue and I'll take a look</dd>
+</dl>
+
+---
 
 ## Notes & Misc. 
 
