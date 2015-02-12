@@ -78,12 +78,16 @@
 <hr/>
 <h3>Integration</h3>
 <p>Accounts for third party VPS providers.</p>
-<form action="/settings/providers" method="post">
+<form action="/settings/providers/do" method="post">
     <div class="form-group">
         <label class="control-label">DigitalOcean API Key</label>
         <input type="password" name="do_api" class="form-control"/>
         <span class="help-block">Some link for how you do this</span>
     </div>
+    <input class="btn btn-success" type="submit" value="Submit"/>
+</form>
+<br/><br/>
+<form action="/settings/providers/linode" method="post">
     <div class="form-group">
         <label class="control-label">Linode API Key</label>
         <input type="password" name="linode_api" class="form-control"/>
@@ -91,4 +95,5 @@
     </div>
     <input class="btn btn-success" type="submit" value="Submit"/>
 </form>
+<br/><br/>
 {% endblock %}

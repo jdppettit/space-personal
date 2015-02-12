@@ -435,6 +435,16 @@ def set_config_providers(do="", linode=""):
     config_cursor = db.configuration
     config_cursor.update({"_id":"default"}, {"$set": {"linode_api_key":linode, "do_api_key":do}})
 
+def set_config_do(do):
+    db = get_connect()
+    config_cursor = db.configuration
+    config_cursor.update({"_id":"default"}, {"$set": {"do_api_key":do}})
+
+def set_config_linode(linode):
+    db = get_connect()
+    config_cursor = db.configuration
+    config_cursor.update({"_id":"default"}, {"$set": {"linode_api_key":linode}})
+
 def get_do_images():
     db = get_connect()
     do_image_cursor = db.do_image

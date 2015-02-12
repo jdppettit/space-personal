@@ -112,6 +112,28 @@ def edit_server_droplet(vmid):
         return redirect('/server/edit/%s/local' % str(vmid))
     return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes)
 
+@app.route('/server/edit/<vmid>/linode')
+@login_required
+def edit_server_linode(vmid):
+    server = get_server_id(vmid)
+    if server[0]['type'] == "linode":
+        linode = get_linode(server[0]['id'])
+        linode_plans = get_linode_plan()
+        linode_facilities = get_linode_facility()
+    else:
+        return redirect('/server/edit/%s/local' % str(vmid))
+    return render_template("view_linode.html", server=server, linode=linode, linode_plans=linode_plans, linode_facilities=linode_facilities)
+
+@app.route('/server/edit/<vmid>/linode/resize', methods=['POST'])
+@login_required
+def linode_resize(vmid):
+    server = get_server_id(vmid)
+    resize_linode(server[0]['id'], request.form['size'])
+    linode = get_linode(server[0]['id'])
+    linode_plans = get_linode_plan()
+    linode_facilities = get_linode_facility()
+    return render_template("view_linode.html", server=server, linode=linode, linode_plans=linode_plans, linode_facilities=linode_facilities, message="Linode resize initiated.")
+
 @app.route('/server/new', methods=['POST','GET'])
 @login_required
 def new_server():
@@ -150,10 +172,11 @@ def new_server():
             rootPass = request.form['linode_root']
             plan_record = get_linode_plan_id(plan)
             linodeID = make_linode(facility, plan)
-            diskID = make_disk(linodeID, dist, name, plan_record[0]['disk'] * 1000, rootPass)
+            diskID = make_disk(linodeID, dist, name, plan_record[0]['disk'] * 1024, rootPass)
             make_config(linodeID, kernel, name, diskID)
             linode_ip = get_linode_ip(linodeID)
-            new_vm = make_server(name, plan_record[0]['disk'] * 1000, dist, plan_record[0]['ram'], plan_record[0]['cores'], type="linode", id=linodeID, ip=linode_ip['IPADDRESS'])
+            boot_linode(linodeID)
+            new_vm = make_server(name, plan_record[0]['disk'], dist, plan_record[0]['ram'], plan_record[0]['cores'], type="linode", id=linodeID, ip=linode_ip['IPADDRESS'])
             return redirect('/server/edit/%s/linode' % str(new_vm))
         else:
             name = request.form['server_name']
@@ -187,11 +210,17 @@ def new_server():
             create_log(message, 1)
     
             return redirect('/server/edit/%s/local' % str(new_vm))
-  
-@app.route('/settings/providers', methods=['POST'])
+
+@app.route('/settings/providers/linode', methods=['POST'])
 @login_required
-def update_providers():
-    set_config_providers(do=request.form['do_api'], linode=request.form['linode_api'])
+def update_linode_api():
+    set_config_linode(request.form['linode_api'])
+    return redirect('/settings')
+
+@app.route('/settings/providers/do', methods=['POST'])
+@login_required
+def update_do_api():
+    set_config_do(request.form['do_api'])
     return redirect('/settings')
 
 @app.route('/login/reset', methods=['POST'])
@@ -429,6 +458,10 @@ def destroy(vmid):
         destroy_droplet(vm[0]['id'])
         set_server_state(vmid, 3)
         return redirect('/server/active')
+    elif vm[0]['type'] == "linode":
+        destroy_linode(vm[0]['id'])
+        set_server_state(vmid, 3)
+        return redirect('/server/active')
     else:
         ip = get_ipaddress_server(vmid)
     
@@ -457,6 +490,11 @@ def reboot(vmid):
         reboot_droplet(server[0]['id'])
         set_server_state(vmid, 1)
         return redirect('/server/edit/%s/droplet' % str(vmid))
+    elif server[0]['type'] == "linode":
+        set_server_state(vmid, 0)
+        reboot_linode(server[0]['id'])
+        set_server_state(vmid, 1)
+        return redirect('/server/edit/%s/linode' % str(vmid))
     else:
         if server[0]['blocked'] == 1:
             return redirect('/')
@@ -483,6 +521,11 @@ def shutdown(vmid):
         shutdown_droplet(server[0]['id'])
 
         return redirect('/server/edit/%s/droplet' % str(vmid))
+    elif server[0]['type'] == "linode":
+        set_server_state(vmid, 0)
+        shutdown_linode(server[0]['id'])
+
+        return redirect('/server/edit/%s/linode' % str(vmid))
     else:
         set_server_state(vmid, 0)
         set_server_inconsistent(vmid, 0)
@@ -516,6 +559,11 @@ def start(vmid):
         start_droplet(server[0]['id'])
 
         return redirect('/server/edit/%s/droplet' % str(vmid))
+    if server[0]['type'] == "linode":
+        set_server_state(vmid, 1)
+        boot_linode(server[0]['id'])
+
+        return redirect('/server/edit/%s/linode' % str(vmid))
     else:
         if server[0]['blocked'] == 1:
             return redirect('/')

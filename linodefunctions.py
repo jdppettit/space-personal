@@ -44,19 +44,15 @@ def get_distributions():
 def make_linode(datacenterID, planID):
     api = get_api()
     linode = api.linode.create(DatacenterID=datacenterID, PlanID=planID)
-    #pending_jobs = api.linode.job.list(LinodeID=linode['LinodeID'], pendingOnly="True")
-    #while pending_jobs[0]['HOST_SUCCESS'] != 1:
-    #    time.sleep(5)        
-    #    pending_jobs = api.linode.job.list(LinodeID=linode['LinodeID'], pendingOnly="True")
     return linode['LinodeID']
 
 def make_config(linodeID, kernelID, label, diskID):
     api = get_api()
-    config = api.linode.config.create(LinodeID=linodeID, KernelID=kernelID, Label=label, DiskID="%s" % str(diskID))
+    config = api.linode.config.create(LinodeID=linodeID, KernelID=kernelID, Label=label, DiskList="%s" % str(diskID))
 
 def make_disk(linodeID, distributionID, label, size, rootPass):
     api = get_api()
-    disk = api.linode.createfromdistribution(LinodeID=linodeID, DistributionID=distributionID, Label=label, Size=size, rootPass=rootPass)
+    disk = api.linode.disk.createfromdistribution(LinodeID=linodeID, DistributionID=distributionID, Label=label, Size=size, rootPass=rootPass)
     return disk['DiskID']
 
 def boot_linode(linodeID):
@@ -75,4 +71,10 @@ def delete_linode(LinodeID):
     api = get_api()
     api.linode.delete(LinodeID=linodeID)
 
+def resize_linode(LinodeID, PlanID):
+    api = get_api()
+    try:
+        api.linode.resize(LinodeID=LinodeID, PlanID=PlanID)
+    except:
+        pass
 
