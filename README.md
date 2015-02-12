@@ -20,6 +20,17 @@ The projects official website is: [https://spacepanel.io](https://spacepanel.io)
 
 ---
 
+## Supported Providers
+
+In the most recent release support for offsite virtual machines was added. Space currently supports the following Cloud/VPS providers:
+
+* [DigitalOcean](https://www.digitalocean.com/)
+* [Linode](https://www.linode.com)
+
+This section will be updated as support for more providers is added. If you have a specific provider you would like to see, please let me know. 
+
+---
+
 ## Installation
 
 1. `cd /srv && mkdir space && git clone https://github.com/silverp1/space-personal.git .`
@@ -40,7 +51,7 @@ The projects official website is: [https://spacepanel.io](https://spacepanel.io)
 
 <dl>
   <dt>Celery didn't start</dt>
-  <dd>This is a known issue, you may need to run `export C_FORCE_ROOT="true"` as root before Celery wills start. You can manually start Celery if it fails using `./srv/space/celery`.
+  <dd>This is a known issue, you may need to run `export C_FORCE_ROOT="true"` as root before Celery will start. You can manually start Celery if it fails using `./srv/space/celery`.
   <dt>I see command gunicorn was not found</dt>
   <dd>This means pip failed to install stuff, first make sure the `pip` command works. If it doesn't, install python-pip using yum `yum install python-pip` or easy_install `easy_install pip`. After pip is installed, install the requirements `pip -r /srv/space/requirements.txt`.</dd>
   <dt>Experiencing general weirdness, things not installing, etc.</dt>
