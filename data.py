@@ -534,3 +534,23 @@ def get_linode_distribution():
     dist_cursor = db.linode_distribution
     dists = dist_cursor.find()
     return dists
+
+def delete_linode_items():
+    db = get_connect()
+    datacenters = db.linode_facility
+    datacenters.remove({})
+    kernels = db.linode_kernel
+    kernel.remove({})
+    dists = db.linode_distributions
+    dists.remove({})
+    plans = db.linode_plan
+    plans.remove({})
+
+def delete_do_items():
+    db = get_connect()
+    dist = db.do_image
+    dist.remove({})
+    size = db.do_size
+    size.remove({})
+    region = db.do_region
+    region.remove({})
