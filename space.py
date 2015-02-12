@@ -215,12 +215,21 @@ def new_server():
 @app.route('/settings/providers/linode', methods=['POST'])
 @login_required
 def update_linode_api():
+    delete_linode_items()
+    get_datacenters()
+    get_plans()
+    get_kernels()
+    get_distributions()
     set_config_linode(request.form['linode_api'])
     return redirect('/settings')
 
 @app.route('/settings/providers/do', methods=['POST'])
 @login_required
 def update_do_api():
+    delete_do_items()
+    get_dist_images9)
+    get_sizes()
+    get_regions()
     set_config_do(request.form['do_api'])
     return redirect('/settings')
 
@@ -663,7 +672,7 @@ def redefine(vmid):
     if vm[0]['state'] == 1:
         start_vm(vm[0]['_id'])
         startup_event(vm[0]['_id'])
-    return redirect('/edit/%s' % str(vmid))
+    return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/edit/<vmid>/resize', methods=['POST'])
 @login_required
@@ -675,7 +684,7 @@ def resize_disk(vmid):
         shutdown_event(server[0]['_id'])
         shutdown_vm(server[0]['_id'])
     jobs.resize_disk.delay(vmid, request.form['new_size'])
-    return redirect('/edit/%s' % str(vmid))
+    return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/server/edit/<vmid>/local', methods=['POST','GET'])
 @login_required
@@ -709,7 +718,7 @@ def edit(vmid):
             if vm[0]['state'] == 1:
                 start_vm(vm[0]['_id'])
                 startup_event(vm[0]['_id'])
-        return redirect('/edit/%s' % str(vmid))
+        return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/images', methods=['POST','GET'])
 @login_required

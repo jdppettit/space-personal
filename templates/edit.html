@@ -30,7 +30,7 @@
 <hr/>
 <h3>Configuration</h3>
 <p>You can modify all of the settings related to the server here. If you want the changes to be pushed to the server, be sure to check the box at the bottom. If you do not want to push the changes immediately, push them at your convenience using the <a href="/redefine/{{ server[0]['_id'] }}">redefine</a> option.</p>
-<form action="/edit/{{ server[0]['_id'] }}" method="post" data-toggle="" role="form">
+<form action="/server/edit/{{ server[0]['_id'] }}/local" method="post" data-toggle="" role="form">
     <div class="form-group">
         <label class="control-label">Name</label>
         <input class="form-control" type="text" name="name" value="{{ server[0]['name'] }}" required/>
