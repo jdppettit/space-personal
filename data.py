@@ -23,11 +23,43 @@ def encrypt_password(password):
     m.update(config_rec['password_salt'])
     return m.hexdigest()
 
-def make_service(name):
+def make_linode_plan(id, ram, disk, cores, xfer, label, price, hourly):
+    db = get_connect()
+    plan_cursor = db.linode_plan
+    plan_cursor.insert({"id":id, "ram":ram, "disk":disk, "cores":cores, "xfer":xfer, "label":label, "price":price, "hourly":hourly})
+
+def make_linode_facility(id, location):
+    db = get_connect()
+    fac_cursor = db.linode_facility
+    fac_cursor.insert({"id":id, "location":location})
+
+def make_linode_kernel(id, label):
+    db = get_connect()
+    kernel_cursor = db.linode_kernel
+    kernel_cursor.insert({"id":id, "label":label})
+
+def make_linode_distribution(id, label):
+    db = get_connect()
+    dist_cursor = db.linode_distribution
+    dist_cursor.insert({"id":id, "label":label})
+
+def make_service(name, status):
     db = get_connect()
     service_cursor = db.service
-    new_service = ({"name":name, "status":2})
+    new_service = ({"_id":name, "status":status})
     service_cursor.insert(new_service)
+
+def get_all_service():
+    db = get_connect()
+    service_cursor = db.service
+    services = service_cursor.find()
+    return services
+
+def set_service_status(name, status):
+    db = get_connect()
+    service_cursor = db.service
+    services = service_cursor.update({"_id":name}, {"$set":{"status":status}})
+
 
 def make_admin(username, password):
     db = get_connect()
@@ -35,11 +67,11 @@ def make_admin(username, password):
     new_admin = ({"_id":username, "username":username, "password":encrypt_password(password)})
     admin_cursor.insert(new_admin)
 
-def make_server(name, disk_size, disk_image, ram, vcpu):
+def make_server(name, disk_size, disk_image, ram, vcpu, type="", id="", ip="", state=1):
     config = get_config()
     db = get_connect()
     server_cursor = db.server
-    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":1, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0})
+    new_server = ({"name":name, "disk_size":disk_size, "disk_path":"", "ram":ram, "state":state, "disk_image":disk_image, "vcpu":vcpu, "inconsistent":0, "blocked":0, "type":type, "id":id, "ip":ip})
     id = server_cursor.insert(new_server)
     disk_path = "%s/vm%s.img" % (str(config['disk_directory']), str(id))
     server_cursor.update({"_id":objectify(id)}, {"$set":{"disk_path":disk_path}})
@@ -72,6 +104,21 @@ def make_ipaddress(ip, netmask, server_id):
     new_ipaddress = ({"ip":ip, "netmask":netmask, "server_id":server_id})
     ipaddress_cursor.insert(new_ipaddress)
 
+def make_do_image(slug, id):
+    db = get_connect()
+    do_image_cursor = db.do_image
+    do_image_cursor.insert({"slug":slug, "id":id})
+
+def make_do_region(slug, name):
+    db = get_connect()
+    do_region_cursor = db.do_region
+    do_region_cursor.insert({"slug":slug, "name":name})
+
+def make_do_size(slug, memory, vcpus, disk, transfer, price_monthly, price_hourly):
+    db = get_connect()
+    do_size_cursor = db.do_size
+    do_size_cursor.insert({"slug":slug, "memory":memory, "vcpus":vcpus, "disk":disk, "transfer":transfer, "price_monthly":price_monthly, "price_hourly":price_hourly})
+
 def make_host(name):
     db = get_connect()
     host_cursor = db.host
@@ -79,10 +126,10 @@ def make_host(name):
     id = host_cursor.insert(new_host)
     return id
 
-def make_configuration(image_directory, disk_directory, config_directory, system_type, domain, dhcp_configuration, dhcp_service, novnc_directory, pem_location):
+def make_configuration(image_directory, disk_directory, config_directory, system_type, domain, dhcp_configuration, dhcp_service, novnc_directory, pem_location, linode_api_key="", do_api_key=""):
     db = get_connect()
     config_cursor = db.configuration
-    configuration = ({"_id":"default", "image_directory":image_directory, "disk_directory":disk_directory, "config_directory":config_directory, "system_type":system_type, "domain":domain, "password_salt":str(uuid.uuid1()), "dhcp_configuration":dhcp_configuration, "dhcp_service":dhcp_service, "novnc_directory":novnc_directory, "pem_location": pem_location})
+    configuration = ({"_id":"default", "image_directory":image_directory, "disk_directory":disk_directory, "config_directory":config_directory, "system_type":system_type, "domain":domain, "password_salt":str(uuid.uuid1()), "dhcp_configuration":dhcp_configuration, "dhcp_service":dhcp_service, "novnc_directory":novnc_directory, "pem_location": pem_location, "linode_api_key":linode_api_key, "do_api_key":do_api_key})
     config_cursor.insert(configuration)
 
 def make_iprange(startip, endip, subnet, netmask, gateway):
@@ -125,7 +172,7 @@ def get_host_statistic_specific(num):
 def set_server_all(id, name, disk_size, disk_path, ram, state, disk_image, vcpu, mac_address, inconsistent = 0):
     db = get_connect()
     server_cursor = db.server
-    server_cursor.update({"_id":objectify(id)}, {"name":name, "disk_size":disk_size, "disk_path":disk_path, "ram":ram, "state":state, "disk_image":disk_image, "vcpu":vcpu, "mac_address":mac_address, "inconsistent":inconsistent})
+    server_cursor.update({"_id":objectify(id)}, {"$set":{"name":name, "disk_size":disk_size, "disk_path":disk_path, "ram":ram, "state":state, "disk_image":disk_image, "vcpu":vcpu, "mac_address":mac_address, "inconsistent":inconsistent}})
 
 def get_server_id(id):
     db = get_connect()
@@ -394,3 +441,128 @@ def set_server_blocked(id, blocked):
     db = get_connect()
     server_cursor = db.server
     server_cursor.update({"_id":objectify(id)}, {"$set": {"blocked":blocked}})
+
+def set_config_providers(do="", linode=""):
+    db = get_connect()
+    config_cursor = db.configuration
+    config_cursor.update({"_id":"default"}, {"$set": {"linode_api_key":linode, "do_api_key":do}})
+
+def set_config_do(do):
+    db = get_connect()
+    config_cursor = db.configuration
+    config_cursor.update({"_id":"default"}, {"$set": {"do_api_key":do}})
+
+def set_config_linode(linode):
+    db = get_connect()
+    config_cursor = db.configuration
+    config_cursor.update({"_id":"default"}, {"$set": {"linode_api_key":linode}})
+
+def get_do_images():
+    db = get_connect()
+    do_image_cursor = db.do_image
+    images = do_image_cursor.find()
+    return images
+
+def get_do_sizes():
+    db = get_connect()
+    do_size_cursor = db.do_size
+    sizes = do_size_cursor.find()
+    return sizes
+
+def get_do_regions():
+    db = get_connect()
+    do_region_cursor = db.do_region
+    regions = do_region_cursor.find()
+    return regions
+
+def get_server_type(type):
+    db = get_connect()
+    server_cursor = db.server
+    servers = server_cursor.find({"type":type, "state": {"$ne":3}})
+    return servers
+
+def set_ipaddress_server(vmid, ip):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"ip":ip}})
+
+def set_server_name(vmid, name):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"name":name}})
+
+def set_server_do_specs(vmid, disk, memory, vcpus):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"disk_size":disk, "ram":memory, "vcupus":vcpus}})
+
+def get_do_size(slug):
+    db = get_connect()
+    do_size_cursor = db.do_size
+    size = do_size_cursor.find({"slug":slug})
+    return size
+
+def set_server_memory(vmid, memory):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"ram":memory}})
+
+def set_server_vcpus(vmid, vcpus):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"vcpu":vcpus}})
+
+def set_server_disk_size(vmid, disk_size):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id":objectify(vmid)}, {"$set":{"disk_size":disk_size}})
+
+def get_linode_facility():
+    db = get_connect()
+    fac_cursor = db.linode_facility
+    facilities = fac_cursor.find()
+    return facilities
+
+def get_linode_plan():
+    db = get_connect()
+    plan_cursor = db.linode_plan
+    plans = plan_cursor.find()
+    return plans
+
+def get_linode_plan_id(planid):
+    db = get_connect()
+    plan_cursor = db.linode_plan
+    plan = plan_cursor.find({"id":int(planid)})
+    return plan
+
+def get_linode_kernel():
+    db = get_connect()
+    kernel_cursor = db.linode_kernel
+    kernels = kernel_cursor.find()
+    return kernels
+
+def get_linode_distribution():
+    db = get_connect()
+    dist_cursor = db.linode_distribution
+    dists = dist_cursor.find()
+    return dists
+
+def delete_linode_items():
+    db = get_connect()
+    datacenters = db.linode_facility
+    datacenters.remove({})
+    kernels = db.linode_kernel
+    kernels.remove({})
+    dists = db.linode_distributions
+    dists.remove({})
+    plans = db.linode_plan
+    plans.remove({})
+
+def delete_do_items():
+    db = get_connect()
+    dist = db.do_image
+    dist.remove({})
+    size = db.do_size
+    size.remove({})
+    region = db.do_region
+    region.remove({})

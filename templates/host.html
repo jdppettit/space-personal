@@ -1,32 +1,16 @@
-{% extends 'grid.html' %}
+{% extends 'frame.html' %}
 {% block title %}Space - Host Configuration{% endblock %}
 {% block content %}
-<h2>Host</h2>
-<!---
-<h3>Services</h3>
-<table class="table">
-    <tr>
-        <th>Service</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
-    {% for service in services %}
-    <tr>
-        <td>{{ service['name'] }}</td>
-        <td>{% if service['status'] == 0 %}Stopped
-            {% elif service['status'] == 1 %}Running
-            {% else %}Unknown{% endif %}</td>
-        <td><a href="/service/{{ service['_id'] }}/restart">Restart</a>&nbsp;
-            <a href="/service/{{ service['_id'] }}/stop">Stop</a>&nbsp;
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-<hr/>
-!--->
+<div class="row">
+    <div class="col-md-12">
+        <div class="page-header">
+            <h2>System Settings</h2>
+        </div>
+    </div>
+</div>
 <h3>Host Configuration</h3>
 <p>This page will let you change all of the configuration options for your host. These options are initially included in config.py, once the setup has been run you can configure the options here.</p>
-<form action="/host" method="post">
+<form action="/settings" method="post">
     <div class="form-group">
         <label class="control-label">System Type</label>
         <select class="form-control" name="system">
@@ -91,4 +75,25 @@
     </div>
     <input class="btn btn-success" type="submit" value="Submit"/>
 </form>
+<hr/>
+<h3>Integration</h3>
+<p>Accounts for third party VPS providers.</p>
+<form action="/settings/providers/do" method="post">
+    <div class="form-group">
+        <label class="control-label">DigitalOcean API Key</label>
+        <input type="password" name="do_api" class="form-control"/>
+        <span class="help-block">Some link for how you do this</span>
+    </div>
+    <input class="btn btn-success" type="submit" value="Submit"/>
+</form>
+<br/><br/>
+<form action="/settings/providers/linode" method="post">
+    <div class="form-group">
+        <label class="control-label">Linode API Key</label>
+        <input type="password" name="linode_api" class="form-control"/>
+        <span class="help-block">Some link for how oyu do this</span>
+    </div>
+    <input class="btn btn-success" type="submit" value="Submit"/>
+</form>
+<br/><br/>
 {% endblock %}

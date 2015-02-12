@@ -6,6 +6,9 @@ from utilities import *
 from log import *
 from data import *
 from functools import update_wrapper, wraps
+from dofunctions import *
+from linodefunctions import *
+from services import *
 
 import libvirt
 import subprocess
@@ -18,21 +21,223 @@ app = Flask(__name__)
 
 app.secret_key = "ENTER_SECRET_KEY_HERE"
 
+
 def login_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
         try:
             session['logged_in']
         except:
-            return redirect('/login') 
+            return redirect('/login')
         return f(*args, **kwargs)
     return decorator
+
+@app.route('/test/login')
+def login_test_endpoint():
+    return render_template("login_test.html")
+
+@app.route('/server/edit/<vmid>/droplet/resize', methods=['POST'])
+@login_required
+def droplet_resize(vmid):
+    server = get_server_id(vmid)
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    if server[0]['state'] == 1:
+        return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to resize, please power your droplet off.")
+    resize_droplet(server[0]['id'], request.form['size'])
+    size = get_do_size(request.form['size'])
+    set_server_do_specs(server[0]['_id'], size[0]['disk'], size[0]['memory'], size[0]['vcpus'])
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Your droplet is now resizing, you can track its progress on <a href=\"https://cloud.digitalocean.com\">cloud.digitalocean.com</a>")
+
+@app.route('/server/edit/<vmid>/droplet/private', methods=['GET'])
+@login_required
+def droplet_private_networking(vmid):
+    server = get_server_id(vmid)
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    if server[0]['state'] == 1:
+        return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to this enable feature, please power your droplet off.")
+    enable_private_networking(server[0]['id'])
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Private networking is now being enabled.")
+
+@app.route('/server/edit/<vmid>/droplet/ipv6', methods=['GET'])
+@login_required
+def droplet_ipv6(vmid):
+    server = get_server_id(vmid)
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    if server[0]['state'] == 1:
+        return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to this enable feature, please power your droplet off.")
+    enable_ipv6(server[0]['id'])
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="IPv6 is now being enabled.")
+
+@app.route('/server/edit/<vmid>/droplet/disablebackups', methods=['GET'])
+@login_required
+def disable_backups_endpoint(vmid):
+    server = get_server_id(vmid)
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    if server[0]['state'] == 1:
+        return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to this disable feature, please power your droplet off.")
+    disable_backups(server[0]['id'])
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Backups are now being disabled.")
+
+
+@app.route('/server/edit/<vmid>/droplet/rename', methods=['POST'])
+@login_required
+def droplet_rename(vmid):
+    server = get_server_id(vmid)
+    rename_droplet(server[0]['id'], request.form['name'])
+    set_server_name(server[0]['_id'], request.form['name'])
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Your droplet has been renamed.")
+
+@app.route('/server/edit/<vmid>/droplet/reset', methods=['GET'])
+@login_required
+def droplet_reset(vmid):
+    server = get_server_id(vmid)
+    reset_root_password(server[0]['id'])
+    droplet = get_droplet(server[0]['id'])
+    do_sizes = get_do_sizes()
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Root password is now resetting, please check your DO email for the new password.")
+
+@app.route('/server/edit/<vmid>/droplet')
+@login_required
+def edit_server_droplet(vmid):
+    server = get_server_id(vmid)
+    if server[0]['type'] == "do":
+        droplet = get_droplet(server[0]['id'])
+        do_sizes = get_do_sizes()
+    else:
+        return redirect('/server/edit/%s/local' % str(vmid))
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes)
+
+@app.route('/server/edit/<vmid>/linode')
+@login_required
+def edit_server_linode(vmid):
+    server = get_server_id(vmid)
+    if server[0]['type'] == "linode":
+        linode = get_linode(server[0]['id'])
+        linode_plans = get_linode_plan()
+        linode_facilities = get_linode_facility()
+    else:
+        return redirect('/server/edit/%s/local' % str(vmid))
+    return render_template("view_linode.html", server=server, linode=linode, linode_plans=linode_plans, linode_facilities=linode_facilities)
+
+@app.route('/server/edit/<vmid>/linode/resize', methods=['POST'])
+@login_required
+def linode_resize(vmid):
+    server = get_server_id(vmid)
+    resize_linode(server[0]['id'], request.form['size'])
+    linode = get_linode(server[0]['id'])
+    linode_plans = get_linode_plan()
+    linode_facilities = get_linode_facility()
+    return render_template("view_linode.html", server=server, linode=linode, linode_plans=linode_plans, linode_facilities=linode_facilities, message="Linode resize initiated.")
+
+@app.route('/server/new', methods=['POST','GET'])
+@login_required
+def new_server():
+    if request.method == "GET":
+        images = get_all_images()
+        do_images = get_do_images()
+        do_sizes = get_do_sizes()
+        do_regions = get_do_regions()
+        linode_plans = get_linode_plan()
+        linode_dists = get_linode_distribution()
+        linode_facilities = get_linode_facility()
+        linode_kernels = get_linode_kernel()
+        return render_template("server_create.html", images=images, do_images=do_images, do_regions=do_regions, do_sizes=do_sizes, linode_plans=linode_plans, linode_dists=linode_dists, linode_facilities=linode_facilities, linode_kernels=linode_kernels)
+    elif request.method == "POST":
+        type = request.form['provider']
+        if type == "do":
+            name = request.form['server_name']
+            region = request.form['do_region']
+            image = request.form['do_image']
+            size = request.form['do_plan']
+            if "backups" in request.form:
+                droplet = make_droplet(name, region, image, size, backups=1)
+            else:
+                droplet = make_droplet(name, region, image, size) 
+                if not droplet.ip_address:
+                    new_vm = make_server(name, droplet.disk, droplet.image['slug'], droplet.memory, droplet.vcpus, type="do", id=droplet.id, ip=droplet.ip_address, state=2)
+                else:
+                    new_vm = make_server(name, droplet.disk, droplet.image['slug'], droplet.memory, droplet.vcpus, type="do", id=droplet.id, ip=droplet.ip_address)
+            return redirect('/server/edit/%s/droplet' % str(new_vm))
+        elif type == "linode":
+            name = request.form['server_name']
+            facility = request.form['linode_facility']
+            plan = request.form['linode_plan']
+            kernel = request.form['linode_kernel']
+            dist = request.form['linode_distribution']
+            rootPass = request.form['linode_root']
+            plan_record = get_linode_plan_id(plan)
+            linodeID = make_linode(facility, plan)
+            diskID = make_disk(linodeID, dist, name, plan_record[0]['disk'] * 1024, rootPass)
+            make_config(linodeID, kernel, name, diskID)
+            linode_ip = get_linode_ip(linodeID)
+            boot_linode(linodeID)
+            new_vm = make_server(name, plan_record[0]['disk'], dist, plan_record[0]['ram'], plan_record[0]['cores'], type="linode", id=linodeID, ip=linode_ip['IPADDRESS'])
+            return redirect('/server/edit/%s/linode' % str(new_vm))
+        else:
+            name = request.form['server_name']
+            ram = request.form['ram']
+            disk_size = request.form['disk_size']
+            image = request.form['disk_image']
+            vcpu = request.form['vcpu']
+            type = request.form['provider']
+
+            image_obj = get_image_id(image)
+
+            new_vm = make_server(name, disk_size, image_obj[0]['name'], ram, vcpu, type=type)
+            new_vm = str(new_vm)
+
+            result = assign_ip(new_vm)
+
+            if result == 0:
+                return "Failed."
+
+            create_event(new_vm)
+            startup_event(new_vm)
+            create_vm(new_vm, ram, disk_size, image_obj[0]['name'], vcpu)
+    
+            mac_address = get_guest_mac(new_vm)
+
+            set_server_mac(new_vm, mac_address)
+
+            append_dhcp_config(mac_address, result, new_vm)
+
+            message = "Created a new VM with ID %s, name of %s, %sMB of RAM, %sGB disk image." % (str(new_vm), str(name), str(ram), str(disk_size))
+            create_log(message, 1)
+    
+            return redirect('/server/edit/%s/local' % str(new_vm))
+
+@app.route('/settings/providers/linode', methods=['POST'])
+@login_required
+def update_linode_api():
+    delete_linode_items()
+    get_datacenters()
+    get_plans()
+    get_kernels()
+    get_distributions()
+    set_config_linode(request.form['linode_api'])
+    return redirect('/settings')
+
+@app.route('/settings/providers/do', methods=['POST'])
+@login_required
+def update_do_api():
+    delete_do_items()
+    get_dist_images()
+    get_sizes()
+    get_regions()
+    set_config_do(request.form['do_api'])
+    return redirect('/settings')
 
 @app.route('/login/reset', methods=['POST'])
 @login_required
 def login_reset():
     update_admin(session['username'], request.form['password1'])
-    return redirect('/host')
+    return redirect('/settings')
 
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -134,6 +339,7 @@ def console(vmid):
     return render_template("vnc_auto.html", port=vncport, server_name=vm[0]['name'], domain=config['domain'], server_id=vm[0]["_id"])
 
 @app.route('/ip', methods=['POST','GET'])
+@app.route('/networking', methods=['POST','GET'])
 @login_required
 def ips():
     if request.method == "GET":
@@ -146,7 +352,7 @@ def ips():
         new_ip = make_ipaddress(address, netmask, 0)
         message = "Added new IP %s/%s" % (str(address), str(netmask))
         create_log(message, 1)
-        return redirect('/ip')
+        return redirect('/networking')
 
 @app.route('/ip/edit/<ipid>', methods=['POST','GET'])
 @login_required
@@ -208,6 +414,7 @@ def index():
     log = get_log_datelevel(date="day", level=3)
     images = get_all_images()
     stats = get_host_statistic_specific(1)
+    services = get_all_service()
     try:
         servers[0]
     except:
@@ -218,7 +425,7 @@ def index():
     except:
         stats = None
 
-    return render_template("index.html", servers = servers, images=images, log=log, stats=stats)
+    return render_template("index.html", servers = servers, images=images, log=log, stats=stats, services=services)
 
 @app.route('/create', methods=['POST'])
 @login_required
@@ -258,70 +465,127 @@ def create():
 @login_required
 def destroy(vmid):
     vm = get_server_id(vmid)
-    ip = get_ipaddress_server(vmid)
+    if vm[0]['type'] == "do":
+        destroy_droplet(vm[0]['id'])
+        set_server_state(vmid, 3)
+        return redirect('/server/active')
+    elif vm[0]['type'] == "linode":
+        delete_linode(vm[0]['id'])
+        set_server_state(vmid, 3)
+        return redirect('/server/active')
+    else:
+        ip = get_ipaddress_server(vmid)
     
-    try:
-        set_ipaddress_serverid(ip[0]['_id'], 0)
-    except:
-        pass
+        try:
+            set_ipaddress_serverid(ip[0]['_id'], 0)
+        except:
+            pass
 
-    rebuild_dhcp_config()
+        rebuild_dhcp_config()
     
-    set_server_state(vmid, 3)
-    destroy_event(vmid)
-    delete_vm(vmid, vm[0]['disk_path'])
+        set_server_state(vmid, 3)
+        destroy_event(vmid)
+        delete_vm(vmid, vm[0]['disk_path'])
 
-    message = "Deleted vm%s." % str(vmid)
-    create_log(message, 1)
+        message = "Deleted vm%s." % str(vmid)
+        create_log(message, 1)
 
-    return redirect('/')
+        return redirect('/server/active')
 
 @app.route('/reboot/<vmid>')
 @login_required
 def reboot(vmid):
     server = get_server_id(vmid)
-    if server[0]['blocked'] == 1:
-        return redirect('/')
+    if server[0]['type'] == "do":
+        set_server_state(vmid, 0)
+        reboot_droplet(server[0]['id'])
+        set_server_state(vmid, 1)
+        return redirect('/server/edit/%s/droplet' % str(vmid))
+    elif server[0]['type'] == "linode":
+        set_server_state(vmid, 0)
+        reboot_linode(server[0]['id'])
+        set_server_state(vmid, 1)
+        return redirect('/server/edit/%s/linode' % str(vmid))
+    else:
+        if server[0]['blocked'] == 1:
+            return redirect('/')
 
-    set_server_state(vmid, 0)
-    set_server_inconsistent(vmid, 0)
+        set_server_state(vmid, 0)
+        set_server_inconsistent(vmid, 0)
 
-    shutdown_event(vmid)
-    shutdown_vm(vmid)
+        shutdown_event(vmid)
+        shutdown_vm(vmid)
    
-    set_server_state(vmid, 1)
+        set_server_state(vmid, 1)
 
-    startup_event(vmid)
-    start_vm(vmid)
-
-    return redirect('/')
+        startup_event(vmid)
+        start_vm(vmid)
+    
+        return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/shutdown/<vmid>')
 @login_required
 def shutdown(vmid):
-    set_server_state(vmid, 0)
-    set_server_inconsistent(vmid, 0)
+    server = get_server_id(vmid)
+    if server[0]['type'] == "do":
+        set_server_state(vmid, 0)
+        shutdown_droplet(server[0]['id'])
 
-    shutdown_event(vmid)
-    shutdown_vm(vmid)
+        return redirect('/server/edit/%s/droplet' % str(vmid))
+    elif server[0]['type'] == "linode":
+        set_server_state(vmid, 0)
+        shutdown_linode(server[0]['id'])
 
-    return redirect('/')
+        return redirect('/server/edit/%s/linode' % str(vmid))
+    else:
+        set_server_state(vmid, 0)
+        set_server_inconsistent(vmid, 0)
+
+        shutdown_event(vmid)
+        shutdown_vm(vmid)
+
+        return redirect('/server/edit/%s/local' % str(vmid))
+
+@app.route('/server/type/droplet')
+def server_droplet():
+    domains = get_server_type("do")
+    return render_template("view.html", domains=domains, type="droplet")
+
+@app.route('/server/type/linode')
+def server_linode():
+    domains = get_server_type("linode")
+    return render_template("view.html", domains=domains, type="linode")
+
+@app.route('/server/type/local')
+def server_local():
+    domains = get_server_type("local")
+    return render_template("view.html", domains=domains, type="local")
 
 @app.route('/start/<vmid>')
 @login_required
 def start(vmid):
     server = get_server_id(vmid)
+    if server[0]['type'] == "do":
+        set_server_state(vmid, 1)
+        start_droplet(server[0]['id'])
 
-    if server[0]['blocked'] == 1:
-        return redirect('/')
+        return redirect('/server/edit/%s/droplet' % str(vmid))
+    if server[0]['type'] == "linode":
+        set_server_state(vmid, 1)
+        boot_linode(server[0]['id'])
 
-    set_server_state(vmid, 1)
-    set_server_inconsistent(vmid, 0)
+        return redirect('/server/edit/%s/linode' % str(vmid))
+    else:
+        if server[0]['blocked'] == 1:
+            return redirect('/')
+
+        set_server_state(vmid, 1)
+        set_server_inconsistent(vmid, 0)
     
-    startup_event(vmid)
-    start_vm(vmid)
+        startup_event(vmid)
+        start_vm(vmid)
 
-    return redirect('/')
+        return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/server/all')
 @login_required
@@ -334,6 +598,7 @@ def view_all():
     return render_template("view.html", domains=domains, type="all")
 
 @app.route('/server/active')
+@app.route('/server')
 @login_required
 def view_active():
     domains = get_all_servers(not_state = 3)
@@ -353,9 +618,9 @@ def view_deleted():
         domains = None
     return render_template("view.html", domains=domains, type="deleted")
 
-@app.route('/host', methods=['POST','GET'])
+@app.route('/settings', methods=['POST','GET'])
 @login_required
-def host():
+def settings():
     if request.method == "GET":
         config = get_config()
         try:
@@ -367,7 +632,7 @@ def host():
         return render_template("host.html", config=config, stat=stats, services=services)
     elif request.method == "POST":
         set_configuration_all(request.form['system'], request.form['domain'], request.form['disk_directory'], request.form['image_directory'], request.form['config_directory'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'])
-        return redirect('/host')
+        return redirect('/settings')
 
 @app.route('/setup', methods=['POST','GET'])
 def setup():
@@ -383,6 +648,7 @@ def setup():
         make_admin(request.form['username'], request.form['password1'])
         make_host("default")
         get_host_stats()
+        make_services()
         add_crontab_entries()
         return redirect('/login')
 
@@ -406,7 +672,7 @@ def redefine(vmid):
     if vm[0]['state'] == 1:
         start_vm(vm[0]['_id'])
         startup_event(vm[0]['_id'])
-    return redirect('/edit/%s' % str(vmid))
+    return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/edit/<vmid>/resize', methods=['POST'])
 @login_required
@@ -418,9 +684,9 @@ def resize_disk(vmid):
         shutdown_event(server[0]['_id'])
         shutdown_vm(server[0]['_id'])
     jobs.resize_disk.delay(vmid, request.form['new_size'])
-    return redirect('/edit/%s' % str(vmid))
+    return redirect('/server/edit/%s/local' % str(vmid))
 
-@app.route('/edit/<vmid>', methods=['POST','GET'])
+@app.route('/server/edit/<vmid>/local', methods=['POST','GET'])
 @login_required
 def edit(vmid):
     if request.method == "GET":
@@ -452,7 +718,7 @@ def edit(vmid):
             if vm[0]['state'] == 1:
                 start_vm(vm[0]['_id'])
                 startup_event(vm[0]['_id'])
-        return redirect('/edit/%s' % str(vmid))
+        return redirect('/server/edit/%s/local' % str(vmid))
 
 @app.route('/images', methods=['POST','GET'])
 @login_required
@@ -487,4 +753,4 @@ def delete_image_route(imageid):
     return redirect('/images')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10051)
+    app.run(host='0.0.0.0', port=10050, debug="true")

@@ -186,6 +186,7 @@ def assign_ip(vmid):
     if not available_ips:
         create_log("Attempted to assign an IP address, but no IP addresses remained.", 2)
         return 0
+    data.set_ipaddress_server(vmid, available_ips['ip'])
     data.set_ipaddress_serverid(available_ips['_id'], vmid)
     return available_ips['ip']
 

@@ -1,0 +1,39 @@
+@charset "utf-8";
+/* CSS Document */
+
+.navbar-nav>li>a {
+    padding-top:32px !important;
+    font-size:18px;
+}
+
+.navbar {
+    margin-bottom:0px;  
+}
+
+.label-as-badge {
+    border-radius: 1em;
+}
+
+.primary {
+    width:90%;
+    margin-left:auto;
+    margin-right:auto;  
+}
+
+.alert {
+    margin-top:10px;    
+}
+
+.panel-shortcuts {
+    background:#FFA161;
+    border-color:#FFF;
+}
+
+.panel-shortcuts>.panel-heading {
+    border-color:#FFF;  
+    color:#FFF;
+}
+
+.table-server {
+    font-size:18px; 
+}

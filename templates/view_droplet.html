@@ -1,0 +1,158 @@
+{% extends 'frame.html' %}
+{% block title %}Space - Edit Droplet {{ server[0]['name'] }}{% endblock %}
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/droplet.css') }}"/>
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="page-header">
+        <h2 class="type">Droplet - {{ server[0]['name'] }}</h2>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-7">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h4 class="panel-title">Details</h4>
+            </div>
+            <div class="row">
+            <div class="col-md-12">
+                <table class="table table-user-information table-striped">
+                    <tbody>
+                        <tr>
+                            <td>Status:</td>
+                            <td>{{ droplet.status }}</td>
+                        </tr>
+                        <tr>
+                            <td>Plan:</td>
+                            <td>{{ droplet.size_slug }}</td>
+                        </tr>
+                        <tr>
+                            <td>Region:</td>
+                            <td>{{ droplet.region['name'] }}</td>
+                        </tr>
+                        <tr>
+                            <td>Distribution:</td>
+                            <td>{{ droplet.image['slug'] }}</td>
+                        </tr>
+                        <tr>
+                            <td>Kernel:</td>
+                            <td>{{ droplet.kernel['name'] }}</td>
+                        </tr>
+                        <tr>
+                            <td>RAM:</td>
+                            <td>{{ droplet.memory }}MB</td>
+                        </tr>
+                        <tr>
+                            <td>Storage:</td>
+                            <td>{{ droplet.disk }}GB</td>
+                        </tr>
+                        <tr>
+                            <td>vCPU:</td>
+                            <td>{{ droplet.vcpus }}</td>
+                        </tr>
+                        {% if droplet.networks['v4']|length > 0 %}
+                        <tr>
+                            <td>IPv4 Settings</td>
+                            <td>
+                                Type: {{ droplet.networks['v4'][0]['type'] }}<br/>
+                                Address: {{ droplet.networks['v4'][0]['ip_address'] }}<br/>
+                                Netmask: {{ droplet.networks['v4'][0]['netmask'] }}<br/>
+                                Gateway: {{ droplet.networks['v4'][0]['gateway'] }}<br/>
+                                {% if droplet.networks['v4']|length >= 2 %}
+                                <hr/>
+                                Type: {{ droplet.networks['v4'][1]['type'] }}<br/>
+                                Address: {{ droplet.networks['v4'][1]['ip_address'] }}<br/>
+                                Netmask: {{ droplet.networks['v4'][1]['netmask'] }}<br/>
+                                Gateway: {{ droplet.networks['v4'][1]['gateway'] }}<br/>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if 'ipv6' in droplet.features %}
+                        <tr>
+                            <td>IPv6 Settings</td>
+                            <td>
+                                Address: {{ droplet.networks['v6'][0]['ip_address'] }}<br/>
+                                Netmask: {{ droplet.networks['v6'][0]['netmask'] }}<br/>
+                                Gateway: {{ droplet.networks['v6'][0]['gateway'] }}<br/>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td>Features:</td>
+                            <td>
+                            {% for feature in droplet.features %}
+                            {{ feature }}<br/>
+                            {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Created On:</td>
+                            <td>{{ droplet.created_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <h4>Features</h4>
+        {% set check = 0 %}
+        {% if "backups" in droplet.features %}
+        <a class="btn btn-danger" href="/server/edit/{{ server[0]['_id'] }}/droplet/disablebackups">Disable Backups</a><br/><br/>
+        {% set check =1 %}
+        {% endif %}
+        {% if "ipv6" not in droplet.features %}
+        <a class="btn btn-success" href="/server/edit/{{ server[0]['_id'] }}/droplet/ipv6">Enable IPv6</a><br/><br/>
+        {% set check = 1 %}
+        {% endif %}
+        {% if "private_networking" not in droplet.features %}
+        <a class="btn btn-success" href="/server/edit/{{ server[0]['_id'] }}/droplet/private">Enable Private Networking</a><br/><br/>
+        {% set check = 1 %}
+        {% endif %}
+        {% if check == 0 %}
+        <p>There are no features to enable or disable on this droplet.</p>
+        {% endif %}
+        <hr/>
+        <h4>Resize Droplet</h4>
+        <form action="/server/edit/{{ server[0]['_id'] }}/droplet/resize" method="post">
+            <div class="form-group">
+                <label for="size" class="control-label">New Plan Size</label>
+                <select class="form-control" name="size">
+                    {% for size in do_sizes %}
+                    <option value="{{ size['slug'] }}">{{ size['memory'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input class="btn btn-success" type="submit" value="Resize"/>
+        </form>
+        <hr/>
+        <h4>Rename Droplet</h4>
+        <form action="/server/edit/{{ server[0]['_id'] }}/droplet/rename" method="post">
+            <div class="form-group">
+                <label for="name" class="control-label">New Droplet Name</label>
+                <input class="form-control" type="text" name="name" placeholder="Droplet Name"/>
+            </div>
+            <input class="btn btn-success" type="submit" value="Change Name"/>
+        </form>
+        <hr/>
+        <h4>Actions</h4>
+        {% if server[0]['state'] == 0 %}
+        <a class="btn btn-success" href="/start/{{ server[0]['_id'] }}">Start Droplet</a><br/><br/>
+        <a class="btn btn-warning" href="/reboot/{{ server[0]['_id'] }}">Reboot Droplet</a><br/><br/>
+        <a class="btn btn-danger" href="/destroy/{{ server[0]['_id'] }}">Destroy Droplet</a><br/><br/>
+        {% elif server[0]['state'] == 1 %}  
+        <a class="btn btn-warning" href="/shutdown/{{ server[0]['_id'] }}">Shutdown Droplet</a><br/><br/>
+        <a class="btn btn-info" target="_blank" href="https://cloud.digitalocean.com/droplets/{{ server[0]['id'] }}/console">Access Console</a><br/><br/>
+        <a class="btn btn-danger" href="/destroy/{{ server[0]['_id'] }}">Destroy Droplet</a><br/><br/>
+        {% elif server[0]['state'] == 3 %}
+        {% endif %}
+        <a class="btn btn-warning" href="/server/edit/{{ server[0]['_id'] }}/droplet/reset">Reset Root Password</a><br/><br/>
+        <hr/>
+    </div>
+</div>
+{% endblock %}

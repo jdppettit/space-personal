@@ -1,4 +1,4 @@
-{% extends 'grid.html' %}
+{% extends 'frame.html' %}
 {% block title %}Space - Edit {{ server.name }}{% endblock %}
 {% block content %}
 <h2>{{ server[0]['name'] }}</h2>
@@ -30,7 +30,7 @@
 <hr/>
 <h3>Configuration</h3>
 <p>You can modify all of the settings related to the server here. If you want the changes to be pushed to the server, be sure to check the box at the bottom. If you do not want to push the changes immediately, push them at your convenience using the <a href="/redefine/{{ server[0]['_id'] }}">redefine</a> option.</p>
-<form action="/edit/{{ server[0]['_id'] }}" method="post" data-toggle="" role="form">
+<form action="/server/edit/{{ server[0]['_id'] }}/local" method="post" data-toggle="" role="form">
     <div class="form-group">
         <label class="control-label">Name</label>
         <input class="form-control" type="text" name="name" value="{{ server[0]['name'] }}" required/>
@@ -51,11 +51,11 @@
         <input class="form-control" type="text" name="vcpu" value="{{ server[0]['vcpu'] }}"/>
         <span class="help-block">The number of virtual VPU's allocated to your server.</span>
     </div>
-<!--    <div class="form-group">
+    <div class="form-group">
         <label class="control-label">Disk Size (GB)</label>
         <input class="form-control" type="text" name="disk_size" value="{{ server[0]['disk_size'] }}"/>
         <span class="help-block">The amount of storage space allocated to your server. Changing this will not resize your disk currently.</span>
-    </div>!-->
+    </div>
     <div class="form-group">
         <label class="control-label">Disk Path</label>
         <input class="form-control" type="text" name="disk_path" value="{{ server[0]['disk_path'] }}"/>
