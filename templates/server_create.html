@@ -54,7 +54,7 @@
             <div class="form-group">
                 <label for="disk_image" class="col-lg-2 control-label">Disk Image</label>
                 <div class="col-lg-10">
-                    <select class="form-control" name="disk_image" required>
+                    <select class="form-control" name="disk_image">
                         {% for image in images %}
                         <option value="{{ image['_id']  }}">{{ image['name'] }}</option>
                         {% endfor %} 
@@ -66,7 +66,7 @@
             <div class="form-group">
                   <label for="do_region" class="col-lg-2 control-label">Region</label>
                   <div class="col-lg-10">
-                        <select class="form-control" name="do_region" required>
+                        <select class="form-control" name="do_region">
                             {% for region in do_regions %}
                             <option value="{{ region['slug'] }}">{{ region['name'] }}</option>
                             {% endfor %}
@@ -76,7 +76,7 @@
             <div class="form-group">
                 <label for="do_plan" class="col-lg-2 control-label">Plan Size</label>
                 <div class="col-lg-10">
-                    <select class="form-control" name="do_plan" required>
+                    <select class="form-control" name="do_plan">
                         {% for plan in do_sizes %}
                         <option value="{{ plan['slug'] }}">{{ plan['memory'] }}</option>
                         {% endfor %}
@@ -86,7 +86,7 @@
             <div class="form-group">
                 <label for="do_image" class="col-lg-2 control-label">Image</label>
                 <div class="col-lg-10">
-                    <select class="form-control" name="do_image" required>
+                    <select class="form-control" name="do_image">
                         {% for doimage in do_images %}
                         <option value="{{ doimage['id'] }}">{{ doimage['slug'] }}</option>
                         {% endfor %}

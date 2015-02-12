@@ -6,16 +6,27 @@ echo -e "This script will attempt to start and install all system services neces
 echo -n
 echo -e "Updating yum db..."
 
+yum update
+
+yum install python-setuptools
+easy_install python
+
 echo -n
 echo -e "Adding mongodb.repo to /etc/yum.repos.d"
 
 cp /srv/space/conf.d/mongodb.repo /etc/yum.repos.d/mongodb.repo
 
+yum update
+
 echo -n
 echo -e "Getting RPM for RabbitMQ..."
 
-wget -O /etc/yum.repos.d/epel-erlang.repo http://repos.fedorapeople.org/repos/peter/erlang/epel-erlang.repo
+rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+
+yum update
+
 yum install erlang
+
 rpm --import http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
 rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v3.1.4/rabbitmq-server-3.1.4-1.noarch.rpm
 
@@ -24,7 +35,7 @@ yum update
 echo -n
 echo -e "Installing mongodb-org rabbitmq-server qemu-kvm qemu-img virt-manager libvirt libvirt-python python virtinst libvirt-client virt-install virt-viewer dhcp"
 
-for package in mongodb-server rabbitmq-server qemu-kvm qemu-img virt-manager libvirt libvirt-python python virtinst libvirt-client virt-install virt-viewer dhcp python-pip
+for package in mongodb-org rabbitmq-server qemu-kvm qemu-img virt-manager libvirt libvirt-python python virtinst libvirt-client virt-install virt-viewer dhcp
 do
 
 echo -n
@@ -83,6 +94,8 @@ service rabbitmq-server start
 
 echo -n
 echo -e "Starting Space..."
+
+mkdir /var/log/space
 
 service space start
 

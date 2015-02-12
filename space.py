@@ -8,6 +8,7 @@ from data import *
 from functools import update_wrapper, wraps
 from dofunctions import *
 from linodefunctions import *
+from services import *
 
 import libvirt
 import subprocess
@@ -638,6 +639,7 @@ def setup():
         make_admin(request.form['username'], request.form['password1'])
         make_host("default")
         get_host_stats()
+        make_services()
         add_crontab_entries()
         return redirect('/login')
 

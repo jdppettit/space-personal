@@ -126,7 +126,7 @@ def make_host(name):
     id = host_cursor.insert(new_host)
     return id
 
-def make_configuration(image_directory, disk_directory, config_directory, system_type, domain, dhcp_configuration, dhcp_service, novnc_directory, pem_location, linode_api_key, do_api_key):
+def make_configuration(image_directory, disk_directory, config_directory, system_type, domain, dhcp_configuration, dhcp_service, novnc_directory, pem_location, linode_api_key="", do_api_key=""):
     db = get_connect()
     config_cursor = db.configuration
     configuration = ({"_id":"default", "image_directory":image_directory, "disk_directory":disk_directory, "config_directory":config_directory, "system_type":system_type, "domain":domain, "password_salt":str(uuid.uuid1()), "dhcp_configuration":dhcp_configuration, "dhcp_service":dhcp_service, "novnc_directory":novnc_directory, "pem_location": pem_location, "linode_api_key":linode_api_key, "do_api_key":do_api_key})
