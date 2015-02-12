@@ -227,7 +227,7 @@ def update_linode_api():
 @login_required
 def update_do_api():
     delete_do_items()
-    get_dist_images9)
+    get_dist_images()
     get_sizes()
     get_regions()
     set_config_do(request.form['do_api'])
