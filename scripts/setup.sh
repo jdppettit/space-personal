@@ -103,6 +103,7 @@ service space start
 echo -n
 echo -e "Starting celery worker..."
 
+export C_FORCE_ROOT="true"
 sh /srv/space/scripts/celery.sh
 
 echo -n
