@@ -552,7 +552,7 @@ def delete_linode_items():
     datacenters = db.linode_facility
     datacenters.remove({})
     kernels = db.linode_kernel
-    kernel.remove({})
+    kernels.remove({})
     dists = db.linode_distributions
     dists.remove({})
     plans = db.linode_plan
