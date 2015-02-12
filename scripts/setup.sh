@@ -75,6 +75,7 @@ service rabbitmq-server start
 echo -n
 echo -e "Starting DHCPD..."
 
+pkill dnsmasq
 service dhcpd start
 
 echo -n 
