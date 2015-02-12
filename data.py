@@ -23,6 +23,26 @@ def encrypt_password(password):
     m.update(config_rec['password_salt'])
     return m.hexdigest()
 
+def make_linode_plan(id, ram, disk, cores, xfer, label, price, hourly):
+    db = get_connect()
+    plan_cursor = db.linode_plan
+    plan_cursor.insert({"id":id, "ram":ram, "disk":disk, "cores":cores, "xfer":xfer, "label":label, "price":price, "hourly":hourly})
+
+def make_linode_facility(id, location):
+    db = get_connect()
+    fac_cursor = db.linode_facility
+    fac_cursor.insert({"id":id, "location":location})
+
+def make_linode_kernel(id, label):
+    db = get_connect()
+    kernel_cursor = db.linode_kernel
+    kernel_cursor.insert({"id":id, "label":label})
+
+def make_linode_distribution(id, label):
+    db = get_connect()
+    dist_cursor = db.linode_distribution
+    dist_cursor.insert({"id":id, "label":label})
+
 def make_service(name):
     db = get_connect()
     service_cursor = db.service
@@ -474,3 +494,27 @@ def set_server_disk_size(vmid, disk_size):
     db = get_connect()
     server_cursor = db.server
     server_cursor.update({"_id":objectify(vmid)}, {"$set":{"disk_size":disk_size}})
+
+def get_linode_facility():
+    db = get_connect()
+    fac_cursor = db.linode_facility
+    facilities = fac_cursor.find()
+    return facilities
+
+def get_linode_plan():
+    db = get_connect()
+    plan_cursor = db.linode_plan
+    plans = plan_cursor.find()
+    return plans
+
+def get_linode_kernel():
+    db = get_connect()
+    kernel_cursor = db.linode_kernel
+    kernels = kernel_cursor.find()
+    return kernels
+
+def get_linode_distribution():
+    db = get_connect()
+    dist_cursor = db.linode_distribution
+    dists = dist_cursor.find()
+    return dists

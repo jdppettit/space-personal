@@ -119,7 +119,11 @@ def new_server():
         do_images = get_do_images()
         do_sizes = get_do_sizes()
         do_regions = get_do_regions()
-        return render_template("server_create.html", images=images, do_images=do_images, do_regions=do_regions, do_sizes=do_sizes)
+        linode_plans = get_linode_plan()
+        linode_dists = get_linode_distribution()
+        linode_facilities = get_linode_facility()
+        linode_kernels = get_linode_kernel()
+        return render_template("server_create.html", images=images, do_images=do_images, do_regions=do_regions, do_sizes=do_sizes, linode_plans=linode_plans, linode_dists=linode_dists, linode_facilities=linode_facilities, linode_kernels=linode_kernels)
     elif request.method == "POST":
         type = request.form['provider']
         if type == "do":
@@ -136,6 +140,15 @@ def new_server():
                 else:
                     new_vm = make_server(name, droplet.disk, droplet.image['slug'], droplet.memory, droplet.vcpus, type="do", id=droplet.id, ip=droplet.ip_address)
             return redirect('/server/edit/%s/droplet' % str(new_vm))
+        elif type == "linode":
+            name = request.form['server_name']
+            facility = request.form['linode_facility']
+            plan = request.form['linode_plan']
+            kernel = request.form['linode_kernel']
+            dist = request.form['linode_distribution']
+            rootPass = request.form['linode_root']
+
+            return redirect('/server/edit/%s/linode' % str(new_vm))
         else:
             name = request.form['server_name']
             ram = request.form['ram']
@@ -554,7 +567,7 @@ def settings():
         return render_template("host.html", config=config, stat=stats, services=services)
     elif request.method == "POST":
         set_configuration_all(request.form['system'], request.form['domain'], request.form['disk_directory'], request.form['image_directory'], request.form['config_directory'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'])
-        return redirect('/host')
+        return redirect('/settings')
 
 @app.route('/setup', methods=['POST','GET'])
 def setup():
