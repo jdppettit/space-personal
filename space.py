@@ -32,9 +32,17 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorator
 
-@app.route('/test/login')
-def login_test_endpoint():
-    return render_template("login_test.html")
+@app.route('/utils/import_droplets')
+@login_required
+def import_droplets_endpoint():
+    import_droplets()
+    return redirect('/server')
+
+@app.route('/utils/import_linodes')
+@login_required
+def import_linodes_endpoint():
+    import_linodes()
+    return redirect('/server')
 
 @app.route('/server/edit/<vmid>/droplet/resize', methods=['POST'])
 @login_required
