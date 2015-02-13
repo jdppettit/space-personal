@@ -30,6 +30,22 @@ def get_droplet(id):
         message = "Failed to get droplet, DO API responded: %s" % str(e.args)
         create_log(message, 3)
 
+def import_droplets():
+    droplets = get_droplets()
+    for droplet in droplets:
+        droplet_id = str(droplet).split(" ")[0]
+        server = data.get_server_provider_id(int(droplet_id))
+        print server.count()
+        if server.count() == 0:
+            droplet_obj = get_droplet(droplet_id)
+            if droplet.status == "active":
+                state = 1
+            elif droplet.status == "off":
+                state = 0
+            else:
+                state = 2
+            server_id = data.make_server(droplet.name, droplet.disk, droplet.image['slug'], droplet.memory, droplet.vcpus, type="do", id=int(droplet.id), ip=droplet.ip_address, state=state)
+
 def make_droplet(name, region, image, size, backups=0):
     token = get_token()
     if backups == 0:

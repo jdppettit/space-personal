@@ -566,3 +566,9 @@ def delete_do_items():
     size.remove({})
     region = db.do_region
     region.remove({})
+
+def get_server_provider_id(prov_id):
+    db = get_connect()
+    server_cursor = db.server
+    server = server_cursor.find({"id":prov_id})
+    return server
