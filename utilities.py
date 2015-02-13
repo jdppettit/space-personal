@@ -1,35 +1,29 @@
+from decimal import Decimal
 from event import *
 from log import *
-from domfunctions import connect 
+from domfunctions import connect
 from crontab import CronTab
 
 import data
-import libvirt
 import datetime
 import os
-import subprocess
+
 
 def get_host_stats():
     con = connect()
-    memory_stats = con.getMemoryStats(0,0)
-
+    memory_stats = con.getMemoryStats(0, 0)
     total_memory = memory_stats['total'] / 1024
     free_memory = memory_stats['free'] / 1024
-
-    command = "virsh nodecpustats --percent"
-
-    p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-    output = p.communicate()[0]
-
-    output = output.replace(" ", "")
-    output = output.split("\n")
-
-    cpu_system = output[0].split(":")[1]
-    io_wait = output[4].split(":")[1]
-
+    cpu = con.getCPUStats(-1, 0)
+    total = sum(cpu.values())
+    cpu_system = Decimal(cpu['kernel']) / Decimal(total)
+    io_wait = Decimal(cpu['iowait']) / Decimal(total)
     memory_used = total_memory - free_memory
-
-    data.make_host_statistic(float(cpu_system.replace("%","")), int(memory_used), int(total_memory), float(io_wait.replace("%","")), datetime.datetime.now())
+    data.make_host_statistic(round(cpu_system, 5),
+                             int(memory_used),
+                             int(total_memory),
+                             round(io_wait, 5),
+                             datetime.datetime.now())
 
 
 def sync_status():
@@ -55,12 +49,15 @@ def sync_status():
             create_log(message, 2)
             
             inconsistent_event(server['_id'])
-    
+
             data.set_server_inconsistent(server['_id'], 1)
+
 
 def import_images():
     config = data.get_config()
-    filesystem_images = [ f for f in os.listdir(config['image_directory']) if os.path.isfile(os.path.join(config['image_directory'],f)) ]
+    filesystem_images = [f for f in os.listdir(config['image_directory']) if
+                         os.path.isfile(
+                             os.path.join(config['image_directory'], f))]
     message = "Image sync initated."
     create_log(message, 1)
     for image in filesystem_images:
@@ -72,10 +69,12 @@ def import_images():
         if state == 0:
             image_name = os.path.splitext(image)[0]
             image_path = "%s/%s" % (str(config['image_directory']), str(image))
-            image_size = os.path.getsize(image_path) / (1024*1024)
-            message2 = "Found new image at %s, adding to the DB" % str(image_path)
+            image_size = os.path.getsize(image_path) / (1024 * 1024)
+            message2 = "Found new image at %s, adding to the DB" % str(
+                image_path)
             create_log(message2, 1)
             data.make_image(image_name, image_path, image_size)
+
 
 def add_crontab_entries():
     cron = CronTab(user=True)
