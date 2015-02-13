@@ -12,6 +12,27 @@ def get_linode(linodeID):
     linode = api.linode.list(LinodeID=linodeID)
     return linode[0]
 
+def get_linodes():
+    api = get_api()
+    linodes = api.linode.list()
+    return linodes
+
+def import_linodes():
+    linodes = get_linodes()
+    for linode in linodes:
+        linode_id = linode['LINODEID']
+        server = data.get_server_provider_id(int(linode_id))
+        if server.count() == 0:
+            if linode['STATUS'] == 1:
+                state = 1
+            elif linode['STATUS'] == 2:
+                state = 0
+            else:
+                state = 2
+            linode_ip = get_linode_ip(int(linode['LINODEID']))
+            plan = data.get_linode_plan_id(linode['PLANID'])
+            server_id = data.make_server(linode['LABEL'], plan[0]['disk'], linode['DISTRIBUTIONVENDOR'], linode['TOTALRAM'], plan[0]['cores'], type="linode", id=int(linode['LINODEID']), ip=linode_ip['IPADDRESS'], state=state)
+
 def get_linode_ip(linodeID):
     api = get_api()
     linode_ip = api.linode.ip.list(LinodeID=linodeID)

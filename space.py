@@ -38,6 +38,12 @@ def import_droplets_endpoint():
     import_droplets()
     return redirect('/server')
 
+@app.route('/utils/import_linodes')
+@login_required
+def import_linodes_endpoint():
+    import_linodes()
+    return redirect('/server')
+
 @app.route('/server/edit/<vmid>/droplet/resize', methods=['POST'])
 @login_required
 def droplet_resize(vmid):
