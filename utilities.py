@@ -17,7 +17,9 @@ def get_host_stats():
     cpu = con.getCPUStats(-1, 0)
     total = sum(cpu.values())
     cpu_system = Decimal(cpu['kernel']) / Decimal(total)
+    cpu_system = cpu_system * 100
     io_wait = Decimal(cpu['iowait']) / Decimal(total)
+    io_wait = io_wait * 100
     memory_used = total_memory - free_memory
     data.make_host_statistic(round(cpu_system, 5),
                              int(memory_used),
