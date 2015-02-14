@@ -7,21 +7,18 @@ from crontab import CronTab
 import data
 import datetime
 import os
-
+import psutil
 
 def get_host_stats():
     con = connect()
     memory_stats = con.getMemoryStats(0, 0)
     total_memory = memory_stats['total'] / 1024
     free_memory = memory_stats['free'] / 1024
-    cpu = con.getCPUStats(-1, 0)
-    total = sum(cpu.values())
-    cpu_system = Decimal(cpu['kernel']) / Decimal(total)
-    cpu_system = cpu_system * 100
-    io_wait = Decimal(cpu['iowait']) / Decimal(total)
-    io_wait = io_wait * 100
+    res = psutil.cpu_times_percent()
+    cpu_total = float(res.system) + float(res.user)
+    io_wait = float(res.iowait)
     memory_used = total_memory - free_memory
-    data.make_host_statistic(round(cpu_system, 5),
+    data.make_host_statistic(round(cpu_total, 5),
                              int(memory_used),
                              int(total_memory),
                              round(io_wait, 5),
