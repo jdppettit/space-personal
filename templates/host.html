@@ -96,6 +96,8 @@
         </div>
         <div role="tabpanel" class="tab-pane fade" id="services">
             <h3>Services</h3>
+            <p>You can manage system services using the options here. Some options are not permitted, such as Space and Mongo, because changing these process will prevent Space from functioning normally.
+            Please use the service command from the command line to manage these processes.</p>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -108,11 +110,25 @@
                     {% for service in services %}
                     <tr>
                         <td>{{ service['_id'] }}</td>
-                        <td>{{ service['status'] }}</td>
                         <td>
+                        {% if service['status'] == 1 %}
+                        Running
+                        {% else %}
+                        Stopped
+                        {% endif %} 
+                        </td>
+                        <td>
+                            {% if service['_id'] == "celery" %}
+                            <p>Please use "bash /srv/space/scripts/celery.sh" to start Celery.</p>
+                            {% elif service['_id'] == "gunicorn" %}
+                            <p>Please manage Gunicorn/Space from the command line using "service space action".</p>
+                            {% elif service['_id'] == "mongod" %}
+                            <p>Please manage mongod from the command line using "service mongod action".</p>
+                            {% else %}
                             <a href="/service/{{ service['_id'] }}/stop">Stop</a>
                             <a href="/service/{{ service['_id'] }}/restart">Restart</a>
                             <a href="/service/{{ service['_id'] }}/start">Start</a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

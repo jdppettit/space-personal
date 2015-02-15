@@ -411,6 +411,12 @@ def get_admin(username):
     admin = admin_cursor.find({"_id":username})
     return admin
 
+def get_service_id(service_id):
+    db = get_connect()
+    service_cursor = db.service
+    service = service_cursor.find({"_id":service_id})
+    return service
+
 def get_service_all():
     db = get_connect()
     service_cursor = db.service

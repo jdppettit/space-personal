@@ -32,6 +32,27 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorator
 
+@app.route('/service/<service_name>/start')
+@login_required
+def service_start_endpoint(service_name):
+    manipulate_service(service_name, 1)
+    check_services()
+    return redirect('/settings')
+
+@app.route('/service/<service_name>/restart')
+@login_required
+def service_restart_endpoint(service_name):
+    manipulate_service(service_name, 2)
+    check_services()
+    return redirect('/settings')
+
+@app.route('/service/<service_name>/stop')
+@login_required
+def service_stop_endpoint(service_name):
+    manipulate_service(service_name, 0)
+    check_services()
+    return redirect('/settings')
+
 @app.route('/utils/import_droplets')
 @login_required
 def import_droplets_endpoint():
@@ -423,6 +444,11 @@ def index():
     images = get_all_images()
     stats = get_host_statistic_specific(1)
     services = get_all_service()
+    all_good = 1
+    for service in services:
+        if service['status'] == 0:
+            all_good = 0
+    services = get_all_service()
     try:
         servers[0]
     except:
@@ -433,7 +459,7 @@ def index():
     except:
         stats = None
 
-    return render_template("index.html", servers = servers, images=images, log=log, stats=stats, services=services)
+    return render_template("index.html", servers = servers, images=images, log=log, stats=stats, services=services, all_good=all_good)
 
 @app.route('/create', methods=['POST'])
 @login_required
