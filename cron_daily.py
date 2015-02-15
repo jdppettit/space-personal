@@ -12,5 +12,3 @@ data.delete_do_items()
 dofunctions.get_sizes()
 dofunctions.get_regions()
 dofunctions.get_dist_images()
-
-

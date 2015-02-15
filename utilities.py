@@ -9,6 +9,7 @@ import datetime
 import os
 import psutil
 
+
 def get_host_stats():
     con = connect()
     memory_stats = con.getMemoryStats(0, 0)
@@ -28,7 +29,7 @@ def get_host_stats():
 def sync_status():
     conn = connect()
     real_status = conn.listDefinedDomains()
-    
+
     servers = data.get_all_servers()
 
     message_sync = "Syncing real state with database states."
@@ -41,12 +42,12 @@ def sync_status():
             create_log(message, 2)
 
             inconsistent_event(server['_id'])
-            
+
             data.set_server_inconsistent(server['_id'], 1)
         elif server['state'] == 1 and real_id in real_status:
             message = "Checked %s, DB says it should be running, but is is not running." % real_id
             create_log(message, 2)
-            
+
             inconsistent_event(server['_id'])
 
             data.set_server_inconsistent(server['_id'], 1)
