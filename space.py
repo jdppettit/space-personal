@@ -374,7 +374,7 @@ def ips():
     if request.method == "GET":
         ips = get_all_ipaddress()
         ranges = get_all_iprange()
-        return render_template("ips.html", ips=ips, ranges=ranges)
+        return render_template("networking.html", ips=ips, ranges=ranges)
     else:
         address = request.form['address']
         netmask = request.form['netmask']
@@ -663,7 +663,7 @@ def settings():
             return redirect('/setup') 
         stats = get_host_statistic_specific(1)
         services = get_service_all()
-        return render_template("host.html", config=config, stat=stats, services=services)
+        return render_template("settings.html", config=config, stat=stats, services=services)
     elif request.method == "POST":
         set_configuration_all(request.form['system'], request.form['domain'], request.form['disk_directory'], request.form['image_directory'], request.form['config_directory'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'])
         return redirect('/settings')
