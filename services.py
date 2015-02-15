@@ -2,6 +2,7 @@ import data
 import subprocess
 import log
 
+
 def check_services():
     services = data.get_all_service()
     command = "ps aux"
@@ -15,6 +16,7 @@ def check_services():
         elif service['_id'] not in output and service['status'] == 1:
             data.set_service_status(service['_id'], 0)
 
+
 def make_services():
     config = data.get_config()
     data.make_service(config['dhcp_service'], 0)
@@ -23,6 +25,7 @@ def make_services():
     data.make_service("rabbitmq-server", 0)
     data.make_service("mongod", 0)
     check_services()
+
 
 def manipulate_service(service_name, action):
     check = data.get_service_id(service_name)
@@ -41,5 +44,6 @@ def manipulate_service(service_name, action):
     command = "service %s %s" % (str(service_name), str(action_perf))
     p = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
     output = p.stdout.read()
-    message = "Attempted to %s %s, received output: %s" % (str(action_perf), str(service_name), str(output))
+    message = "Attempted to %s %s, received output: %s" % (
+        str(action_perf), str(service_name), str(output))
     log.create_log(message, 1)
