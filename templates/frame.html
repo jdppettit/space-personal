@@ -53,6 +53,51 @@
             </div>
         </div>
         {% endif %}
+        {% if request.args.get('error') %}
+        <div class="col-md-12">
+            <div class="alert alert-dismissable alert-danger">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h4>Error</h4>
+                {% if request.args.get('error') == "1" %}
+                Action did not complete. Please check the <a href="/log?date=day&level=error">logs</a> for more information.
+                {% elif request.args.get('error') == "2" %}
+                Droplet must be powered off to do that, please power your droplet off.
+                {% elif request.args.get('error') == "3" %}
+                This is a local machine, not a Droplet/Linode, please use the appropriate links>
+                {% elif request.args.get('error') == "4" %}
+                Server creation failed. Please add IP addresses.
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% if request.args.get('message') %}
+        <div class="col-md-12">
+            <div class="alert alert-dismissable alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h4>Message</h4>
+                {% if request.args.get('message') == "1" %}
+                API key successfully updated.
+                {% elif request.args.get('message') == "2" %}
+                Settings successfully update.
+                {% elif request.args.get('message') == "3" %}
+                Action successful.
+                {% elif request.args.get('message') == "4" %}
+                Action successfully submitted to provider.
+                {% elif request.args.get('message') == "5" %}
+                Server successfully created.
+                {% elif request.args.get('message') == "6" %}
+                Object successfully added.
+                {% elif request.args.get('message') == "7" %}
+                Object successfully deleted.
+                {% elif request.args.get('message') == "8" %}
+                Server successfully deleted.
+                {% elif request.args.get('message') == "9" %}
+                Action stated.
+                {% endif %}
+            </div>
+        </div>
+
+        {% endif %}
     </div>
 {% block content %}
 {% endblock %}
