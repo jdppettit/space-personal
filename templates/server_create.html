@@ -94,13 +94,21 @@
                 </div>
             </div>
             <div class="form-group">
+                <label for="ssh_key" class="col-lg-2 control-label">SSH Key</label>
+                <div class="col-lg-10">
+                    <select class="form-control" name="ssh_key">
+                        <option value="0">None</option>
+                        {% for key in do_sshkeys %}
+                        <option value="{{ key['id'] }}">{{ key['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="backups" class="col-lg-2 control-label">Enable Backups</label>
                     <input type="checkbox" name="backups"/>
             </div>
-            <!---
-            <div class="form-group">
-
-            </div>
+            <!--
             <div class="form-group">
 
             </div>

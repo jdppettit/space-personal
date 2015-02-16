@@ -53,21 +53,25 @@ def import_droplets():
                                          'slug'], droplet.memory, droplet.vcpus, type="do", id=int(droplet.id), ip=droplet.ip_address, state=state)
 
 
-def make_droplet(name, region, image, size, backups=0):
+def make_droplet(name, region, image, size, backups=0, ssh_key=0):
     token = get_token()
+    key_list = []
     if backups == 0:
         backups = False
     elif backups == 1:
         backups = True
     else:
         backups == False
+    if int(ssh_key) != 0:
+        key_list.append(int(ssh_key))
     try:
         droplet = digitalocean.Droplet(token=token,
                                        name=name,
                                        region=region,
                                        image=image,
                                        size=size,
-                                       backups=backups)
+                                       backups=backups,
+                                       ssh_keys=key_list)
         droplet.create()
         droplet = get_droplet(str(droplet).split(" ")[0])
         return droplet
@@ -148,7 +152,7 @@ def get_regions():
         data.make_do_region(region['slug'], region['name'])
 
 
-def get_kernels(id, server_id):
+def get_do_kernels(id, server_id):
     manager = get_manager()
     url = "https://api.digitalocean.com/v2/droplets/%s/kernels?page=1&per_page=1" % str(id)
     kernels = manager.get_data(url)
@@ -158,7 +162,15 @@ def get_kernels(id, server_id):
 def get_all_kernels():
     droplets = data.get_server_type("do")
     for droplet in droplets:
-        get_kernels(droplet['id'], str(droplet['_id']))
+        get_do_kernels(droplet['id'], str(droplet['_id']))
+
+def get_all_sshkeys():
+    manager = get_manager()
+    keys = manager.get_all_sshkeys()
+    for key in keys:
+        keyid = str(key).split(" ")[0]
+        name = str(key).split(" ")[1]
+        data.make_do_sshkey(keyid, name)
 
 def sync_status():
     manager = get_manager()

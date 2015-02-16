@@ -37,6 +37,17 @@ def make_do_kernel(server_id, name, id):
     kernel_cursor = db.do_kernel
     kernel_cursor.insert({"id":id, "name":name, "server_id":server_id})
 
+def make_do_sshkey(keyid, name):
+    db = get_connect()
+    key_cursor = db.do_sshkey
+    key_cursor.insert({"id":keyid, "name":name})
+
+def get_do_sshkeys():
+    db = get_connect()
+    key_cursor = db.do_sshkey
+    keys = key_cursor.find()
+    return keys
+
 def make_linode_plan(id, ram, disk, cores, xfer, label, price, hourly):
     db = get_connect()
     plan_cursor = db.linode_plan
@@ -699,6 +710,8 @@ def delete_do_items():
     region.remove({})
     kernels = db.do_kernel
     kernels.remove({})
+    ssh_keys = db.do_sshkey
+    ssh_keys.remove({})
 
 
 def get_server_provider_id(prov_id):

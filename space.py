@@ -195,11 +195,12 @@ def new_server():
         do_images = get_do_images()
         do_sizes = get_do_sizes()
         do_regions = get_do_regions()
+        do_sshkeys = get_do_sshkeys()
         linode_plans = get_linode_plan()
         linode_dists = get_linode_distribution()
         linode_facilities = get_linode_facility()
         linode_kernels = get_linode_kernel()
-        return render_template("server_create.html", images=images, do_images=do_images, do_regions=do_regions, do_sizes=do_sizes, linode_plans=linode_plans, linode_dists=linode_dists, linode_facilities=linode_facilities, linode_kernels=linode_kernels)
+        return render_template("server_create.html", images=images, do_sshkeys=do_sshkeys, do_images=do_images, do_regions=do_regions, do_sizes=do_sizes, linode_plans=linode_plans, linode_dists=linode_dists, linode_facilities=linode_facilities, linode_kernels=linode_kernels)
     elif request.method == "POST":
         type = request.form['provider']
         if type == "do":
@@ -207,17 +208,24 @@ def new_server():
             region = request.form['do_region']
             image = request.form['do_image']
             size = request.form['do_plan']
+            ssh_key = request.form['ssh_key']
             if "backups" in request.form:
-                droplet = make_droplet(name, region, image, size, backups=1)
+                if ssh_key == 0:
+                    droplet = make_droplet(name, region, image, size, backups=1)
+                else:
+                    droplet = make_droplet(name, region, image, size, backups=1, ssh_key=ssh_key)
             else:
-                droplet = make_droplet(name, region, image, size)
+                if ssh_key == 0:
+                    droplet = make_droplet(name, region, image, size)   
+                else:
+                    droplet = make_droplet(name, region, image, size, ssh_key=ssh_key)
                 if not droplet.ip_address:
                     new_vm = make_server(name, droplet.disk, droplet.image[
                                          'slug'], droplet.memory, droplet.vcpus, type="do", id=droplet.id, ip=droplet.ip_address, state=2)
                 else:
                     new_vm = make_server(name, droplet.disk, droplet.image[
                                          'slug'], droplet.memory, droplet.vcpus, type="do", id=droplet.id, ip=droplet.ip_address)
-            get_kernels(droplet.id, str(new_vm))
+            get_do_kernels(droplet.id, str(new_vm))
             return redirect('/server/edit/%s/droplet?message=5' % str(new_vm))
         elif type == "linode":
             name = request.form['server_name']
@@ -293,6 +301,7 @@ def update_do_api():
     get_sizes()
     get_regions()
     get_all_kernels()
+    get_all_sshkeys()
     return redirect('/settings?message=1')
 
 
