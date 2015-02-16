@@ -257,6 +257,18 @@ def enable_ipv6(id):
         droplet = manager.get_droplet(id)
         droplet.enable_ipv6()
     except Exception as e:
-        message = "failed to enable IPv6 for droplet %s, DO API responded: %s" % (
+        message = "Failed to enable IPv6 for droplet %s, DO API responded: %s" % (
             str(id), str(e.args))
         create_log(message, 3)
+
+
+def snapshot_droplet(id, name):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.take_snapshot(name)
+    except Exception as e:
+        message = "Failed to take snapshot for droplet %s, DO API responded: %s" % (
+            str(id), str(e.args))
+        create_log(message, 3)
+

@@ -85,6 +85,17 @@ def droplet_resize(vmid):
     return redirect('/server/edit/%s/droplet?message=4' % str(vmid))
 
 
+@app.route('/server/edit/<vmid>/droplet/snapshot', methods=['POST'])
+def droplet_snapshopt(vmid):
+    server = get_server_id(vmid)
+    droplet = get_droplet(server[0]['id'])
+    name = request.form['snapshot_name']
+    if server[0]['state'] == 1:
+        return redirect('/server/edit/%s/droplet?error=2' % str(vmid))
+    snapshot_droplet(server[0]['id'], name)
+    return redirect('/server/edit/%s/droplet?message=4' % str(vmid))
+
+
 @app.route('/server/edit/<vmid>/droplet/private', methods=['GET'])
 @login_required
 def droplet_private_networking(vmid):

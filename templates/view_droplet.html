@@ -140,6 +140,15 @@
             <input class="btn btn-success" type="submit" value="Change Name"/>
         </form>
         <hr/>
+        <h4>Take Snapshot</h4>
+        <form action="/server/edit/{{ server[0]['_id'] }}/droplet/snapshot" method="post">
+            <div class="form-group">
+                <label for="snapshot_name" class="control-label">Snapshot Name</label>
+                <input class="form-control" type="text" name="snapshot_name" placeholder="Name of new snapshot"/>
+            </div>
+            <input class="btn btn-success" type="submit" value="Take Snapshot"/>
+        </form>
+        <hr/>
         <h4>Actions</h4>
         {% if server[0]['state'] == 0 %}
         <a class="btn btn-success" href="/start/{{ server[0]['_id'] }}">Start Droplet</a><br/><br/>
