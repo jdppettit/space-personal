@@ -149,6 +149,19 @@
             <input class="btn btn-success" type="submit" value="Take Snapshot"/>
         </form>
         <hr/>
+        <h4>Change Kernel</h4>
+        <form action="/server/edit/{{ server[0]['_id'] }}/droplet/kernel" method="post">
+            <div class="form-group">
+                <label for="new_kernel" class="control-label">New Kernel</label>
+                <select class="form-control" name="new_kernel">
+                {% for kernel in kernels %}
+                    <option value="{{ kernel['id'] }}">{{ kernel['name'] }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <input class="btn btn-success" type="submit" value="Change Kernel"/>
+        </form>
+        <hr/>
         <h4>Actions</h4>
         {% if server[0]['state'] == 0 %}
         <a class="btn btn-success" href="/start/{{ server[0]['_id'] }}">Start Droplet</a><br/><br/>

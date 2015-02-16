@@ -148,6 +148,18 @@ def get_regions():
         data.make_do_region(region['slug'], region['name'])
 
 
+def get_kernels(id, server_id):
+    manager = get_manager()
+    url = "https://api.digitalocean.com/v2/droplets/%s/kernels?page=1&per_page=1" % str(id)
+    kernels = manager.get_data(url)
+    for kernel in kernels['kernels']:
+        data.make_do_kernel(server_id, kernel['name'], kernel['id'])
+
+def get_all_kernels():
+    droplets = data.get_server_type("do")
+    for droplet in droplets:
+        get_kernels(droplet['id'], str(droplet['_id']))
+
 def sync_status():
     manager = get_manager()
     droplets = data.get_server_type("do")
@@ -272,3 +284,14 @@ def snapshot_droplet(id, name):
             str(id), str(e.args))
         create_log(message, 3)
 
+
+def change_kernel(id, kernel_id):
+    try:
+        kernel = digitalocean.Kernel(id=int(kernel_id))
+        manager = get_manager()
+        droplet = manager.get_droplet(id)
+        droplet.change_kernel(kernel)
+    except Exception as e:
+        message = "Failed to change kernel for droplet %s, DO API responded: %s" % (
+            str(id), str(e.args))
+        create_log(message, 3)

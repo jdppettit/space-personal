@@ -26,6 +26,16 @@ def encrypt_password(password):
     m.update(config_rec['password_salt'])
     return m.hexdigest()
 
+def get_do_kernel_droplet(server_id):
+    db = get_connect()
+    kernel_cursor = db.do_kernel
+    kernels = kernel_cursor.find({"server_id":server_id})
+    return kernels
+
+def make_do_kernel(server_id, name, id):
+    db = get_connect()
+    kernel_cursor = db.do_kernel
+    kernel_cursor.insert({"id":id, "name":name, "server_id":server_id})
 
 def make_linode_plan(id, ram, disk, cores, xfer, label, price, hourly):
     db = get_connect()
@@ -687,6 +697,8 @@ def delete_do_items():
     size.remove({})
     region = db.do_region
     region.remove({})
+    kernels = db.do_kernel
+    kernels.remove({})
 
 
 def get_server_provider_id(prov_id):

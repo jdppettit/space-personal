@@ -146,6 +146,13 @@ def droplet_reset(vmid):
     return redirect('/server/edit/%s/droplet?message=3' % str(vmid))
 
 
+@app.route('/server/edit/<vmid>/droplet/kernel', methods=['POST'])
+def droplet_change_kernel(vmid):
+    server = get_server_id(vmid)
+    change_kernel(server[0]['id'], request.form['new_kernel'])
+    return redirect('/server/edit/%s/droplet?message=4' % str(vmid))
+
+
 @app.route('/server/edit/<vmid>/droplet')
 @login_required
 def edit_server_droplet(vmid):
@@ -153,9 +160,10 @@ def edit_server_droplet(vmid):
     if server[0]['type'] == "do":
         droplet = get_droplet(server[0]['id'])
         do_sizes = get_do_sizes()
+        kernels = get_do_kernel_droplet(str(server[0]['_id']))
     else:
         return redirect('/server/edit/%s/local?error=3' % str(vmid))
-    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes)
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, kernels=kernels)
 
 
 @app.route('/server/edit/<vmid>/linode')
@@ -209,6 +217,7 @@ def new_server():
                 else:
                     new_vm = make_server(name, droplet.disk, droplet.image[
                                          'slug'], droplet.memory, droplet.vcpus, type="do", id=droplet.id, ip=droplet.ip_address)
+            get_kernels(droplet.id, str(new_vm))
             return redirect('/server/edit/%s/droplet?message=5' % str(new_vm))
         elif type == "linode":
             name = request.form['server_name']
@@ -283,6 +292,7 @@ def update_do_api():
     get_dist_images()
     get_sizes()
     get_regions()
+    get_all_kernels()
     return redirect('/settings?message=1')
 
 
