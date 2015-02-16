@@ -76,16 +76,13 @@ def import_linodes_endpoint():
 def droplet_resize(vmid):
     server = get_server_id(vmid)
     droplet = get_droplet(server[0]['id'])
-    do_sizes = get_do_sizes()
     if server[0]['state'] == 1:
         return redirect('/server/edit/%s/droplet?error=2' % str(vmid))
-        #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to resize, please power your droplet off.")
     resize_droplet(server[0]['id'], request.form['size'])
     size = get_do_size(request.form['size'])
     set_server_do_specs(
         server[0]['_id'], size[0]['disk'], size[0]['memory'], size[0]['vcpus'])
     return redirect('/server/edit/%s/droplet?message=4' % str(vmid))
-    #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Your droplet is now resizing, you can track its progress on <a href=\"https://cloud.digitalocean.com\">cloud.digitalocean.com</a>")
 
 
 @app.route('/server/edit/<vmid>/droplet/private', methods=['GET'])
@@ -93,13 +90,10 @@ def droplet_resize(vmid):
 def droplet_private_networking(vmid):
     server = get_server_id(vmid)
     droplet = get_droplet(server[0]['id'])
-    do_sizes = get_do_sizes()
     if server[0]['state'] == 1:
         return redirect('/server/edit/%s/droplet?error=2' % str(vmid))
-        #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to this enable feature, please power your droplet off.")
     enable_private_networking(server[0]['id'])
     return redirect('/server/edit/%s/droplet?message=4' % str(vmid))
-    #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Private networking is now being enabled.")
 
 
 @app.route('/server/edit/<vmid>/droplet/ipv6', methods=['GET'])
@@ -107,13 +101,10 @@ def droplet_private_networking(vmid):
 def droplet_ipv6(vmid):
     server = get_server_id(vmid)
     droplet = get_droplet(server[0]['id'])
-    do_sizes = get_do_sizes()
     if server[0]['state'] == 1:
         return redirect('/server/edit/%s/droplet?error=2' % str(vmid))
-        #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to this enable feature, please power your droplet off.")
     enable_ipv6(server[0]['id'])
     return redirect('/server/edit/%s/droplet?message=4' % str(vmid))
-    #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="IPv6 is now being enabled.")
 
 
 @app.route('/server/edit/<vmid>/droplet/disablebackups', methods=['GET'])
@@ -121,13 +112,10 @@ def droplet_ipv6(vmid):
 def disable_backups_endpoint(vmid):
     server = get_server_id(vmid)
     droplet = get_droplet(server[0]['id'])
-    do_sizes = get_do_sizes()
     if server[0]['state'] == 1:
         return redirect('/server/edit/%s/droplet?error=2' % str(vmid))
-        #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, error="Your droplet must be powered off to this disable feature, please power your droplet off.")
     disable_backups(server[0]['id'])
     return redirect('/server/edit/%s/droplet?message=4' % str(vmid))
-    #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Backups are now being disabled.")
 
 
 @app.route('/server/edit/<vmid>/droplet/rename', methods=['POST'])
@@ -136,10 +124,7 @@ def droplet_rename(vmid):
     server = get_server_id(vmid)
     rename_droplet(server[0]['id'], request.form['name'])
     set_server_name(server[0]['_id'], request.form['name'])
-    droplet = get_droplet(server[0]['id'])
-    do_sizes = get_do_sizes()
     return redirect('/server/edit/%s/droplet?message=3' % str(vmid))
-    #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Your droplet has been renamed.")
 
 
 @app.route('/server/edit/<vmid>/droplet/reset', methods=['GET'])
@@ -147,10 +132,7 @@ def droplet_rename(vmid):
 def droplet_reset(vmid):
     server = get_server_id(vmid)
     reset_root_password(server[0]['id'])
-    droplet = get_droplet(server[0]['id'])
-    do_sizes = get_do_sizes()
     return redirect('/server/edit/%s/droplet?message=3' % str(vmid))
-    #return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, message="Root password is now resetting, please check your DO email for the new password.")
 
 
 @app.route('/server/edit/<vmid>/droplet')
@@ -183,11 +165,7 @@ def edit_server_linode(vmid):
 def linode_resize(vmid):
     server = get_server_id(vmid)
     resize_linode(server[0]['id'], request.form['size'])
-    linode = get_linode(server[0]['id'])
-    linode_plans = get_linode_plan()
-    linode_facilities = get_linode_facility()
     return redirect('/server/edit/%s/linode?message=4' % str(vmid))
-    #return render_template("view_linode.html", server=server, linode=linode, linode_plans=linode_plans, linode_facilities=linode_facilities, message="Linode resize initiated.")
 
 
 @app.route('/server/new', methods=['POST', 'GET'])
