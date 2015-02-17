@@ -39,17 +39,18 @@ This section will be updated as support for more providers is added. If you have
 
 ## Installation
 
-1. `cd /srv && mkdir space && git clone https://github.com/silverp1/space-personal.git .`
-2. Configure `virbr0` as a bridge interface, [this](http://www.linux-kvm.org/page/Networking) may be useful in accomplishing this.
-3. `./srv/space/scripts/setup.sh` - This will install all dependencies, start necessary services and start Space.
-4. Navigate to `your.ip.address.here:10051/setup` to complete the setup process.
-5. Make the directories for your disks, images and configs, by default these are `/var/disks`, `/var/images`, `/var/configs`. Make them with `mkdir /var/disks /var/images /var/configs` if you are using the defaults. 
-6. Add an image to the `/var/images` directory, you can use wget to do that. 
-6. Login via `your.ip.address.here:10051/login`
-7. Go to `Networking` and add an IP range. 
-8. Go to `your.ip.address.here:10051/utils/import_images` to import your new image.
-9. (Optional) If you are looking to use Linode/DigitalOcean, go to `/settings` and input your API key for each/either service.
-10. Make your first virtual machine and enjoy!
+1. Install git client `yum install git` 
+2. `cd /srv && mkdir space && git clone https://github.com/silverp1/space-personal.git .`
+3. Configure `virbr0` as a bridge interface, [this](http://www.linux-kvm.org/page/Networking) may be useful in accomplishing this.
+4. `./srv/space/scripts/setup.sh` - This will install all dependencies, start necessary services and start Space.
+5. Navigate to `your.ip.address.here:10051/setup` to complete the setup process.
+6. Make the directories for your disks, images and configs, by default these are `/var/disks`, `/var/images`, `/var/configs`. Make them with `mkdir /var/disks /var/images /var/configs` if you are using the defaults. 
+7. Add an image to the `/var/images` directory, you can use wget to do that. 
+8. Login via `your.ip.address.here:10051/login`
+9. Go to `Networking` and add an IP range. 
+10. Go to `your.ip.address.here:10051/utils/import_images` to import your new image.
+11. (Optional) If you are looking to use Linode/DigitalOcean, go to `/settings` and input your API key for each/either service.
+12. Make your first virtual machine and enjoy!
 
 ---
 
