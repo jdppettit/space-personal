@@ -96,7 +96,21 @@
                 {% endif %}
             </div>
         </div>
-
+        {% endif %}
+        {% if request.args.get('first_time') %}
+        <div class="col-md-12">
+            <div class="alert alert-dismissable alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h4>Welcome to Space!</h4>
+                <p>It looks like this is your first time logging in! If that is the case, you should probably run through the following steps before making your first server:</p>
+                <ol>
+                    <li>Add an IP range on the <a href="/networking" class="alert-link">networking</a> page</li>
+                    <li>Add some images on the <a href="/images" class="alert-link">images</a> page</li>
+                    <li>(Optional) If you are going to add Linodes/Droplets, add your API keys on the <a href="/settings" class="alert-link">settings</a> page</li>
+                    <li><a href="/server/new" class="alert-link">Make</a> your first server or import some <a href="/utils/import_droplets" class="alert-link">Droplets</a> or <a href="/utils/import_linodes" class="alert-link">Linodes</a></li>
+                </ol>
+            </div>
+        </div>
         {% endif %}
     </div>
 {% block content %}
