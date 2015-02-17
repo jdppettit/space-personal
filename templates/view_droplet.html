@@ -149,6 +149,19 @@
             <input class="btn btn-success" type="submit" value="Take Snapshot"/>
         </form>
         <hr/>
+        <h4>Restore Snapshot</h4>
+        <form action="/server/edit/{{ server[0]['_id'] }}/droplet/restoresnapshot" method="post">
+            <div class="form-group">
+                <label for="restore_snapshot_name" class="control-label">Snapshot</label>
+                <select class="form-control" name="restore_snapshot_name">
+                    {% for snapshot in do_snapshots %}
+                    <option value="{{ snapshot['id'] }}">{{ snapshot['name'] }}</option>
+                    {% endfor %}
+                </select>
+                </div>
+                <input class="btn btn-success" type="submit" value="Restore"/>
+        </form>
+        <hr/>
         <h4>Change Kernel</h4>
         <form action="/server/edit/{{ server[0]['_id'] }}/droplet/kernel" method="post">
             <div class="form-group">

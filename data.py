@@ -48,6 +48,24 @@ def get_do_sshkeys():
     keys = key_cursor.find()
     return keys
 
+def make_do_snapshot(server_id, id, name, min_disk_size):
+    db = get_connect()
+    snapshot_cursor = db.do_snapshot
+    snapshot_cursor.insert({"id":id, "server_id":server_id, "name":name, "min_disk_size":min_disk_size})
+
+def get_all_do_snapshots():
+    db = get_connect()
+    snapshot_cursor = db.do_snapshot
+    snapshots = snapshot_cursor.find()
+    return snapshots
+
+
+def get_do_snapshots(vmid):
+    db = get_connect()
+    snapshot_cursor = db.do_snapshot
+    snapshots = snapshot_cursor.find({"server_id":vmid})
+    return snapshots
+
 def make_linode_plan(id, ram, disk, cores, xfer, label, price, hourly):
     db = get_connect()
     plan_cursor = db.linode_plan
@@ -712,6 +730,8 @@ def delete_do_items():
     kernels.remove({})
     ssh_keys = db.do_sshkey
     ssh_keys.remove({})
+    snapshots = db.do_snapshot
+    snapshots.remove({})
 
 
 def get_server_provider_id(prov_id):

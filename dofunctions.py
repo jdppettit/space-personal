@@ -152,6 +152,21 @@ def get_regions():
         data.make_do_region(region['slug'], region['name'])
 
 
+def get_snapshot(id):
+    manager = get_manager()
+    server = data.get_server_provider_id(id)
+    droplet = manager.get_droplet(id)
+    snapshots = droplet.get_data("https://api.digitalocean.com/v2/droplets/%s/snapshots?page=1&per_page=1" % str(id))
+    for snapshot in snapshots['snapshots']:
+        data.make_do_snapshot(str(server[0]['_id']), snapshot['id'], snapshot['name'], snapshot['min_disk_size'])
+
+
+def get_snapshots():
+    droplets = data.get_server_type("do")
+    for droplet in droplets:
+        get_snapshot(droplet['id'])
+
+
 def get_do_kernels(id, server_id):
     manager = get_manager()
     url = "https://api.digitalocean.com/v2/droplets/%s/kernels?page=1&per_page=1" % str(id)
@@ -305,5 +320,16 @@ def change_kernel(id, kernel_id):
         droplet.change_kernel(kernel)
     except Exception as e:
         message = "Failed to change kernel for droplet %s, DO API responded: %s" % (
+            str(id), str(e.args))
+        create_log(message, 3)
+
+
+def restore_snapshot(id, image_id):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.restore(image_id)
+    except Exception as e:
+        message = "Failed to restore snapshot for droplet %s, DO API responded: %s" % (
             str(id), str(e.args))
         create_log(message, 3)
