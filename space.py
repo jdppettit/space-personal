@@ -520,6 +520,10 @@ def ip_delete(ipid):
 @app.route('/logs')
 @login_required
 def logs():
+    try:
+        page = int(request.args.get('page'))
+    except: 
+        page = 1
     date = ""
     level = ""
     try:
@@ -535,7 +539,22 @@ def logs():
         log = get_log_datelevel(level=int(level))
     else:
         log = get_all_logs()
-    return render_template("logs.html", log=log)
+    return render_template("logs.html", logs=log)
+
+
+@app.route('/ajax/logs')
+@login_required
+def ajax_logs():
+    log = get_all_logs()
+    data = []
+    for l in log:
+        d = {
+            "date":l['date'],
+            "level":l['level'],
+            "message":l['message']
+        }
+        data.append(d)
+    return jsonify(data=data)
 
 
 @app.route('/')
