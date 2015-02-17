@@ -202,6 +202,23 @@ def linode_resize(vmid):
     return redirect('/server/edit/%s/linode?message=4' % str(vmid))
 
 
+@app.route('/server/edit/<vmid>/linode/rename', methods=['POST'])
+@login_required
+def linode_rename(vmid):
+    server = get_server_id(vmid)
+    rename_linode(server[0]['id'], request.form['linode_name'])
+    set_server_name(server[0]['_id'], request.form['linode_name'])
+    return redirect('/server/edit/%s/linode?message=4' % str(vmid))
+
+
+@app.route('/server/edit/<vmid>/linode/ptr', methods=['POST'])
+@login_required
+def linode_ptr(vmid):
+    server = get_server_id(vmid)
+    set_linode_rdns(server[0]['id'], request.form['linode_ptr'])
+    return redirect('/server/edit/%s/linode?message=4' % str(vmid))
+
+
 @app.route('/server/new', methods=['POST', 'GET'])
 @login_required
 def new_server():
@@ -257,6 +274,7 @@ def new_server():
             make_config(linodeID, kernel, name, diskID)
             linode_ip = get_linode_ip(linodeID)
             boot_linode(linodeID)
+            rename_linode(linodeID, name)
             new_vm = make_server(name, plan_record[0]['disk'], dist, plan_record[0][
                                  'ram'], plan_record[0]['cores'], type="linode", id=linodeID, ip=linode_ip['IPADDRESS'])
             return redirect('/server/edit/%s/linode?message=5' % str(new_vm))
