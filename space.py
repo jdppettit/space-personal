@@ -338,7 +338,10 @@ def login():
             if request.form['username'] == admin[0]['username'] and encrypt_password(request.form['password']) == admin[0]['password']:
                 session['logged_in'] = True
                 session['username'] = request.form['username']
-                return redirect('/')
+                if 'first_time' in request.form:
+                    return redirect('/?first_time=1')
+                else:
+                    return redirect('/')
             else:
                 return redirect('/login?error=1')
         except Exception, e:
@@ -743,7 +746,7 @@ def setup():
         get_host_stats()
         make_services()
         add_crontab_entries()
-        return redirect('/login')
+        return redirect('/login?first_time=1')
 
 
 @app.route('/utils/rebuild_dhcp_config')

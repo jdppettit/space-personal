@@ -59,6 +59,9 @@
         <div class="col-md-12">
             <div class="well">
                 <form action="/login" method="post">
+                    {% if request.args.get('first_time') %}
+                    <input type="hidden" name="first_time" value="1">
+                    {% endif %}
                     <div class="form-group">
                         <label for="username-email">Username</label>
                         <input value='' id="username" name="username" placeholder="Username" type="text" class="form-control" />
