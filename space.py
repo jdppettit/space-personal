@@ -359,6 +359,7 @@ def ajax_memory_stats():
     memory_stats = []
     cpu_user = []
     cpu_system = []
+    cpu_guest = []
     iowait_stats = []
     dates = []
     max_memory = []
@@ -366,11 +367,12 @@ def ajax_memory_stats():
         memory_stats.append(stat['memory_used'])
         cpu_user.append(stat['cpu_user'])
         cpu_system.append(stat['cpu_system'])
+        cpu_guest.append(stat['cpu_guest'])
         iowait_stats.append(stat['iowait'])
         dates.append(stat['date'])
         max_memory.append(stat['total_memory'])
     dict = {"memory": list(reversed(memory_stats)), "cpu_user": list(reversed(cpu_user)), "iowait": list(
-        reversed(iowait_stats)), "dates": list(reversed(dates)), "max_memory": list(reversed(max_memory)), "cpu_system":list(reversed(cpu_system))}
+        reversed(iowait_stats)), "dates": list(reversed(dates)), "max_memory": list(reversed(max_memory)), "cpu_system":list(reversed(cpu_system)), "cpu_guest":list(reversed(cpu_guest))}
     return jsonify(dict)
 
 

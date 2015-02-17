@@ -18,10 +18,12 @@ def get_host_stats():
     res = psutil.cpu_times_percent()
     cpu_system = float(res.system)
     cpu_user = float(res.user)
+    cpu_guest = float(res.guest)
     io_wait = float(res.iowait)
     memory_used = total_memory - free_memory
     data.make_host_statistic(round(cpu_system, 5),
                              round(cpu_user, 5),
+                             round(cpu_guest, 5),
                              int(memory_used),
                              int(total_memory),
                              round(io_wait, 5),

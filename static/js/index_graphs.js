@@ -5,10 +5,12 @@
             memory = resp['memory']
             cpu_user = resp['cpu_user']
             cpu_system = resp['cpu_system']
+            cpu_guest = resp['cpu_guest']
             dates = resp['dates']
             iowait = resp['iowait']
             max_memory = resp['max_memory'][0]
-            
+            max_memory_arr = resp['max_memory']
+            console.log(max_memory) 
             d = new Date();
             d2 = new Date();
             d2.setHours(d.getHours() - 1);
@@ -25,7 +27,6 @@
             text: ""
         },
         yAxis: {
-            max: max_memory,
             title: {
                 text: 'Memory Used (MB)'
             },
@@ -43,7 +44,8 @@
             tickInterval:10
         },
         tooltip: {
-            valueSuffix: 'MB'
+            valueSuffix: 'MB',
+            shared: 'true'
         },
         legend: {
             enabled:false
@@ -52,10 +54,16 @@
             enabled:false
         },
         series: [{
-            name: 'Memory (MB)',
+            name: 'Memory Total (MB)',
+            data: max_memory_arr,
+            type: 'area',
+            color: '#FFA161'
+        },
+        {
+            name: 'Memory Used (MB)',
             data: memory,
             type: 'area',
-            color: '#FFA161',
+            color: '#ff802b'
         }]
     }); 
     };
@@ -105,10 +113,16 @@
             color: '#FFA161'
         },
         {
+            name: 'CPU Guest (%)',
+            data: cpu_guest,
+            type: 'area',
+            color: '#ff802b'
+        },
+        {
             name: 'CPU System (%)', 
             data: cpu_system,
             type: 'area',
-            color: '#ff802b'
+            color: '#ff6700'
         }]
     });
     };
