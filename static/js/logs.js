@@ -59,4 +59,7 @@
     function appendError() {
         location.href = URL_add_parameter(location.href, 'level', '3');
     }
+    function appendPage(page) {
+        location.href = URL_add_parameter(location.href, 'page', page);
+    }
 

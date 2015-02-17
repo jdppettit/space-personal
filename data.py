@@ -26,6 +26,45 @@ def encrypt_password(password):
     m.update(config_rec['password_salt'])
     return m.hexdigest()
 
+def get_do_kernel_droplet(server_id):
+    db = get_connect()
+    kernel_cursor = db.do_kernel
+    kernels = kernel_cursor.find({"server_id":server_id})
+    return kernels
+
+def make_do_kernel(server_id, name, id):
+    db = get_connect()
+    kernel_cursor = db.do_kernel
+    kernel_cursor.insert({"id":id, "name":name, "server_id":server_id})
+
+def make_do_sshkey(keyid, name):
+    db = get_connect()
+    key_cursor = db.do_sshkey
+    key_cursor.insert({"id":keyid, "name":name})
+
+def get_do_sshkeys():
+    db = get_connect()
+    key_cursor = db.do_sshkey
+    keys = key_cursor.find()
+    return keys
+
+def make_do_snapshot(server_id, id, name, min_disk_size):
+    db = get_connect()
+    snapshot_cursor = db.do_snapshot
+    snapshot_cursor.insert({"id":id, "server_id":server_id, "name":name, "min_disk_size":min_disk_size})
+
+def get_all_do_snapshots():
+    db = get_connect()
+    snapshot_cursor = db.do_snapshot
+    snapshots = snapshot_cursor.find()
+    return snapshots
+
+
+def get_do_snapshots(vmid):
+    db = get_connect()
+    snapshot_cursor = db.do_snapshot
+    snapshots = snapshot_cursor.find({"server_id":vmid})
+    return snapshots
 
 def make_linode_plan(id, ram, disk, cores, xfer, label, price, hourly):
     db = get_connect()
@@ -170,10 +209,10 @@ def make_iprange(startip, endip, subnet, netmask, gateway):
     return id
 
 
-def make_host_statistic(cpu, memory_used, total_memory, iowait, date):
+def make_host_statistic(cpu_system, cpu_user, cpu_guest, memory_used, total_memory, iowait, date):
     db = get_connect()
     host_statistic_cursor = db.host_statistic
-    statistic = ({"cpu": cpu, "memory_used": memory_used,
+    statistic = ({"cpu_system": cpu_system, "cpu_user":cpu_user, "cpu_guest":cpu_guest, "memory_used": memory_used,
                   "iowait": iowait, "date": date, "total_memory": total_memory})
     host_statistic_cursor.insert(statistic)
 
@@ -673,7 +712,7 @@ def delete_linode_items():
     datacenters.remove({})
     kernels = db.linode_kernel
     kernels.remove({})
-    dists = db.linode_distributions
+    dists = db.linode_distribution
     dists.remove({})
     plans = db.linode_plan
     plans.remove({})
@@ -687,6 +726,12 @@ def delete_do_items():
     size.remove({})
     region = db.do_region
     region.remove({})
+    kernels = db.do_kernel
+    kernels.remove({})
+    ssh_keys = db.do_sshkey
+    ssh_keys.remove({})
+    snapshots = db.do_snapshot
+    snapshots.remove({})
 
 
 def get_server_provider_id(prov_id):

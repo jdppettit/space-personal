@@ -53,21 +53,25 @@ def import_droplets():
                                          'slug'], droplet.memory, droplet.vcpus, type="do", id=int(droplet.id), ip=droplet.ip_address, state=state)
 
 
-def make_droplet(name, region, image, size, backups=0):
+def make_droplet(name, region, image, size, backups=0, ssh_key=0):
     token = get_token()
+    key_list = []
     if backups == 0:
         backups = False
     elif backups == 1:
         backups = True
     else:
         backups == False
+    if int(ssh_key) != 0:
+        key_list.append(int(ssh_key))
     try:
         droplet = digitalocean.Droplet(token=token,
                                        name=name,
                                        region=region,
                                        image=image,
                                        size=size,
-                                       backups=backups)
+                                       backups=backups,
+                                       ssh_keys=key_list)
         droplet.create()
         droplet = get_droplet(str(droplet).split(" ")[0])
         return droplet
@@ -147,6 +151,41 @@ def get_regions():
     for region in regions['regions']:
         data.make_do_region(region['slug'], region['name'])
 
+
+def get_snapshot(id):
+    manager = get_manager()
+    server = data.get_server_provider_id(id)
+    droplet = manager.get_droplet(id)
+    snapshots = droplet.get_data("https://api.digitalocean.com/v2/droplets/%s/snapshots?page=1&per_page=1" % str(id))
+    for snapshot in snapshots['snapshots']:
+        data.make_do_snapshot(str(server[0]['_id']), snapshot['id'], snapshot['name'], snapshot['min_disk_size'])
+
+
+def get_snapshots():
+    droplets = data.get_server_type("do")
+    for droplet in droplets:
+        get_snapshot(droplet['id'])
+
+
+def get_do_kernels(id, server_id):
+    manager = get_manager()
+    url = "https://api.digitalocean.com/v2/droplets/%s/kernels?page=1&per_page=1" % str(id)
+    kernels = manager.get_data(url)
+    for kernel in kernels['kernels']:
+        data.make_do_kernel(server_id, kernel['name'], kernel['id'])
+
+def get_all_kernels():
+    droplets = data.get_server_type("do")
+    for droplet in droplets:
+        get_do_kernels(droplet['id'], str(droplet['_id']))
+
+def get_all_sshkeys():
+    manager = get_manager()
+    keys = manager.get_all_sshkeys()
+    for key in keys:
+        keyid = str(key).split(" ")[0]
+        name = str(key).split(" ")[1]
+        data.make_do_sshkey(keyid, name)
 
 def sync_status():
     manager = get_manager()
@@ -257,6 +296,51 @@ def enable_ipv6(id):
         droplet = manager.get_droplet(id)
         droplet.enable_ipv6()
     except Exception as e:
-        message = "failed to enable IPv6 for droplet %s, DO API responded: %s" % (
+        message = "Failed to enable IPv6 for droplet %s, DO API responded: %s" % (
+            str(id), str(e.args))
+        create_log(message, 3)
+
+
+def snapshot_droplet(id, name):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.take_snapshot(name)
+    except Exception as e:
+        message = "Failed to take snapshot for droplet %s, DO API responded: %s" % (
+            str(id), str(e.args))
+        create_log(message, 3)
+
+
+def change_kernel(id, kernel_id):
+    try:
+        kernel = digitalocean.Kernel(id=int(kernel_id))
+        manager = get_manager()
+        droplet = manager.get_droplet(id)
+        droplet.change_kernel(kernel)
+    except Exception as e:
+        message = "Failed to change kernel for droplet %s, DO API responded: %s" % (
+            str(id), str(e.args))
+        create_log(message, 3)
+
+
+def restore_snapshot(id, image_id):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.restore(image_id)
+    except Exception as e:
+        message = "Failed to restore snapshot for droplet %s, DO API responded: %s" % (
+            str(id), str(e.args))
+        create_log(message, 3)
+
+
+def rebuild_droplet(id, image_id):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.rebuild(image_id=image_id)
+    except Exception as e:
+        message = "Failed to rebuild droplet %s, DO API responded: %s" % (
             str(id), str(e.args))
         create_log(message, 3)

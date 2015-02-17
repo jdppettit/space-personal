@@ -50,21 +50,21 @@
     <tr>
     {% endif %}
         {% if dom['type'] == "do" %}
-        <td><img src="{{ url_for('static', filename='images/do_logo.png') }}"/></td>
+        <td><img src="{{ url_for('static', filename='images/do_logo.png') }}" title="DigitalOcean" alt="DigitalOcean"/></td>
         <td>{% if dom['state'] == 0 %}Off{% elif dom['state'] == 1 %}On{% elif dom['state'] == 3 %}Destroyed{% elif dom['state'] == 2 %}Creating{% endif %}</td>
         <td><a href="/server/edit/{{ dom['_id'] }}/droplet">{{ dom['name'] }}</a></td>
         <td>{{ dom['ram'] }}MB</td>
         <td>{{ dom['disk_size'] }}GB</td>
         <td>{{ dom['ip'] }}</td>
         {% elif dom['type'] == "linode" %}
-        <td><img src="{{ url_for('static', filename='images/linode_logo.png') }}"/></td>
+        <td><img src="{{ url_for('static', filename='images/linode_logo.png') }}" title="Linode" alt="Linode"/></td>
         <td>{% if dom['state'] == 0 %}Off{% elif dom['state'] == 1 %}On{% elif dom['state'] == 3 %}Destroyed{% endif %}</td>
         <td><a href="/server/edit/{{ dom['_id'] }}/linode">{{ dom['name'] }}</a></td>
         <td>{{ dom['ram'] }}MB</td>
         <td>{{ dom['disk_size'] }}GB</td>
         <td>{{ dom['ip'] }}</td>
         {% else %}
-        <td><img src="/static/images/local_logo.png"/></td>
+        <td><img src="{{ url_for('static', filename='images/local_logo.png') }}" title="Local Machine" alt="Local Machine"/></td>
         <td>{% if dom['state'] == 0 %}Off{% elif dom['state'] == 1 %}On{% elif dom['state'] == 3 %}Destroyed{% endif %}
         <td><a href="/server/edit/{{ dom['_id'] }}/local">{{ dom['name'] }}</a></td>
         <td>{{ dom['ram'] }}MB</td>
