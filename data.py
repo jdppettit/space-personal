@@ -209,10 +209,10 @@ def make_iprange(startip, endip, subnet, netmask, gateway):
     return id
 
 
-def make_host_statistic(cpu, memory_used, total_memory, iowait, date):
+def make_host_statistic(cpu_system, cpu_user, memory_used, total_memory, iowait, date):
     db = get_connect()
     host_statistic_cursor = db.host_statistic
-    statistic = ({"cpu": cpu, "memory_used": memory_used,
+    statistic = ({"cpu_system": cpu_system, "cpu_user":cpu_user, "memory_used": memory_used,
                   "iowait": iowait, "date": date, "total_memory": total_memory})
     host_statistic_cursor.insert(statistic)
 

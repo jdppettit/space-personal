@@ -357,18 +357,20 @@ def logout():
 def ajax_memory_stats():
     stats = get_host_statistic_specific(60)
     memory_stats = []
-    cpu_stats = []
+    cpu_user = []
+    cpu_system = []
     iowait_stats = []
     dates = []
     max_memory = []
     for stat in stats:
         memory_stats.append(stat['memory_used'])
-        cpu_stats.append(stat['cpu'])
+        cpu_user.append(stat['cpu_user'])
+        cpu_system.append(stat['cpu_system'])
         iowait_stats.append(stat['iowait'])
         dates.append(stat['date'])
         max_memory.append(stat['total_memory'])
-    dict = {"memory": list(reversed(memory_stats)), "cpu": list(reversed(cpu_stats)), "iowait": list(
-        reversed(iowait_stats)), "dates": list(reversed(dates)), "max_memory": list(reversed(max_memory))}
+    dict = {"memory": list(reversed(memory_stats)), "cpu_user": list(reversed(cpu_user)), "iowait": list(
+        reversed(iowait_stats)), "dates": list(reversed(dates)), "max_memory": list(reversed(max_memory)), "cpu_system":list(reversed(cpu_system))}
     return jsonify(dict)
 
 

@@ -3,7 +3,8 @@
     function getData() {
         $.get("/ajax/get_host_stats", function(resp) {
             memory = resp['memory']
-            cpu = resp['cpu']
+            cpu_user = resp['cpu_user']
+            cpu_system = resp['cpu_system']
             dates = resp['dates']
             iowait = resp['iowait']
             max_memory = resp['max_memory'][0]
@@ -83,7 +84,13 @@
             tickInterval:10
         },
         tooltip: {
-            valueSuffix: '%'
+            valueSuffix: '%',
+            shared: true
+        },
+        plotOptions: {
+            area: {
+                stacking: 'normal'
+            }
         },
         legend: {
             enabled:false
@@ -92,10 +99,16 @@
             enabled:false
         },
         series: [{
-            name: 'CPU (%)',
-            data: cpu,
+            name: 'CPU User (%)',
+            data: cpu_user,
             type: 'area',
             color: '#FFA161'
+        },
+        {
+            name: 'CPU System (%)', 
+            data: cpu_system,
+            type: 'area',
+            color: '#ff802b'
         }]
     });
     };
