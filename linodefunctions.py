@@ -7,7 +7,7 @@ import log
 def get_api():
     config = data.get_config()
     try:
-        api = linode.Api(config['linode_api_key'])
+        api = linode.Api(config['L8aLcAKUuNBmwnMUlvMnxz9enVRQoVSjHB80MOdoS5MS3Sh3KONX8bnKd9McYOzL'])
         return api
     except:
         pass
@@ -98,7 +98,8 @@ def get_distributions():
     try:
         distributions = api.avail.distributions()
         for dist in distributions:
-            data.make_linode_distribution(dist['DISTRIBUTIONID'], dist['LABEL'])
+            if dist['IS64BIT'] == 1:
+                data.make_linode_distribution(dist['DISTRIBUTIONID'], dist['LABEL'])
     except:
         pass
 
@@ -160,7 +161,7 @@ def delete_linode(LinodeID):
     api = get_api()
     try:
         api.linode.delete(LinodeID=LinodeID, skipChecks="True")
-    except: 
+    except:
         pass
 
 
@@ -188,4 +189,3 @@ def set_linode_rdns(LinodeID, Hostname, IPAddressID=0):
     except:
         message = "Attempted to set rDNS for Linode %s, couldn't do so because a forward lookup record doesn't exist for that hostname." % str(LinodeID)
         log.create_log(message, 3)
-
