@@ -7,7 +7,7 @@ import log
 def get_api():
     config = data.get_config()
     try:
-        api = linode.Api(config['L8aLcAKUuNBmwnMUlvMnxz9enVRQoVSjHB80MOdoS5MS3Sh3KONX8bnKd9McYOzL'])
+        api = linode.Api(config['linode_api_key'])
         return api
     except:
         pass
