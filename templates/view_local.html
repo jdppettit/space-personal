@@ -7,7 +7,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="page-header">
-        <h2>Local - {{ server[0]['name'] }}</h2>
+        <h2><img src="{{ url_for('static', filename='images/local_logo.png') }}" title="Local Machine" alt="Local Machine"/>&nbsp;Local - {{ server[0]['name'] }}</h2>
         </div>
     </div>
 </div>
@@ -44,6 +44,10 @@
                             <tr>
                                 <td>RAM:</td>
                                 <td>{{ server[0]['ram'] }}MB</td>
+                            </tr>
+                            <tr>
+                                <td>vCPU:</td>
+                                <td>{{ server[0]['vcpu'] }}</td>
                             </tr>
                             <tr>
                                 <td>Disk:</td>

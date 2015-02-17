@@ -64,7 +64,7 @@
         <td>{{ dom['disk_size'] }}GB</td>
         <td>{{ dom['ip'] }}</td>
         {% else %}
-        <td><img src="/static/images/local_logo.png" title="Local Machine" alt="Local Machine"/></td>
+        <td><img src="{{ url_for('static', filename='images/local_logo.png') }}" title="Local Machine" alt="Local Machine"/></td>
         <td>{% if dom['state'] == 0 %}Off{% elif dom['state'] == 1 %}On{% elif dom['state'] == 3 %}Destroyed{% endif %}
         <td><a href="/server/edit/{{ dom['_id'] }}/local">{{ dom['name'] }}</a></td>
         <td>{{ dom['ram'] }}MB</td>
