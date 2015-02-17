@@ -8,6 +8,12 @@ The projects official website is: [https://spacepanel.io](https://spacepanel.io)
 
 ---
 
+## Current Version - 0.1.2
+
+Read updates for this version [here](https://github.com/silverp1/space-personal/pull/29)
+
+---
+
 ## Requirements
 
 * Processor / virtual processor that supports hardware virtualization
