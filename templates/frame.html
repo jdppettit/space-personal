@@ -59,7 +59,7 @@
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
                 <h4>Error</h4>
                 {% if request.args.get('error') == "1" %}
-                Action did not complete. Please check the <a href="/log?date=day&level=error">logs</a> for more information.
+                Action did not complete. Please check the <a href="/log?date=day&level=error" class="alert-link">logs</a> for more information.
                 {% elif request.args.get('error') == "2" %}
                 Droplet must be powered off to do that, please power your droplet off.
                 {% elif request.args.get('error') == "3" %}

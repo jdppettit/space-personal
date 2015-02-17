@@ -273,10 +273,12 @@ def new_server():
                 linodeID, dist, name, plan_record[0]['disk'] * 1024, rootPass)
             make_config(linodeID, kernel, name, diskID)
             linode_ip = get_linode_ip(linodeID)
-            boot_linode(linodeID)
             rename_linode(linodeID, name)
             new_vm = make_server(name, plan_record[0]['disk'], dist, plan_record[0][
-                                 'ram'], plan_record[0]['cores'], type="linode", id=linodeID, ip=linode_ip['IPADDRESS'])
+                                 'ram'], plan_record[0]['cores'], type="linode", id=linodeID, ip=linode_ip['IPADDRESS']) 
+            resp = boot_linode(linodeID)
+            if resp == 0:
+                return redirect('/server/edit/%s/linode?error=1' % str(new_vm))
             return redirect('/server/edit/%s/linode?message=5' % str(new_vm))
         else:
             name = request.form['server_name']
@@ -817,7 +819,7 @@ def edit(vmid):
             print my_ip[0]
         except:
             my_ip = None
-        return render_template("edit.html", server=server, events=events, my_ip=my_ip, ips=ips, images=images)
+        return render_template("view_local.html", server=server, events=events, my_ip=my_ip, ips=ips, images=images)
     elif request.method == "POST":
         set_server_all(vmid, request.form['name'], request.form['disk_size'], request.form['disk_path'],
                        request.form['ram'], int(request.form['state']), request.form[

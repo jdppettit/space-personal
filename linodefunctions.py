@@ -130,12 +130,14 @@ def make_disk(linodeID, distributionID, label, size, rootPass):
         pass
 
 
-def boot_linode(linodeID):
+def boot_linode(LinodeID):
     api = get_api()
     try:
-        api.linode.boot(LinodeID=linodeID)
-    except:
-        pass
+        api.linode.boot(LinodeID=LinodeID)
+    except linode.api.LinodeException as e:
+        message = "Tried to boot Linode %s but failed, API returned: %s" % (str(LinodeID), str(e))
+        log.create_log(message, 3)
+        return 0
 
 
 def shutdown_linode(linodeID):
