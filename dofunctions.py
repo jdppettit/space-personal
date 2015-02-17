@@ -333,3 +333,14 @@ def restore_snapshot(id, image_id):
         message = "Failed to restore snapshot for droplet %s, DO API responded: %s" % (
             str(id), str(e.args))
         create_log(message, 3)
+
+
+def rebuild_droplet(id, image_id):
+    manager = get_manager()
+    try:
+        droplet = manager.get_droplet(id)
+        droplet.rebuild(image_id=image_id)
+    except Exception as e:
+        message = "Failed to rebuild droplet %s, DO API responded: %s" % (
+            str(id), str(e.args))
+        create_log(message, 3)

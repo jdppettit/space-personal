@@ -160,6 +160,12 @@ def droplet_restore_snapshot(vmid):
     return redirect('/server/edit/%s/droplet?message=4' % str(vmid))
 
 
+@app.route('/server/edit/<vmid>/droplet/rebuild', methods=['POST'])
+def droplet_rebuild(vmid):
+    server = get_server_id(vmid)
+    rebuild_droplet(server[0]['id'], request.form['rebuild_image_id'])
+    return redirect('/server/edit/%s/droplet?message=4' % str(vmid))
+
 @app.route('/server/edit/<vmid>/droplet')
 @login_required
 def edit_server_droplet(vmid):
@@ -169,9 +175,10 @@ def edit_server_droplet(vmid):
         do_sizes = get_do_sizes()
         kernels = get_do_kernel_droplet(str(server[0]['_id']))
         snapshots = get_do_snapshots(str(server[0]['_id']))
+        do_images = get_do_images()
     else:
         return redirect('/server/edit/%s/local?error=3' % str(vmid))
-    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, kernels=kernels, do_snapshots=snapshots)
+    return render_template("view_droplet.html", server=server, droplet=droplet, do_sizes=do_sizes, kernels=kernels, do_snapshots=snapshots, do_images=do_images)
 
 
 @app.route('/server/edit/<vmid>/linode')

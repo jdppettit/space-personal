@@ -162,6 +162,19 @@
                 <input class="btn btn-success" type="submit" value="Restore"/>
         </form>
         <hr/>
+        <h4>Rebuild</h4>
+        <form action="/server/edit/{{ server[0]['_id'] }}/droplet/rebuild" method="post">
+            <div class="form-group">
+                <label for="rebuild_image_id" class="control-label">Image</label>
+                <select class="form-control" name="rebuild_image_id">
+                    {% for image in do_images %}
+                    <option value="{{ image['id'] }}">{{ image['slug'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input class="btn btn-success" type="submit" value="Rebuild"/>
+        </form>
+        <hr/>
         <h4>Change Kernel</h4>
         <form action="/server/edit/{{ server[0]['_id'] }}/droplet/kernel" method="post">
             <div class="form-group">
