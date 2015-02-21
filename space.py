@@ -32,6 +32,13 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorator
 
+@app.errorhandler(404)
+def notfound_error_page(e):
+    return render_template("404.html"), 404
+
+@app.errorhandler(500)
+def internal_error_page(e):
+    return render_template("500.html"), 500
 
 @app.route('/service/<service_name>/start')
 @login_required
