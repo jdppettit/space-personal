@@ -175,5 +175,10 @@ export C_FORCE_ROOT="true"
 sh /srv/space/scripts/celery.sh
 
 echo -n
+echo -e "Starting disk configuration script..." $ENDC 
+
+sh /srv/space/scripts/setup_diskimages.sh
+
+echo -n
 echo -e "----------------------------------------"
 echo -e $OK "All done, enjoy!" $ENDC
