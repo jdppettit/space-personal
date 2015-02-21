@@ -785,6 +785,7 @@ def setup():
         get_host_stats()
         make_services()
         add_crontab_entries()
+        import_images()
         return redirect('/login?first_time=1')
 
 
