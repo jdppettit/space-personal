@@ -12,6 +12,10 @@ The projects official website is: [https://spacepanel.io](https://spacepanel.io)
 
 Read updates for this version [here](https://github.com/silverp1/space-personal/pull/29)
 
+## Please Note:
+
+There were some endpoints that were not checking for login previously (before b2e1366d4b3f2b5b057d8d6bb20118538dea658e). If you have a version from before that commit installed, please update!
+
 ---
 
 ## Requirements
