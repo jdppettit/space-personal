@@ -20,6 +20,7 @@
         <li role="presentation" class="active"><a href="#hostconfiguration" data-toggle="tab">Host Configuration</a></li>
         <li role="presentation"><a href="#credentials" data-toggle="tab">Credentials</a></li>
         <li role="presentation"><a href="#services" aria-controls="services" role="tab" data-toggle="tab">Services</a></li>
+        <li role="presentation"><a href="#api" data-toggle="tab">API</a></li>
         <li role="presentation"><a href="#thirdpartyapi" aria-controls="thirdpartyapi" role="tab" data-toggle="tab">Third Party API</a></li>
     </ul>
 
@@ -153,6 +154,12 @@
                 </div>
             <input class="btn btn-success" type="submit" value="Submit"/>
             </form>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="api">
+            <h3>API</h3>
+            <p>This is where you can manage the SpacePanel API.</p>
+            <h4>API Key: {% if api_key %}{{ api_key }}{% else %}No API Key{%endif %}</h4>
+            <a href="/settings/generate_api_key" class="btn btn-success">Generate API Key</a>
         </div>
     </div><!-- class tab-content !-->
 </div><!-- tabpanel !-->

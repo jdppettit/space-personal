@@ -112,12 +112,25 @@ def set_service_status(name, status):
         {"_id": name}, {"$set": {"status": status}})
 
 
-def make_admin(username, password):
+def make_admin(username, password, api_key=""):
     db = get_connect()
     admin_cursor = db.admin
     new_admin = (
-        {"_id": username, "username": username, "password": encrypt_password(password)})
+        {"_id": username, "username": username, "password": encrypt_password(password), "api_key":api_key})
     admin_cursor.insert(new_admin)
+
+
+def get_admin_api(api_key):
+    db = get_connect()
+    admin_cursor = db.admin
+    admin = admin_cursor.find({"api_key":api_key})
+    return admin
+
+
+def update_admin_api(username):
+    db = get_connect()
+    admin_cursor = db.admin
+    admin_cursor.update({"username":username}, {"$set":{"api_key":api_key}})
 
 
 def make_server(name, disk_size, disk_image, ram, vcpu, type="", id="", ip="", state=1):
