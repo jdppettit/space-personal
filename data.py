@@ -120,14 +120,21 @@ def make_admin(username, password, api_key=""):
     admin_cursor.insert(new_admin)
 
 
-def get_admin_api(api_key):
+def get_admin_api(username):
+    db = get_connect()
+    admin_cursor = db.admin
+    admin = admin_cursor.find({"username":username})
+    return admin
+
+
+def get_api_key(api_key):
     db = get_connect()
     admin_cursor = db.admin
     admin = admin_cursor.find({"api_key":api_key})
     return admin
 
 
-def update_admin_api(username):
+def update_admin_api(username, api_key):
     db = get_connect()
     admin_cursor = db.admin
     admin_cursor.update({"username":username}, {"$set":{"api_key":api_key}})

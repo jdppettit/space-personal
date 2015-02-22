@@ -158,7 +158,7 @@
         <div role="tabpanel" class="tab-pane fade" id="api">
             <h3>API</h3>
             <p>This is where you can manage the SpacePanel API.</p>
-            <h4>API Key: {% if api_key %}{{ api_key }}{% else %}No API Key{%endif %}</h4>
+            <h4>API Key: {% if api_key %}{{ api_key[0]['api_key'] }}{% else %}No API Key{%endif %}</h4>
             <a href="/settings/generate_api_key" class="btn btn-success">Generate API Key</a>
         </div>
     </div><!-- class tab-content !-->

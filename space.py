@@ -16,6 +16,7 @@ import datetime
 import json
 import networking
 import jobs
+import api
 
 app = Flask(__name__)
 
@@ -39,6 +40,15 @@ def notfound_error_page(e):
 @app.errorhandler(500)
 def internal_error_page(e):
     return render_template("500.html"), 500
+
+
+@app.route('/settings/generate_api_key')
+@login_required
+def settings_generate_api_key():
+    username = session['username']
+    key = api.make_api_key()
+    api.set_api_key(username, key)
+    return redirect('/settings?message=3')
 
 @app.route('/service/<service_name>/start')
 @login_required
@@ -155,6 +165,7 @@ def droplet_reset(vmid):
 
 
 @app.route('/server/edit/<vmid>/droplet/kernel', methods=['POST'])
+@login_required
 def droplet_change_kernel(vmid):
     server = get_server_id(vmid)
     change_kernel(server[0]['id'], request.form['new_kernel'])
@@ -162,6 +173,7 @@ def droplet_change_kernel(vmid):
 
 
 @app.route('/server/edit/<vmid>/droplet/restoresnapshot', methods=['POST'])
+@login_required
 def droplet_restore_snapshot(vmid):
     server = get_server_id(vmid)
     restore_snapshot(server[0]['id'], request.form['restore_snapshot_name'])
@@ -169,6 +181,7 @@ def droplet_restore_snapshot(vmid):
 
 
 @app.route('/server/edit/<vmid>/droplet/rebuild', methods=['POST'])
+@login_required
 def droplet_rebuild(vmid):
     server = get_server_id(vmid)
     rebuild_droplet(server[0]['id'], request.form['rebuild_image_id'])
@@ -680,18 +693,21 @@ def shutdown(vmid):
 
 
 @app.route('/server/type/droplet')
+@login_required
 def server_droplet():
     domains = get_server_type("do")
     return render_template("view.html", domains=domains, type="droplet")
 
 
 @app.route('/server/type/linode')
+@login_required
 def server_linode():
     domains = get_server_type("linode")
     return render_template("view.html", domains=domains, type="linode")
 
 
 @app.route('/server/type/local')
+@login_required
 def server_local():
     domains = get_server_type("local")
     return render_template("view.html", domains=domains, type="local")
@@ -769,7 +785,10 @@ def settings():
             return redirect('/setup')
         stats = get_host_statistic_specific(1)
         services = get_service_all()
-        return render_template("settings.html", config=config, stat=stats, services=services)
+        api_key = get_admin_api(session['username'])
+        if api_key.count() == 0:
+            api_key = None
+        return render_template("settings.html", config=config, stat=stats, services=services, api_key=api_key)
     elif request.method == "POST":
         set_configuration_all(request.form['system'], request.form['domain'], request.form['disk_directory'], request.form['image_directory'], request.form[
                               'config_directory'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'])
