@@ -155,6 +155,7 @@ def droplet_reset(vmid):
 
 
 @app.route('/server/edit/<vmid>/droplet/kernel', methods=['POST'])
+@login_required
 def droplet_change_kernel(vmid):
     server = get_server_id(vmid)
     change_kernel(server[0]['id'], request.form['new_kernel'])
@@ -162,6 +163,7 @@ def droplet_change_kernel(vmid):
 
 
 @app.route('/server/edit/<vmid>/droplet/restoresnapshot', methods=['POST'])
+@login_required
 def droplet_restore_snapshot(vmid):
     server = get_server_id(vmid)
     restore_snapshot(server[0]['id'], request.form['restore_snapshot_name'])
@@ -169,6 +171,7 @@ def droplet_restore_snapshot(vmid):
 
 
 @app.route('/server/edit/<vmid>/droplet/rebuild', methods=['POST'])
+@login_required
 def droplet_rebuild(vmid):
     server = get_server_id(vmid)
     rebuild_droplet(server[0]['id'], request.form['rebuild_image_id'])
@@ -680,18 +683,21 @@ def shutdown(vmid):
 
 
 @app.route('/server/type/droplet')
+@login_required
 def server_droplet():
     domains = get_server_type("do")
     return render_template("view.html", domains=domains, type="droplet")
 
 
 @app.route('/server/type/linode')
+@login_required
 def server_linode():
     domains = get_server_type("linode")
     return render_template("view.html", domains=domains, type="linode")
 
 
 @app.route('/server/type/local')
+@login_required
 def server_local():
     domains = get_server_type("local")
     return render_template("view.html", domains=domains, type="local")
