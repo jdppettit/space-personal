@@ -39,7 +39,7 @@ This section will be updated as support for more providers is added. If you have
 
 ## Installation
 
-1. Install git client `yum install git` 
+1. Install git client `yum install git` for CentOS 'apt-get install git' for Debian/Ubuntu. 
 2. `mkdir /srv/space && cd /srv/space && git clone https://github.com/SpacePanel/space-personal.git .`
 3. Configure `virbr0` as a bridge interface, [this](http://www.linux-kvm.org/page/Networking) may be useful in accomplishing this.
 4. `./srv/space-personal/scripts/setup.sh` - This will install all dependencies, start necessary services and start Space.
@@ -77,5 +77,3 @@ This section will be updated as support for more providers is added. If you have
 
 * The password for the console will not be shown when you type (or paste), this is expected, it will still work. 
 * If you are brave and try this and things break, please let me know so I can fix them :) 
-
-
