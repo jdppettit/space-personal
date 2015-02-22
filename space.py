@@ -93,6 +93,7 @@ def droplet_resize(vmid):
 
 
 @app.route('/server/edit/<vmid>/droplet/snapshot', methods=['POST'])
+@login_required
 def droplet_snapshopt(vmid):
     server = get_server_id(vmid)
     droplet = get_droplet(server[0]['id'])
