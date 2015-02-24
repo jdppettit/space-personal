@@ -40,6 +40,11 @@ def sync_status():
     create_log(message_sync, 1)
 
     for server in servers:
+        try:
+            if server['type'] == "do" or server['type'] == "linode":
+                break
+        except:
+            pass
         real_id = "vm%s" % str(server['_id'])
         if server['state'] == 0 and real_id not in real_status:
             message = "Checked %s, DB says it should not be running, but it is running." % real_id
