@@ -778,7 +778,7 @@ def settings():
         return render_template("settings.html", config=config, stat=stats, services=services)
     elif request.method == "POST":
         set_configuration_all(request.form['system'], request.form['domain'], request.form['disk_directory'], request.form['image_directory'], request.form[
-                              'config_directory'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'])
+                              'config_directory'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'], request.form['distribution'])
         return redirect('/settings?message=2')
 
 
@@ -793,7 +793,7 @@ def setup():
         return "You can only complete setup once."
     elif request.method == "POST":
         make_configuration(request.form['image_directory'], request.form['disk_directory'], request.form['config_directory'], request.form['system_type'], request.form[
-                           'domain'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'])
+                           'domain'], request.form['dhcp_configuration'], request.form['dhcp_service'], request.form['novnc_directory'], request.form['pem_location'], request.form['distribution'])
         make_admin(request.form['username'], request.form['password1'])
         make_host("default")
         get_host_stats()

@@ -29,6 +29,16 @@
             <p>This page will let you change all of the configuration options for your host. These options are initially included in config.py, once the setup has been run you can configure the options here.</p>
             <form action="/settings" method="post">
             <div class="form-group">
+                <label class="control-label">Distribution</label>
+                <select class="form-control" name="distribution">
+                    <option value="centos" {% if config['distribution'] == "centos" %}selected{% endif %}>CentOS</option>
+                    <!--
+                    <option value="centos" {% if config['distribution'] == "debian" %}selected{% endif %}>Debian</option>
+                    <option value="centos" {% if config['distribution'] == "ubuntu" %}selected{% endif %}>Ubuntu</option>
+                    !-->
+                </select>
+            </div>
+            <div class="form-group">
                 <label class="control-label">System Type</label>
                 <select class="form-control" name="system">
                     <option value="qemu">QEMU</option>

@@ -14,6 +14,17 @@
 <hr/>
 <form action="/setup" method="post" data-toggle="validator" role="form">
 <h3>1. The system type</h3>
+<p>First, select the distribution on this host.</p>
+    <div class="form-group">
+        <label class="control-label">Distribution</label>
+        <select class="form-control" name="distribution">
+            <option value="centos">CentOS</option>
+            <!--
+            <option value="debian">Debian</option>
+            <option value="ubuntu">Ubuntu</option>
+            !-->
+        </select>
+    </div>
 <p>First, please select the type of hypervisor your machine will be running (KVM or Xen).</p>
     <div class="form-group">
         <label class="control-label">System Type</label>

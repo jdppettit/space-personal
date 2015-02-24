@@ -192,11 +192,12 @@ def make_host(name):
     return id
 
 
-def make_configuration(image_directory, disk_directory, config_directory, system_type, domain, dhcp_configuration, dhcp_service, novnc_directory, pem_location, linode_api_key="", do_api_key=""):
+def make_configuration(image_directory, disk_directory, config_directory, system_type, domain, dhcp_configuration, dhcp_service, novnc_directory, pem_location, distribution, linode_api_key="", do_api_key=""):
     db = get_connect()
     config_cursor = db.configuration
     configuration = ({"_id": "default", "image_directory": image_directory, "disk_directory": disk_directory, "config_directory": config_directory, "system_type": system_type, "domain": domain, "password_salt": str(
-        uuid.uuid1()), "dhcp_configuration": dhcp_configuration, "dhcp_service": dhcp_service, "novnc_directory": novnc_directory, "pem_location": pem_location, "linode_api_key": linode_api_key, "do_api_key": do_api_key})
+        uuid.uuid1()), "dhcp_configuration": dhcp_configuration, "dhcp_service": dhcp_service, "novnc_directory": novnc_directory, "pem_location": pem_location, "linode_api_key": linode_api_key, "do_api_key": do_api_key,
+        "distribution":distribution})
     config_cursor.insert(configuration)
 
 
@@ -516,11 +517,12 @@ def get_log_datelevel(date="", level=0):
             return log
 
 
-def set_configuration_all(system, domain, disk_directory, image_directory, config_directory, dhcp_configuration, dhcp_service, novnc_directory, pem_location):
+def set_configuration_all(system, domain, disk_directory, image_directory, config_directory, dhcp_configuration, dhcp_service, novnc_directory, pem_location, distribution):
     db = get_connect()
     config_cursor = db.configuration
     config_cursor.update({"_id": "default"}, {"$set": {"system_type": system, "domain": domain, "disk_directory": disk_directory, "image_directory": image_directory,
-                                                       "config_directory": config_directory, "dhcp_configuration": dhcp_configuration, "dhcp_service": dhcp_service, "novnc_directory": novnc_directory, "pem_location": pem_location}})
+                                                       "config_directory": config_directory, "dhcp_configuration": dhcp_configuration, "dhcp_service": dhcp_service, "novnc_directory": novnc_directory, "pem_location": pem_location, 
+                                                       "distribution":distribution}})
 
 
 def get_admin(username):
