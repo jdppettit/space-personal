@@ -65,7 +65,11 @@ def make_config(name, disk_path, ram, vcpu, image):
     devicesxml = et.SubElement(domain, "devices")
 
     emulatorxml = et.SubElement(devicesxml, "emulator")
-    emulatorxml.text = "/usr/libexec/qemu-kvm"
+    
+    if config['distribution'] == "centos":
+        emulatorxml.text = "/usr/libexec/qemu-kvm"
+    else:
+        emulatorxml.text = "/usr/bin/kvm"
 
     disk1xml = et.SubElement(devicesxml, "disk")
     disk1xml.set("type", "file")
