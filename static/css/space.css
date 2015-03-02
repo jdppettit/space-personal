@@ -39,7 +39,7 @@
     font-size:18px; 
 }
 
-@media (max-width: 860px) {
+@media (max-width: 907px) {
     .navbar {
         padding-bottom:1.5em;
     }
