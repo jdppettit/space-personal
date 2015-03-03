@@ -18,6 +18,12 @@ There were some endpoints that were not checking for login previously (before b2
 
 ---
 
+## Help Support SpacePanel
+
+We just recently started an Indiegogo campaign - please consider [contributing](https://www.indiegogo.com/projects/spacepanel/x/9964461) if you like where SpacePanel is going!
+
+---
+
 ## Requirements
 
 * Processor / virtual processor that supports hardware virtualization
