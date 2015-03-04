@@ -99,7 +99,7 @@ if [ $OS == "centos" ]
 
     done
 else
-  for package in gcc python-dev mongodb-org rabbitmq-server qemu-kvm qemu-utils virt-manager libvirt libvirt-python python virtinst libvirt-client virt-install virt-viewer dhcp python-devel
+  for package in gcc python-dev mongodb-org rabbitmq-server qemu-kvm qemu-utils virt-manager libvirt libvirt-python python virtinst libvirt-client virt-install virt-viewer isc-dhcp-server python-devel
   do
 
   echo -n
