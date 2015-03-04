@@ -32,10 +32,8 @@
                 <label class="control-label">Distribution</label>
                 <select class="form-control" name="distribution">
                     <option value="centos" {% if config['distribution'] == "centos" %}selected{% endif %}>CentOS</option>
-                    <!--
-                    <option value="centos" {% if config['distribution'] == "debian" %}selected{% endif %}>Debian</option>
-                    <option value="centos" {% if config['distribution'] == "ubuntu" %}selected{% endif %}>Ubuntu</option>
-                    !-->
+                    <option value="debian" {% if config['distribution'] == "debian" %}selected{% endif %}>Debian</option>
+                    <option value="ubuntu" {% if config['distribution'] == "ubuntu" %}selected{% endif %}>Ubuntu</option>
                 </select>
             </div>
             <div class="form-group">

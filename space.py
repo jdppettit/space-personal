@@ -302,7 +302,7 @@ def new_server():
             image_obj = get_image_id(image)
 
             new_vm = make_server(
-                name, disk_size, image_obj[0]['name'], ram, vcpu, type=type)
+                name, disk_size, image_obj[0]['name'], ram, vcpu, type=type, bootdev="cdrom")
             new_vm = str(new_vm)
 
             result = assign_ip(new_vm)
@@ -312,7 +312,7 @@ def new_server():
 
             create_event(new_vm)
             startup_event(new_vm)
-            create_vm(new_vm, ram, disk_size, image_obj[0]['name'], vcpu)
+            create_vm(new_vm, ram, disk_size, image_obj[0]['name'], vcpu, bootdev="cdrom")
 
             mac_address = get_guest_mac(new_vm)
 
@@ -808,6 +808,41 @@ def setup():
 def rebuild_dhcpconfig():
     rebuild_dhcp_config()
     return redirect('/networking?message=3')
+
+
+@app.route('/redefine/<vmid>/bootdev/cdrom', methods=['GET'])
+@login_required
+def setbootdev_cdrom(vmid):
+    vm = get_server_id(vmid)
+    set_server_bootdev(vmid, "cdrom")
+    update_config(vm, bootdev="cdrom")
+    try:
+        shutdown_event(vm[0]['_id'])
+        shutdown_vm(vm[0]['_id'])
+    except:
+        pass
+    redefine_vm(vm[0]['_id'])
+    if vm[0]['state'] == 1:
+        start_vm(vm[0]['_id'])
+        startup_event(vm[0]['_id'])
+    return redirect('/server/edit/%s/local?message=3' % str(vmid)) 
+
+@app.route('/redefine/<vmid>/bootdev/hd', methods=['GET'])
+@login_required
+def setbootdev_hd(vmid):
+    vm = get_server_id(vmid)
+    set_server_bootdev(vmid, "hd")
+    update_config(vm, bootdev="hd")
+    try:
+        shutdown_event(vm[0]['_id'])
+        shutdown_vm(vm[0]['_id'])
+    except:
+        pass
+    redefine_vm(vm[0]['_id'])
+    if vm[0]['state'] == 1:
+        start_vm(vm[0]['_id'])
+        startup_event(vm[0]['_id'])
+    return redirect('/server/edit/%s/local?message=3' % str(vmid))
 
 
 @app.route('/redefine/<vmid>', methods=['GET'])

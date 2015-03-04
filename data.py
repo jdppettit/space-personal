@@ -120,12 +120,12 @@ def make_admin(username, password):
     admin_cursor.insert(new_admin)
 
 
-def make_server(name, disk_size, disk_image, ram, vcpu, type="", id="", ip="", state=1):
+def make_server(name, disk_size, disk_image, ram, vcpu, type="", id="", ip="", state=1, bootdev="hd"):
     config = get_config()
     db = get_connect()
     server_cursor = db.server
     new_server = ({"name": name, "disk_size": disk_size, "disk_path": "", "ram": ram, "state": state,
-                   "disk_image": disk_image, "vcpu": vcpu, "inconsistent": 0, "blocked": 0, "type": type, "id": id, "ip": ip})
+                   "disk_image": disk_image, "vcpu": vcpu, "inconsistent": 0, "blocked": 0, "type": type, "id": id, "ip": ip, "bootdev":bootdev})
     id = server_cursor.insert(new_server)
     disk_path = "%s/vm%s.img" % (str(config['disk_directory']), str(id))
     server_cursor.update(
@@ -252,6 +252,11 @@ def set_server_all(id, name, disk_size, disk_path, ram, state, disk_image, vcpu,
     server_cursor.update({"_id": objectify(id)}, {"$set": {"name": name, "disk_size": disk_size, "disk_path": disk_path, "ram":
                                                            ram, "state": state, "disk_image": disk_image, "vcpu": vcpu, "mac_address": mac_address, "inconsistent": inconsistent}})
 
+
+def set_server_bootdev(id, bootdev):
+    db = get_connect()
+    server_cursor = db.server
+    server_cursor.update({"_id": objectify(id)}, {"$set": {"bootdev": bootdev}})
 
 def get_server_id(id):
     db = get_connect()
