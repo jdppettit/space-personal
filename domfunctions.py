@@ -63,9 +63,9 @@ def start_vm(name):
         create_log(message, 2)
 
 
-def create_vm(name, ram, disk_size, image, vcpu):
+def create_vm(name, ram, disk_size, image, vcpu, bootdev="hd"):
     config = data.get_config()
-    create.make_config(name, "", ram, vcpu, image)
+    create.make_config(name, "", ram, vcpu, image, bootdev=bootdev)
     message = "Created new configuration for vm%s at %s/vm%s.xml" % (
         str(name), str(config['config_directory']), str(name))
 
@@ -97,7 +97,7 @@ def create_vm(name, ram, disk_size, image, vcpu):
     create_log(message4, 1)
 
 
-def update_config(vm):
+def update_config(vm, bootdev="hd"):
     config = data.get_config()
     path = "%s/vm%s.xml" % (str(config['config_directory']), str(vm[0]['_id']))
     try:
@@ -112,7 +112,7 @@ def update_config(vm):
     create_log(message1, 1)
 
     create.make_config(
-        vm[0]['_id'], "", str(vm[0]['ram']), str(vm[0]['vcpu']), vm[0]['disk_image'])
+        vm[0]['_id'], "", str(vm[0]['ram']), str(vm[0]['vcpu']), vm[0]['disk_image'], bootdev=bootdev)
 
     message = "Created new configuration for vm%s at %s/vm%s.xml" % (
         str(vm[0]['_id']), str(config['config_directory']), str(vm[0]['_id']))
@@ -126,6 +126,8 @@ def redefine_vm(vm):
     try:
         dom.destroy()
     except:
+        pass
+    finally:
         dom.undefine()
 
     xmlpath = "%s/vm%s.xml" % (str(config['config_directory']), str(vm))

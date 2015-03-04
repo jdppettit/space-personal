@@ -4,7 +4,7 @@ import subprocess
 import data
 
 
-def make_config(name, disk_path, ram, vcpu, image):
+def make_config(name, disk_path, ram, vcpu, image, bootdev="hd"):
     config = data.get_config()
 
     domain = et.Element("domain")
@@ -40,7 +40,7 @@ def make_config(name, disk_path, ram, vcpu, image):
     typexml.text = "hvm"
 
     bootdev1xml = et.SubElement(osxml, "boot")
-    bootdev1xml.set("dev", "hd")
+    bootdev1xml.set("dev", bootdev)
 
     bootmenuxml = et.SubElement(osxml, "bootmenu")
     bootmenuxml.set("enabled", "true")

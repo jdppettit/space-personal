@@ -62,6 +62,10 @@
                                 <td>{{ server[0]['disk_image'] }}</td>
                             </tr>
                             <tr>
+                                <td>Boot Device:</td>
+                                <td>{{ server[0]['bootdev'] }}</td>
+                            </tr>
+                            <tr>
                                 <td>MAC:</td>
                                 <td>{{ server[0]['mac_address'] }}</td>
                             </tr>
@@ -96,6 +100,8 @@
                     {% endif %}
                     <a href="/destroy/{{ server[0]['_id'] }}" class="btn btn-danger">Destroy Server</a><br/><br/>
                     <a href="/redefine/{{ server[0]['_id'] }}" class="btn btn-warning">Redefine Server</a><br/><br/>
+                    <a href="/redefine/{{ server[0]['_id'] }}/bootdev/cdrom" class="btn btn-info">Boot from CDROM</a><br/><br/>
+                    <a href="/redefine/{{ server[0]['_id'] }}/bootdev/hd" class="btn btn-info">Boot from HDD</a><br/><br/>
                 </div><!-- tabpanel !-->
                 <div role="tabpanel" class="tab-pane fade" id="configuration">
                     <h3>Configuration</h3>
