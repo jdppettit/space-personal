@@ -53,11 +53,11 @@ if [ $OS == "centos" ]
 elif [ $OS == "debian" ]
   then
     apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
-    echo 'deb http://downloads-distro.mongodb.org/repo/debian-sysvinit dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
+    echo 'deb http://downloads-distro.mongodb.org/repo/debian-sysvinit dist 10gen' | tee /etc/apt/sources.list.d/mongodb.list
     apt-get update
 else
   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-  echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
+  echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | tee /etc/apt/sources.list.d/mongodb.list
   apt-get update
 fi
 
@@ -74,9 +74,9 @@ if [ $OS == "centos" ]
     rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v3.1.4/rabbitmq-server-3.1.4-1.noarch.rpm
     yum update -y
 else
-  echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+  echo 'deb http://www.rabbitmq.com/debian/ testing main' | tee /etc/apt/sources.list.d/rabbitmq.list
   wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
-  sudo apt-key add rabbitmq-signing-key-public.asc
+  apt-key add rabbitmq-signing-key-public.asc
   apt-get update
   apt-get install -y erlang
 fi
