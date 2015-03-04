@@ -11,10 +11,16 @@ def check_services():
     ps.stdout.close()
     ps.wait()
     for service in services:
-        if service['_id'] in output and service['status'] == 0:
-            data.set_service_status(service['_id'], 1)
-        elif service['_id'] not in output and service['status'] == 1:
-            data.set_service_status(service['_id'], 0)
+        if service['_id'] == "isc-dhcp-server":
+            if "dhcpd" in output and service['status'] == 0:
+                data.set_service_status(service['_id'], 1)
+            elif "dhcpd" not in output and server['status'] == 1:
+                data.set_service_status(service['_id'], 0)
+        else:
+            if service['_id'] in output and service['status'] == 0:
+                data.set_service_status(service['_id'], 1)
+            elif service['_id'] not in output and service['status'] == 1:
+                data.set_service_status(service['_id'], 0)
 
 
 def make_services():
