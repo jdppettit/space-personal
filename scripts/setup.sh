@@ -177,8 +177,7 @@ sh /srv/space/scripts/celery.sh
 echo -n
 echo -e "Starting disk configuration script..." $ENDC 
 
-sh /srv/space/scripts/setup_diskimages.sh
-
 echo -n
 echo -e "----------------------------------------"
 echo -e $OK "All done, enjoy!" $ENDC
+echo -e "Consider running ./scripts/setup_diskimages.sh to make default directories and download disk images."
