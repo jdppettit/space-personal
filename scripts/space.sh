@@ -19,7 +19,7 @@ else
 fi
 
 # Source function library
-if [ $OS == "debian" ] || [ $OS == "ubuntu"] ; then
+if [ "$OS" == "debian" ] || [ "$OS" == "ubuntu" ] ; then
     . /lib/lsb/init-functions
 else
     . /etc/init.d/functions
