@@ -14,7 +14,7 @@ def check_services():
         if service['_id'] == "isc-dhcp-server":
             if "dhcpd" in output and service['status'] == 0:
                 data.set_service_status(service['_id'], 1)
-            elif "dhcpd" not in output and server['status'] == 1:
+            elif "dhcpd" not in output and service['status'] == 1:
                 data.set_service_status(service['_id'], 0)
         else:
             if service['_id'] in output and service['status'] == 0:
