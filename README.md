@@ -8,9 +8,15 @@ The projects official website is: [https://spacepanel.io](https://spacepanel.io)
 
 ---
 
-## Current Version - 0.1.2
+## Current Version - 0.1.3
 
-Read updates for this version [here](https://github.com/silverp1/space-personal/pull/29)
+This update added the following:
+
+* Debian/Ubuntu support - This is still sort of preliminary, but everything _appears_ to be working, please let us know if you find that it is not.
+* Added the ability to set a local virtual machine to boot from the CD (ISO) or the HDD.
+* Fixed numerous UI bux
+* Fixed behavior issues with Linodes/Droplets
+* Improved error pages
 
 ## Please Note:
 
