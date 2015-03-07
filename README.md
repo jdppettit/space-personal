@@ -58,7 +58,7 @@ This section will be updated as support for more providers is added. If you have
 1. Install git client `yum install git` for CentOS 'apt-get install git' for Debian/Ubuntu. 
 2. `mkdir /srv/space && cd /srv/space && git clone https://github.com/SpacePanel/space-personal.git .`
 3. Configure `virbr0` as a bridge interface, [this](http://www.linux-kvm.org/page/Networking) may be useful in accomplishing this.
-4. `./srv/space-personal/scripts/setup.sh` - This will install all dependencies, start necessary services and start Space.
+4. `./scripts/setup.sh` - This will install all dependencies, start necessary services and start Space.
 5. Navigate to `your.ip.address.here:10051/setup` to complete the setup process.
 6. Make the directories for your disks, images and configs, by default these are `/var/disks`, `/var/images`, `/var/configs`. Make them with `mkdir /var/disks /var/images /var/configs` if you are using the defaults. 
 7. Add an image to the `/var/images` directory, you can use wget to do that. 
