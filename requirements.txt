@@ -14,3 +14,4 @@ gunicorn==19.2.1
 python-digitalocean==1.4.1
 linode==0.4
 psutil==2.2.1
+requests>=2.5.1
