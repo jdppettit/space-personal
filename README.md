@@ -33,7 +33,7 @@ We just recently started an Indiegogo campaign - please consider [contributing](
 ## Requirements
 
 * Processor / virtual processor that supports hardware virtualization
-* Centos 6 (more support coming)
+* Centos 6 / Debian 7 / Ubuntu 14.04
 * Python2
 * MongoDB
 * KVM (currently only support virtualization technology)
