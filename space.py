@@ -421,7 +421,7 @@ def syncstatus():
 @login_required
 def importimages():
     import_images()
-    return redirect('/?message=3')
+    return redirect('/images?message=3')
 
 
 @app.route('/utils/sync_host_stats')
@@ -516,7 +516,7 @@ def ip_assign(vmid):
     ip_id = request.form['ip']
     set_ipaddress_serverid(ip_id, vmid)
     rebuild_dhcp_config()
-    return redirect('/edit/%s?message=2' % str(vmid))
+    return redirect('/server/edit/%s/local?message=2' % str(vmid))
 
 
 @app.route('/ip/delete/<ipid>', methods=['GET'])

@@ -33,7 +33,7 @@
             <tr>
                 <td><a href="/ip/edit/{{ ip['_id'] }}">{{ ip['ip'] }}</a></td>
                 <td>{{ ip['netmask'] }}</td>
-                <td><a href="/edit/{{ ip['server_id'] }}">{{ ip['server_id'] }}</a></td>
+                <td><a href="/server/edit/{{ ip['server_id'] }}/local">{{ ip['server_id'] }}</a></td>
                 <td>{% if ip['server_id'] != 0 %}<a href="/ip/unassign/{{ ip['_id'] }}" class="btn btn-danger btn-xs">Unassign</a>&nbsp;{% endif %}<a href="/ip/delete/{{ ip['_id'] }}" class="btn btn-danger btn-xs" onClick="return confirm('Are you sure you want to delete this IP? This action cannot be undone.');">Delete</a></td>
             </tr>
             {% endfor %}
