@@ -44,7 +44,7 @@ read -p "Would you like to download Ubuntu 14.04? [y/N]" response4
 echo -e " "
 
 if [[ $response4 =~ ^(yes|y| ) ]]; then
-    wget https://spacepanel.io/dist/disk-images/debian-7.8.0-amd64.iso -P /var/images
+    wget https://spacepanel.io/dist/disk-images/ubuntu-14.04-server-amd64.iso -P /var/images
 fi
 
 
