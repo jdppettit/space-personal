@@ -3,18 +3,18 @@
 if [ -f /etc/debian_version ]
   then
     ver=`cat /etc/*release | grep ^ID= | cut -d "=" -f 2`
-    if [ $ver == "ubuntu" ]
+    if [ "$ver" == "ubuntu" ]
       then OS="ubuntu"
-    elif [ $ver == 'debian' ]
+    elif [ "$ver" == 'debian' ]
       then OS="debian"
     else
-      echo -e $FAIL "Your System is Not Supported" $ENDC
+      echo -e "$FAIL Your System is Not Supported $ENDC"
       exit 1
     fi
 elif [ -f /etc/redhat-release ]
   then OS="centos"
 else
-  echo -e $FAIL "Your System is Not Supported" $ENDC
+  echo -e "$FAIL Your System is Not Supported $ENDC"
   exit 1
 fi
 
