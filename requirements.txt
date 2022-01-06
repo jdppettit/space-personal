@@ -8,7 +8,7 @@ netaddr==0.7.13
 pymongo==2.7.2
 urlgrabber==3.9.1
 urllib3==1.5
-celery==3.1.17
+celery==5.2.2
 python-crontab==1.9.2
 gunicorn==19.2.1
 python-digitalocean==1.4.1
